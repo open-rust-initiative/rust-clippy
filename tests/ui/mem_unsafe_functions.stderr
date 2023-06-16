@@ -1,0 +1,10 @@
+error: it's working!
+  --> $DIR/mem_unsafe_functions.rs:27:1
+   |
+LL | fn main() {}
+   | ^^^^^^^^^^^^
+   |
+   = note: `-D clippy::mem-unsafe-functions` implied by `-D warnings`
+
+error: aborting due to previous error
+

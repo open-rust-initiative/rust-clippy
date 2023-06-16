@@ -137,6 +137,7 @@ mod from_raw_with_void_ptr;
 mod from_str_radix_10;
 mod functions;
 mod future_not_send;
+mod guidelines;
 mod if_let_mutex;
 mod if_not_else;
 mod if_then_some_else_none;
@@ -910,6 +911,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     store.register_late_pass(|_| Box::new(permissions_set_readonly_false::PermissionsSetReadonlyFalse));
     store.register_late_pass(|_| Box::new(size_of_ref::SizeOfRef));
     store.register_late_pass(|_| Box::new(extern_without_repr::ExternWithoutRepr));
+    store.register_late_pass(|_| Box::new(guidelines::GuidelineLints));
     // add lints here, do not remove this comment, it's used in `new_lint`
 }
 
