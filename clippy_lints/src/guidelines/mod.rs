@@ -1,4 +1,7 @@
+mod falliable_memory_allocation;
 mod mem_unsafe_functions;
+mod passing_string_to_c_functions;
+mod untrusted_lib_loading;
 
 use rustc_hir as hir;
 use rustc_hir::intravisit;
@@ -30,8 +33,68 @@ declare_clippy_lint! {
     "use of potentially dangerous external functions"
 }
 
+declare_clippy_lint! {
+    /// ### What it does
+    ///
+    /// ### Why is this bad?
+    ///
+    /// ### Example
+    /// ```rust
+    /// // example code where clippy issues a warning
+    /// ```
+    /// Use instead:
+    /// ```rust
+    /// // example code which does not raise clippy warning
+    /// ```
+    #[clippy::version = "1.70.0"]
+    pub UNTRUSTED_LIB_LOADING,
+    nursery,
+    "default lint description"
+}
+
+declare_clippy_lint! {
+    /// ### What it does
+    ///
+    /// ### Why is this bad?
+    ///
+    /// ### Example
+    /// ```rust
+    /// // example code where clippy issues a warning
+    /// ```
+    /// Use instead:
+    /// ```rust
+    /// // example code which does not raise clippy warning
+    /// ```
+    #[clippy::version = "1.70.0"]
+    pub PASSING_STRING_TO_C_FUNCTIONS,
+    nursery,
+    "default lint description"
+}
+
+declare_clippy_lint! {
+    /// ### What it does
+    ///
+    /// ### Why is this bad?
+    ///
+    /// ### Example
+    /// ```rust
+    /// // example code where clippy issues a warning
+    /// ```
+    /// Use instead:
+    /// ```rust
+    /// // example code which does not raise clippy warning
+    /// ```
+    #[clippy::version = "1.70.0"]
+    pub FALLIABLE_MEMORY_ALLOCATION,
+    nursery,
+    "default lint description"
+}
+
 declare_lint_pass!(GuidelineLints => [
     MEM_UNSAFE_FUNCTIONS,
+    UNTRUSTED_LIB_LOADING,
+    PASSING_STRING_TO_C_FUNCTIONS,
+    FALLIABLE_MEMORY_ALLOCATION,
 ]);
 
 impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
