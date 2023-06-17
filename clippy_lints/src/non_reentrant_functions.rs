@@ -5,16 +5,20 @@ use rustc_session::{declare_lint_pass, declare_tool_lint};
 
 declare_clippy_lint! {
     /// ### What it does
+    /// Checks for non-reentrant functions.
     ///
     /// ### Why is this bad?
+    /// This makes code safer, especially in the context of concurrency.
     ///
     /// ### Example
     /// ```rust
-    /// // example code where clippy issues a warning
+    /// let _tm = libc::localtime(&0i64 as *const libc::time_t);
     /// ```
     /// Use instead:
     /// ```rust
-    /// // example code which does not raise clippy warning
+    /// let res = libc::malloc(std::mem::size_of::<libc::tm>());
+    ///
+    /// libc::locatime_r(&0i64 as *const libc::time_t, res);
     /// ```
     #[clippy::version = "1.70.0"]
     pub NON_REENTRANT_FUNCTIONS,
