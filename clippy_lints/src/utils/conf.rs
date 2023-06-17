@@ -37,6 +37,21 @@ const DEFAULT_DOC_VALID_IDENTS: &[&str] = &[
 const DEFAULT_DISALLOWED_NAMES: &[&str] = &["foo", "baz", "quux"];
 const DEFAULT_ALLOWED_IDENTS_BELOW_MIN_CHARS: &[&str] = &["i", "j", "x", "y", "z", "w", "n"];
 
+#[rustfmt::skip]
+const DEFAULT_MEM_UNSAFE_FUNCTIONS: &[&str] = &[
+    "memcpy", "bcopy", "wmemcpy", "memmove", "wmemmove",
+    "strcpy", "wcscpy", "strncpy", "wcsncpy",
+    "strcat", "wcscat", "strncat", "wcsncat",
+    "sprintf", "swprintf", "vsprintf", "vswprintf", "snprintf", "wsnprintf",
+    // formatted input functions
+    "scanf", "wscanf", "vscanf", "vwscanf", "fscanf", "fwscanf", "vfscanf", "vfwscanf",
+    "sscanf", "swscanf", "vsscanf", "vswscanf",
+    // standard input
+    "gets",
+    // memory initialization
+    "memset",
+];
+
 /// Holds information used by `MISSING_ENFORCED_IMPORT_RENAMES` lint.
 #[derive(Clone, Debug, Deserialize)]
 pub struct Rename {
@@ -586,6 +601,11 @@ define_Conf! {
     /// for _ in &mut *rmvec {}
     /// ```
     (enforce_iter_loop_reborrow: bool = false),
+    /// Lint: MEM_UNSAFE_FUNCTIONS.
+    ///
+    /// The list of function names to lint about.
+    /// Providing empty list has the same effect as disabling this lint.
+    (mem_unsafe_functions: Vec<String> = super::DEFAULT_MEM_UNSAFE_FUNCTIONS.iter().map(ToString::to_string).collect()),
 }
 
 /// Search for the configuration file.

@@ -3,16 +3,18 @@ mod mem_unsafe_functions;
 mod passing_string_to_c_functions;
 mod untrusted_lib_loading;
 
+use clippy_utils::def_path_def_ids;
 use rustc_hir as hir;
+use rustc_hir::def_id::{DefId, DefIdSet};
 use rustc_hir::intravisit;
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_session::{declare_lint_pass, declare_tool_lint};
+use rustc_session::{declare_tool_lint, impl_lint_pass};
 use rustc_span::def_id::LocalDefId;
 use rustc_span::Span;
 
 declare_clippy_lint! {
     /// ### What it does
-    /// Check for direct usage of external functions that modify memory
+    /// Checks for direct usage of external functions that modify memory
     /// without concerning about memory safety, such as `memcpy`, `strcpy`, `strcat` etc.
     ///
     /// ### Why is this bad?
@@ -49,7 +51,7 @@ declare_clippy_lint! {
     #[clippy::version = "1.70.0"]
     pub UNTRUSTED_LIB_LOADING,
     nursery,
-    "default lint description"
+    "attempt to load dynamic library from untrusted source"
 }
 
 declare_clippy_lint! {
@@ -68,7 +70,7 @@ declare_clippy_lint! {
     #[clippy::version = "1.70.0"]
     pub PASSING_STRING_TO_C_FUNCTIONS,
     nursery,
-    "default lint description"
+    "passing string or str to extern C function"
 }
 
 declare_clippy_lint! {
@@ -87,10 +89,25 @@ declare_clippy_lint! {
     #[clippy::version = "1.70.0"]
     pub FALLIABLE_MEMORY_ALLOCATION,
     nursery,
-    "default lint description"
+    "memory allocation without checking arguments and result"
 }
 
-declare_lint_pass!(GuidelineLints => [
+#[derive(Clone, Default)]
+pub struct GuidelineLints {
+    mem_uns_fns: Vec<String>,
+    mem_uns_fns_ty_ids: DefIdSet,
+}
+
+impl GuidelineLints {
+    pub fn new(mem_uns_fns: Vec<String>) -> Self {
+        Self {
+            mem_uns_fns,
+            mem_uns_fns_ty_ids: DefIdSet::new(),
+        }
+    }
+}
+
+impl_lint_pass!(GuidelineLints => [
     MEM_UNSAFE_FUNCTIONS,
     UNTRUSTED_LIB_LOADING,
     PASSING_STRING_TO_C_FUNCTIONS,
@@ -100,15 +117,43 @@ declare_lint_pass!(GuidelineLints => [
 impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
     fn check_fn(
         &mut self,
-        cx: &LateContext<'tcx>,
+        _cx: &LateContext<'tcx>,
         _kind: intravisit::FnKind<'tcx>,
         _decl: &'tcx hir::FnDecl<'_>,
         _body: &'tcx hir::Body<'_>,
-        span: Span,
+        _span: Span,
         _def_id: LocalDefId,
     ) {
-        mem_unsafe_functions::check(cx, span);
     }
 
-    fn check_item(&mut self, _cx: &LateContext<'tcx>, _item: &'tcx hir::Item<'_>) {}
+    fn check_crate(&mut self, cx: &LateContext<'tcx>) {
+        // Resolve function names to def_ids from configuration
+        for uns_fns in &self.mem_uns_fns {
+            // Path like function names such as `libc::foo` or `aa::bb::cc::bar`,
+            // this only works with dependencies.
+            if uns_fns.contains("::") {
+                let path: Vec<&str> = uns_fns.split("::").collect();
+                for did in def_path_def_ids(cx, path.as_slice()) {
+                    self.mem_uns_fns_ty_ids.insert(did);
+                }
+            }
+            // Plain function names, then we should take its libc variant into account
+            else if let Some(did) = libc_fn_def_id(cx, uns_fns) {
+                self.mem_uns_fns_ty_ids.insert(did);
+            }
+        }
+    }
+
+    fn check_item(&mut self, _cx: &LateContext<'tcx>, item: &'tcx hir::Item<'_>) {
+        mem_unsafe_functions::check_foreign_item(item, &self.mem_uns_fns, &mut self.mem_uns_fns_ty_ids);
+    }
+
+    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx hir::Expr<'_>) {
+        mem_unsafe_functions::check(cx, expr, &self.mem_uns_fns_ty_ids);
+    }
+}
+
+fn libc_fn_def_id(cx: &LateContext<'_>, fn_name: &str) -> Option<DefId> {
+    let path = &["libc", fn_name];
+    def_path_def_ids(cx, path).next()
 }
