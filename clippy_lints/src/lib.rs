@@ -911,7 +911,8 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     store.register_late_pass(|_| Box::new(permissions_set_readonly_false::PermissionsSetReadonlyFalse));
     store.register_late_pass(|_| Box::new(size_of_ref::SizeOfRef));
     store.register_late_pass(|_| Box::new(extern_without_repr::ExternWithoutRepr));
-    store.register_late_pass(|_| Box::new(guidelines::GuidelineLints));
+    let mem_unsafe_functions = conf.mem_unsafe_functions.clone();
+    store.register_late_pass(move |_| Box::new(guidelines::GuidelineLints::new(mem_unsafe_functions.clone())));
     // add lints here, do not remove this comment, it's used in `new_lint`
 }
 
