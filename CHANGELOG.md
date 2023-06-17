@@ -5214,6 +5214,7 @@ Released 2018-09-13
 [`non_canonical_partial_ord_impl`]: https://rust-lang.github.io/rust-clippy/master/index.html#non_canonical_partial_ord_impl
 [`non_minimal_cfg`]: https://rust-lang.github.io/rust-clippy/master/index.html#non_minimal_cfg
 [`non_octal_unix_permissions`]: https://rust-lang.github.io/rust-clippy/master/index.html#non_octal_unix_permissions
+[`non_reentrant_functions`]: https://rust-lang.github.io/rust-clippy/master/index.html#non_reentrant_functions
 [`non_send_fields_in_send_ty`]: https://rust-lang.github.io/rust-clippy/master/index.html#non_send_fields_in_send_ty
 [`nonminimal_bool`]: https://rust-lang.github.io/rust-clippy/master/index.html#nonminimal_bool
 [`nonsensical_open_options`]: https://rust-lang.github.io/rust-clippy/master/index.html#nonsensical_open_options
