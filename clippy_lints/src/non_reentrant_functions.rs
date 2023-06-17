@@ -35,13 +35,10 @@ impl EarlyLintPass for NonReentrantFunctions {
 
         let msg: &str = "consider using the reentrant version of the function";
 
-        match expr.kind {
-            ExprKind::Call(ref func, _) => {
-                if is_reentrant_fn(func) {
-                    span_lint(cx, NON_REENTRANT_FUNCTIONS, expr.span, msg);
-                }
-            },
-            _ => {},
+        if let ExprKind::Call(func, _) = &expr.kind {
+            if is_reentrant_fn(func) {
+                span_lint(cx, NON_REENTRANT_FUNCTIONS, expr.span, msg);
+            }
         }
     }
 }
@@ -58,6 +55,6 @@ fn is_reentrant_fn(func: &Expr) -> bool {
 }
 
 fn check_reentrant_by_fn_name(func: &str) -> bool {
-    let name = func.split("#").next().unwrap();
+    let name = func.split('#').next().unwrap();
     name == "strtok" || name == "localtime"
 }
