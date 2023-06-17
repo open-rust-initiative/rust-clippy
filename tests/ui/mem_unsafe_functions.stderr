@@ -1,10 +1,83 @@
-error: it's working!
-  --> $DIR/mem_unsafe_functions.rs:27:1
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:35:13
    |
-LL | fn main() {}
-   | ^^^^^^^^^^^^
+LL |     let _ = memcpy(dst, src, n);
+   |             ^^^^^^
    |
+   = help: consider using its safe version
    = note: `-D clippy::mem-unsafe-functions` implied by `-D warnings`
 
-error: aborting due to previous error
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:36:13
+   |
+LL |     let _ = memmove(dst, src, n);
+   |             ^^^^^^^
+   |
+   = help: consider using its safe version
+
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:37:13
+   |
+LL |     let _ = memset(dst, 1, n);
+   |             ^^^^^^
+   |
+   = help: consider using its safe version
+
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:38:13
+   |
+LL |     let _ = libc::memcpy(dst, src, n);
+   |             ^^^^^^^^^^^^
+   |
+   = help: consider using its safe version
+
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:39:13
+   |
+LL |     let _ = libc::memmove(dst, src, n);
+   |             ^^^^^^^^^^^^^
+   |
+   = help: consider using its safe version
+
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:41:13
+   |
+LL |     let _ = memset(dst, 1, n);
+   |             ^^^^^^
+   |
+   = help: consider using its safe version
+
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:49:13
+   |
+LL |     let _ = strcpy(dst, src);
+   |             ^^^^^^
+   |
+   = help: consider using its safe version
+
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:50:13
+   |
+LL |     let _ = strncpy(dst, src, 1);
+   |             ^^^^^^^
+   |
+   = help: consider using its safe version
+
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:51:13
+   |
+LL |     let _ = libc::strcpy(dst, src);
+   |             ^^^^^^^^^^^^
+   |
+   = help: consider using its safe version
+
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:53:13
+   |
+LL |     let _ = strncpy(dst, src, 1);
+   |             ^^^^^^^
+   |
+   = help: consider using its safe version
+
+error: aborting due to 10 previous errors
 
