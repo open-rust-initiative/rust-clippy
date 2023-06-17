@@ -223,6 +223,7 @@ mod no_effect;
 mod non_copy_const;
 mod non_expressive_names;
 mod non_octal_unix_permissions;
+mod non_reentrant_functions;
 mod non_send_fields_in_send_ty;
 mod nonstandard_macro_braces;
 mod octal_escapes;
@@ -917,6 +918,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     store.register_late_pass(move |_| Box::new(guidelines::GuidelineLints::new(mem_unsafe_functions.clone())));
     store.register_late_pass(|_| Box::new(unsafe_block_in_proc_macro::UnsafeBlockInProcMacro::new()));
     store.register_early_pass(|| Box::new(implicit_abi::ImplicitAbi));
+    store.register_early_pass(|| Box::new(non_reentrant_functions::NonReentrantFunctions));
     // add lints here, do not remove this comment, it's used in `new_lint`
 }
 
