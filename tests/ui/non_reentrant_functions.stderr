@@ -1,22 +1,22 @@
 error: consider using the reentrant version of the function
-  --> $DIR/non_reentrant_functions.rs:12:19
+  --> $DIR/non_reentrant_functions.rs:11:19
    |
-LL |         let _tm = localtime(&0i64 as *const time_t);
-   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LL |         let _tm = libc::localtime(&0i64 as *const libc::time_t);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: `-D clippy::non-reentrant-functions` implied by `-D warnings`
 
 error: consider using the reentrant version of the function
-  --> $DIR/non_reentrant_functions.rs:20:30
+  --> $DIR/non_reentrant_functions.rs:21:30
    |
-LL |     let mut token = unsafe { strtok(string, delim) };
-   |                              ^^^^^^^^^^^^^^^^^^^^^
+LL |     let mut token = unsafe { libc::strtok(string, delim) };
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: consider using the reentrant version of the function
-  --> $DIR/non_reentrant_functions.rs:23:26
+  --> $DIR/non_reentrant_functions.rs:24:26
    |
-LL |         token = unsafe { strtok(std::ptr::null_mut(), delim) };
-   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LL |         token = unsafe { libc::strtok(std::ptr::null_mut(), delim) };
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: aborting due to 3 previous errors
 

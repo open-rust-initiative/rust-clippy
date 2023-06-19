@@ -46,8 +46,10 @@ impl EarlyLintPass for NonReentrantFunctions {
 fn is_reentrant_fn(func: &Expr) -> bool {
     match &func.kind {
         ExprKind::Path(_, Path { segments, .. }) => {
-            let seg = segments.iter().last().unwrap();
-            let ident = format!("{:?}", seg.ident);
+            if segments.len() != 2 || !format!("{:?}", segments[0].ident).starts_with("libc#") {
+                return false;
+            }
+            let ident = format!("{:?}", segments[1].ident);
             check_reentrant_by_fn_name(&ident)
         },
         _ => false,
