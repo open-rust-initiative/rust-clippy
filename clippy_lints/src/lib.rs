@@ -294,6 +294,7 @@ mod unnecessary_owned_empty_strings;
 mod unnecessary_self_imports;
 mod unnecessary_wraps;
 mod unnested_or_patterns;
+mod unsafe_block_in_proc_macro;
 mod unsafe_removed_from_name;
 mod unused_async;
 mod unused_io_amount;
@@ -913,6 +914,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     store.register_late_pass(|_| Box::new(extern_without_repr::ExternWithoutRepr));
     let mem_unsafe_functions = conf.mem_unsafe_functions.clone();
     store.register_late_pass(move |_| Box::new(guidelines::GuidelineLints::new(mem_unsafe_functions.clone())));
+    store.register_late_pass(|_| Box::new(unsafe_block_in_proc_macro::UnsafeBlockInProcMacro::new()));
     // add lints here, do not remove this comment, it's used in `new_lint`
 }
 
