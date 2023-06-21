@@ -123,6 +123,7 @@ mod excessive_bools;
 mod exhaustive_items;
 mod exit;
 mod explicit_write;
+mod extern_without_repr;
 mod extra_unused_type_parameters;
 mod fallible_impl_from;
 mod float_literal;
@@ -959,6 +960,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     store.register_late_pass(|_| Box::new(tests_outside_test_module::TestsOutsideTestModule));
     store.register_late_pass(|_| Box::new(manual_slice_size_calculation::ManualSliceSizeCalculation));
     store.register_early_pass(|| Box::new(suspicious_doc_comments::SuspiciousDocComments));
+    store.register_late_pass(|_| Box::new(extern_without_repr::ExternWithoutRepr));
     // add lints here, do not remove this comment, it's used in `new_lint`
 }
 
