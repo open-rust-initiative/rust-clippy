@@ -142,6 +142,7 @@ mod guidelines;
 mod if_let_mutex;
 mod if_not_else;
 mod if_then_some_else_none;
+mod implicit_abi;
 mod implicit_hasher;
 mod implicit_return;
 mod implicit_saturating_add;
@@ -964,6 +965,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     let mem_unsafe_functions = conf.mem_unsafe_functions.clone();
     store.register_late_pass(move |_| Box::new(guidelines::GuidelineLints::new(mem_unsafe_functions.clone())));
     store.register_late_pass(|_| Box::new(unsafe_block_in_proc_macro::UnsafeBlockInProcMacro::new()));
+    store.register_early_pass(|| Box::new(implicit_abi::ImplicitAbi));
     // add lints here, do not remove this comment, it's used in `new_lint`
 }
 
