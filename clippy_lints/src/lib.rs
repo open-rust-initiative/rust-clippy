@@ -132,6 +132,7 @@ mod exhaustive_items;
 mod exit;
 mod explicit_write;
 mod extra_unused_type_parameters;
+mod extern_without_repr;
 mod fallible_impl_from;
 mod float_literal;
 mod floating_point_arithmetic;
@@ -1119,6 +1120,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
             msrv(),
         ))
     });
+    store.register_late_pass(|_| Box::new(extern_without_repr::ExternWithoutRepr));
     // add lints here, do not remove this comment, it's used in `new_lint`
 }
 
