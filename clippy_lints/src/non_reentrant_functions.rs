@@ -46,17 +46,11 @@ impl EarlyLintPass for NonReentrantFunctions {
 fn is_reentrant_fn(func: &Expr) -> bool {
     match &func.kind {
         ExprKind::Path(_, Path { segments, .. }) => {
-            if segments.len() != 2 || !format!("{:?}", segments[0].ident).starts_with("libc#") {
+            if segments.len() != 2 || segments[0].ident.name != rustc_span::sym::libc {
                 return false;
             }
-            let ident = format!("{:?}", segments[1].ident);
-            check_reentrant_by_fn_name(&ident)
+            matches!(segments[1].ident.as_str(), "strtok" | "localtime")
         },
         _ => false,
     }
-}
-
-fn check_reentrant_by_fn_name(func: &str) -> bool {
-    let name = func.split('#').next().unwrap();
-    name == "strtok" || name == "localtime"
 }
