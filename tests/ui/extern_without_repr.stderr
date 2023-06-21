@@ -1,0 +1,10 @@
+error: Should use repr to specifing data layout when struct is used in FFI
+  --> $DIR/extern_without_repr.rs:24:1
+   |
+LL | struct Foo3 {
+   | ^^^^^^^^^^^
+   |
+   = note: `-D clippy::extern-without-repr` implied by `-D warnings`
+
+error: aborting due to previous error
+
