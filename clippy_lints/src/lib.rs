@@ -169,6 +169,7 @@ mod let_if_seq;
 mod let_underscore;
 mod lifetimes;
 mod literal_representation;
+mod loop_without_break_or_return;
 mod loops;
 mod macro_use;
 mod main_recursion;
@@ -919,6 +920,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     store.register_late_pass(|_| Box::new(unsafe_block_in_proc_macro::UnsafeBlockInProcMacro::new()));
     store.register_early_pass(|| Box::new(implicit_abi::ImplicitAbi));
     store.register_early_pass(|| Box::new(non_reentrant_functions::NonReentrantFunctions));
+    store.register_early_pass(|| Box::new(loop_without_break_or_return::LoopWithoutBreakOrReturn));
     // add lints here, do not remove this comment, it's used in `new_lint`
 }
 
