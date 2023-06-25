@@ -1,0 +1,66 @@
+error: consider adding `break` or `return` statement in the loop block
+  --> $DIR/loop_without_break_or_return.rs:5:5
+   |
+LL | /     loop {
+LL | |         println!("Hello, Rust!");
+LL | |     }
+   | |_____^
+   |
+   = note: `-D clippy::loop-without-break-or-return` implied by `-D warnings`
+
+error: consider adding `break` or `return` statement in the loop block
+  --> $DIR/loop_without_break_or_return.rs:39:5
+   |
+LL | /     'outer2: loop {
+LL | |         for x in 0..5 {
+LL | |             if x == 3 {
+LL | |                 break;
+LL | |             }
+LL | |         }
+LL | |     }
+   | |_____^
+
+error: consider adding `break` or `return` statement in the loop block
+  --> $DIR/loop_without_break_or_return.rs:60:9
+   |
+LL | /         loop {
+LL | |             println!("Hello, Rust!");
+LL | |         }
+   | |_________^
+
+error: consider adding `break` or `return` statement in the loop block
+  --> $DIR/loop_without_break_or_return.rs:66:5
+   |
+LL | /     'outer2: loop {
+LL | |         loop {
+LL | |             break;
+LL | |         }
+LL | |     }
+   | |_____^
+
+error: consider adding `break` or `return` statement in the loop block
+  --> $DIR/loop_without_break_or_return.rs:78:5
+   |
+LL | /     'outer4: loop {
+LL | |         'inner: loop {
+LL | |             loop {
+LL | |                 break 'inner;
+LL | |             }
+LL | |         }
+LL | |     }
+   | |_____^
+
+error: consider adding `break` or `return` statement in the loop block
+  --> $DIR/loop_without_break_or_return.rs:87:9
+   |
+LL | /         loop {
+LL | |             'inner: loop {
+LL | |                 loop {
+LL | |                     loop {
+...  |
+LL | |             }
+LL | |         }
+   | |_________^
+
+error: aborting due to 6 previous errors
+
