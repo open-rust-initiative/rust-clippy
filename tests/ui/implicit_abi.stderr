@@ -1,5 +1,5 @@
 error: missing ABI label on extern block
-  --> $DIR/implicit_abi.rs:10:1
+  --> $DIR/implicit_abi.rs:11:1
    |
 LL | extern {
    | ^^^^^^ help: explicitly states ABI instead: `extern "C"`
@@ -7,13 +7,13 @@ LL | extern {
    = note: `-D clippy::implicit-abi` implied by `-D warnings`
 
 error: missing ABI label on extern block
-  --> $DIR/implicit_abi.rs:22:1
+  --> $DIR/implicit_abi.rs:23:1
    |
 LL | extern
    | ^^^^^^ help: explicitly states ABI instead: `extern "C"`
 
 error: missing ABI label on extern block
-  --> $DIR/implicit_abi.rs:28:1
+  --> $DIR/implicit_abi.rs:29:1
    |
 LL | extern { fn my_c_fn(a: i8) -> c_void; }
    | ^^^^^^ help: explicitly states ABI instead: `extern "C"`
