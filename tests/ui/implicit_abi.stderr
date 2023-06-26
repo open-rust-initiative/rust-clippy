@@ -1,0 +1,22 @@
+error: missing ABI label on extern block
+  --> $DIR/implicit_abi.rs:10:1
+   |
+LL | extern {
+   | ^^^^^^ help: explicitly states ABI instead: `extern "C"`
+   |
+   = note: `-D clippy::implicit-abi` implied by `-D warnings`
+
+error: missing ABI label on extern block
+  --> $DIR/implicit_abi.rs:22:1
+   |
+LL | extern
+   | ^^^^^^ help: explicitly states ABI instead: `extern "C"`
+
+error: missing ABI label on extern block
+  --> $DIR/implicit_abi.rs:28:1
+   |
+LL | extern { fn my_c_fn(a: i8) -> c_void; }
+   | ^^^^^^ help: explicitly states ABI instead: `extern "C"`
+
+error: aborting due to 3 previous errors
+

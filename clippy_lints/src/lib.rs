@@ -138,9 +138,11 @@ mod from_raw_with_void_ptr;
 mod from_str_radix_10;
 mod functions;
 mod future_not_send;
+mod guidelines;
 mod if_let_mutex;
 mod if_not_else;
 mod if_then_some_else_none;
+mod implicit_abi;
 mod implicit_hasher;
 mod implicit_return;
 mod implicit_saturating_add;
@@ -309,6 +311,7 @@ mod unnecessary_self_imports;
 mod unnecessary_struct_initialization;
 mod unnecessary_wraps;
 mod unnested_or_patterns;
+mod unsafe_block_in_proc_macro;
 mod unsafe_removed_from_name;
 mod unused_async;
 mod unused_io_amount;
@@ -959,6 +962,10 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     store.register_late_pass(|_| Box::new(tests_outside_test_module::TestsOutsideTestModule));
     store.register_late_pass(|_| Box::new(manual_slice_size_calculation::ManualSliceSizeCalculation));
     store.register_early_pass(|| Box::new(suspicious_doc_comments::SuspiciousDocComments));
+    let mem_unsafe_functions = conf.mem_unsafe_functions.clone();
+    store.register_late_pass(move |_| Box::new(guidelines::GuidelineLints::new(mem_unsafe_functions.clone())));
+    store.register_late_pass(|_| Box::new(unsafe_block_in_proc_macro::UnsafeBlockInProcMacro::new()));
+    store.register_early_pass(|| Box::new(implicit_abi::ImplicitAbi));
     // add lints here, do not remove this comment, it's used in `new_lint`
 }
 
