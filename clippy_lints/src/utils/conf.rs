@@ -47,6 +47,16 @@ const DEFAULT_MEM_UNSAFE_FUNCTIONS: &[&str] = &[
     "memset",
 ];
 
+const DEFAULT_IO_FUNCTIONS: &[&str] = &[
+    // File open functions
+    "open",
+    // standard input
+    "gets", "getchar",
+    // formatted input functions
+    "scanf", "wscanf", "vscanf", "vwscanf", "fscanf", "fwscanf", "vfscanf", "vfwscanf",
+    "sscanf", "swscanf", "vsscanf", "vswscanf",
+];
+
 /// Holds information used by `MISSING_ENFORCED_IMPORT_RENAMES` lint.
 #[derive(Clone, Debug, Deserialize)]
 pub struct Rename {
@@ -473,6 +483,11 @@ define_Conf! {
     /// The list of function names to lint about.
     /// Providing empty list has the same effect as disabling this lint.
     (mem_unsafe_functions: Vec<String> = super::DEFAULT_MEM_UNSAFE_FUNCTIONS.iter().map(ToString::to_string).collect()),
+    /// Lint: UNTRUSTED_LIB_LOADING
+    ///
+    /// The list of function names to lint about
+    /// Providing empty list has the same effect as disabling this lint.
+    (io_functions: Vec<String> = super::DEFAULT_IO_FUNCTIONS.iter().map(ToString::to_string).collect()),
 }
 
 /// Search for the configuration file.

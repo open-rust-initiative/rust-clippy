@@ -916,7 +916,8 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     store.register_late_pass(|_| Box::new(size_of_ref::SizeOfRef));
     store.register_late_pass(|_| Box::new(extern_without_repr::ExternWithoutRepr));
     let mem_unsafe_functions = conf.mem_unsafe_functions.clone();
-    store.register_late_pass(move |_| Box::new(guidelines::GuidelineLints::new(mem_unsafe_functions.clone())));
+    let io_functions = conf.io_functions.clone();
+    store.register_late_pass(move |_| Box::new(guidelines::GuidelineLints::new(mem_unsafe_functions.clone(), io_functions.clone())));
     store.register_late_pass(|_| Box::new(unsafe_block_in_proc_macro::UnsafeBlockInProcMacro::new()));
     store.register_early_pass(|| Box::new(implicit_abi::ImplicitAbi));
     store.register_early_pass(|| Box::new(non_reentrant_functions::NonReentrantFunctions));
