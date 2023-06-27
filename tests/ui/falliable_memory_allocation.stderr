@@ -1,0 +1,20 @@
+error: must verify size when allocate memories!
+  --> $DIR/falliable_memory_allocation.rs:14:5
+   |
+LL |     allocate(size);
+   |     ^^^^^^^^^^^^^^
+   |
+note: unverified allocate size used here
+  --> $DIR/falliable_memory_allocation.rs:14:14
+   |
+LL |     allocate(size);
+   |              ^^^^
+
+error: must verify null pointer after allocating memories!
+  --> $DIR/falliable_memory_allocation.rs:14:5
+   |
+LL |     allocate(size);
+   |     ^^^^^^^^^^^^^^
+
+error: aborting due to 2 previous errors
+

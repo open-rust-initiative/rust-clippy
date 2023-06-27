@@ -18,7 +18,7 @@ impl<'a> From<&'a str> for Valid {
 }
 impl From<usize> for Valid {
     fn from(i: usize) -> Valid {
-        Valid(Vec::with_capacity(i))
+        Valid(Vec::with_capacity(usize::min(i, usize::MAX)))
     }
 }
 
