@@ -1,0 +1,15 @@
+error: can't pass rust String to ffi functions!
+  --> $DIR/passing_string_to_c_functions.rs:12:14
+   |
+LL |     unsafe { greet(name.as_ptr() as *const _) }
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: local rust String defined here
+  --> $DIR/passing_string_to_c_functions.rs:12:20
+   |
+LL |     unsafe { greet(name.as_ptr() as *const _) }
+   |                    ^^^^
+   = help: use `Cstring` or `Cstr` instead
+
+error: aborting due to previous error
+

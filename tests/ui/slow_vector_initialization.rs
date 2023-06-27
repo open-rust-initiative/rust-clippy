@@ -8,7 +8,7 @@ fn main() {
 
 fn extend_vector() {
     // Extend with constant expression
-    let len = 300;
+    let len = usize::min(300, usize::MAX);
     let mut vec1 = Vec::with_capacity(len);
     vec1.extend(repeat(0).take(len));
 
@@ -39,7 +39,7 @@ fn mixed_extend_resize_vector() {
 
 fn resize_vector() {
     // Resize with constant expression
-    let len = 300;
+    let len = usize::min(300, usize::MAX);
     let mut vec1 = Vec::with_capacity(len);
     vec1.resize(len, 0);
 
@@ -62,7 +62,7 @@ fn resize_vector() {
 fn do_stuff(vec: &mut [u8]) {}
 
 fn extend_vector_with_manipulations_between() {
-    let len = 300;
+    let len = usize::min(300, usize::MAX);
     let mut vec1: Vec<u8> = Vec::with_capacity(len);
     do_stuff(&mut vec1);
     vec1.extend(repeat(0).take(len));
