@@ -9,6 +9,7 @@ note: loading dynamic library here
    |
 LL |         let lib = libloading::Library::new(&name);
    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   = note: `-D clippy::untrusted-lib-loading` implied by `-D warnings`
 
 error: aborting due to previous error
 
