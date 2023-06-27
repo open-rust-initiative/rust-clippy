@@ -35,6 +35,12 @@ walkdir = "2.3"
 # This is used by the `collect-metadata` alias.
 filetime = "0.2"
 itertools = "0.10.1"
+libloading = "0.8.0"
+
+# A noop dependency that changes in the Rust repository, it's a bit of a hack.
+# See the `src/tools/rustc-workspace-hack/README.md` file in `rust-lang/rust`
+# for more information.
+rustc-workspace-hack = "1.0"
 
 # UI test dependencies
 clippy_utils = { path = "clippy_utils" }

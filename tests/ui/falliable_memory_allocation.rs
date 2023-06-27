@@ -1,6 +1,15 @@
 #![allow(unused)]
 #![warn(clippy::falliable_memory_allocation)]
 
+fn get_untrusted_size() -> usize {
+    100
+}
+
+fn allocate(_size: usize) {
+
+}
+
 fn main() {
-    // test code goes here
+    let size = get_untrusted_size();
+    allocate(size);
 }
