@@ -1,4 +1,4 @@
-error: can't read outer files when loading the dynamic libraries!
+error: can't read outer files or get input from outside when loading the dynamic libraries!
   --> $DIR/untrusted_lib_loading.rs:9:17
    |
 LL |     let mut f = std::fs::File::open("tests/nagisa64.txt").unwrap();
