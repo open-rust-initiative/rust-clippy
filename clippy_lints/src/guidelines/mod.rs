@@ -97,13 +97,15 @@ declare_clippy_lint! {
 pub struct GuidelineLints {
     mem_uns_fns: Vec<String>,
     mem_uns_fns_ty_ids: DefIdSet,
+    io_fns: Vec<String>,
 }
 
 impl GuidelineLints {
-    pub fn new(mem_uns_fns: Vec<String>) -> Self {
+    pub fn new(mem_uns_fns: Vec<String>, io_fns: Vec<String>) -> Self {
         Self {
             mem_uns_fns,
             mem_uns_fns_ty_ids: DefIdSet::new(),
+            io_fns,
         }
     }
 }
@@ -118,7 +120,7 @@ impl_lint_pass!(GuidelineLints => [
 impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         mem_unsafe_functions::check(cx, expr, &self.mem_uns_fns_ty_ids);
-        untrusted_lib_loading::check_expr(cx, expr);
+        untrusted_lib_loading::check(cx, expr, &self.io_fns);
         passing_string_to_c_functions::check_expr(cx, expr);
         falliable_memory_allocation::check_expr(cx, expr);
     }

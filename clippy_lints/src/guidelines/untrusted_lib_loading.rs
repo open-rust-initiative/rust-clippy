@@ -5,29 +5,34 @@ use rustc_hir::intravisit::{walk_expr, Visitor};
 use rustc_hir::{Expr, ExprKind, HirId, Node, PathSegment, QPath, TyKind};
 use rustc_lint::LateContext;
 use rustc_span::Span;
+use rustc_span::symbol::Ident;
 
-struct IOFinder {
+struct IOFinder<'a> {
+    io_functions: &'a Vec<String>,
     find_io: Option<Span>,
     in_func: Option<Span>,
 }
 
-impl<'tcx> Visitor<'tcx> for IOFinder {
+impl<'tcx> Visitor<'tcx> for IOFinder<'_> {
     fn visit_expr(&mut self, ex: &'tcx Expr<'tcx>) {
-        if self.find_io.is_none() && let ExprKind::Call(..) = &ex.kind {
+        if self.find_io.is_none() && let ExprKind::Call(func, ..) = &ex.kind {
             self.in_func = Some(ex.span);
-            walk_expr(self, ex);
+            walk_expr(self, func);
             self.in_func = None;
         } else {
             walk_expr(self, ex);
         }
     }
 
-    fn visit_path_segment(&mut self, path_segment: &'tcx PathSegment<'tcx>) {
+    fn visit_ident(&mut self, ident: Ident) {
         if let Some(span) = self.in_func {
-            if path_segment.ident.as_str().starts_with("open") && self.find_io.is_none() {
-                self.find_io = Some(span);
+            let name = ident.as_str();
+            for s in self.io_functions {
+                if s.contains(name) {
+                    self.find_io = Some(span);
+                    break
+                }
             }
-            return;
         }
     }
 }
@@ -49,7 +54,7 @@ impl<'tcx> Visitor<'tcx> for LibNameFinder {
 }
 
 // TODO: Adjust the parameters as necessary
-pub(crate) fn check_expr<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
+pub(crate) fn check<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>, io_functions: &Vec<String>) {
     let mut libname = None;
     let mut loading: Option<Span> = None;
     if let ExprKind::Call(func, params) = &expr.kind {
@@ -85,6 +90,7 @@ pub(crate) fn check_expr<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
     for (_, node) in cx.tcx.hir().parent_iter(libname) {
         if let Node::Block(block) = node {
             let mut finder = IOFinder {
+                io_functions,
                 find_io: None,
                 in_func: None,
             };
@@ -95,7 +101,7 @@ pub(crate) fn check_expr<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
                     cx,
                     UNTRUSTED_LIB_LOADING,
                     span,
-                    "can't read outer files when loading the dynamic libraries!",
+                    "can't read outer files or get input from outside when loading the dynamic libraries!",
                     loading,
                     "loading dynamic library here",
                 );
