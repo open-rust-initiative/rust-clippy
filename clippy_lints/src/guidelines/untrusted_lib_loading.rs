@@ -1,8 +1,10 @@
+use super::UNTRUSTED_LIB_LOADING;
+use clippy_utils::diagnostics::span_lint_and_note;
 use rustc_hir::def::{DefKind, Res};
 use rustc_hir::intravisit::{walk_expr, Visitor};
-use rustc_hir::{ExprKind, HirId, Node, QPath, Expr, PathSegment, TyKind};
-use rustc_span::Span;
+use rustc_hir::{Expr, ExprKind, HirId, Node, PathSegment, QPath, TyKind};
 use rustc_lint::LateContext;
+use rustc_span::Span;
 
 struct IOFinder {
     find_io: Option<Span>,
@@ -55,7 +57,7 @@ pub(crate) fn check_expr<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
             if let TyKind::Path(qpath) = &ty.kind {
                 match qpath {
                     QPath::Resolved(None, p) => {
-                        if let Res::Def(DefKind::Struct, def_id) = p.res  {
+                        if let Res::Def(DefKind::Struct, def_id) = p.res {
                             if cx.tcx.crate_name(def_id.krate).as_str() == "libloading" {
                                 if p.segments.last().unwrap().ident.as_str() == "Library" {
                                     loading = Some(expr.span);
@@ -69,7 +71,7 @@ pub(crate) fn check_expr<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
                                 }
                             }
                         }
-                    }
+                    },
                     _ => {},
                 }
             }
@@ -82,13 +84,21 @@ pub(crate) fn check_expr<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
 
     for (_, node) in cx.tcx.hir().parent_iter(libname) {
         if let Node::Block(block) = node {
-            let mut finder = IOFinder { find_io: None, in_func: None };
+            let mut finder = IOFinder {
+                find_io: None,
+                in_func: None,
+            };
             finder.visit_block(block);
 
             if let Some(span) = finder.find_io {
-                let mut err = cx.tcx.sess.diagnostic().struct_span_err(span, "can't read outer files when loading the dynamic libraries!");
-                err.span_note(loading.unwrap(), "loading dynamic library here");
-                err.emit();
+                span_lint_and_note(
+                    cx,
+                    UNTRUSTED_LIB_LOADING,
+                    span,
+                    "can't read outer files when loading the dynamic libraries!",
+                    loading,
+                    "loading dynamic library here",
+                );
                 break;
             }
         }

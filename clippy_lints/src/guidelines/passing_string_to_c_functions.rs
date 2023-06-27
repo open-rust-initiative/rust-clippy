@@ -1,10 +1,12 @@
-use rustc_hir::{ExprKind, HirId, LangItem, Node, QPath, Expr};
+use super::PASSING_STRING_TO_C_FUNCTIONS;
+use clippy_utils::diagnostics::span_lint_and_help;
+use clippy_utils::ty::is_type_lang_item;
 use rustc_hir::def::{DefKind, Res};
-use rustc_hir::intravisit::{Visitor, walk_expr};
+use rustc_hir::intravisit::{walk_expr, Visitor};
+use rustc_hir::{Expr, ExprKind, HirId, LangItem, Node, QPath};
+use rustc_lint::LateContext;
 use rustc_middle::ty;
 use rustc_span::Span;
-use clippy_utils::ty::is_type_lang_item;
-use rustc_lint::LateContext;
 
 struct ParamsFinder {
     params: Vec<(HirId, Span)>,
@@ -33,7 +35,7 @@ pub(super) fn check_expr<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
                 };
                 let func_id = cx.tcx.hir().local_def_id_to_hir_id(def_id);
                 if let Node::ForeignItem(..) = cx.tcx.hir().get(func_id) {
-                    let mut finder = ParamsFinder{ params: Vec::new() };
+                    let mut finder = ParamsFinder { params: Vec::new() };
                     for param in params {
                         finder.visit_expr(param);
                     }
@@ -51,17 +53,25 @@ pub(super) fn check_expr<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         let ty = cx.typeck_results().node_type(param);
         match ty.kind() {
             ty::Ref(_, t, _) if *t.kind() == ty::Str => {
-                let mut err = cx.tcx.sess.struct_span_err(expr.span, "can't pass rust string to ffi functions!");
-                err.span_note(span, "local rust string used here");
-                err.help("use `Cstring` or `Cstr` instead");
-                err.emit();
-            }
+                span_lint_and_help(
+                    cx,
+                    PASSING_STRING_TO_C_FUNCTIONS,
+                    expr.span,
+                    "can't pass rust string to ffi functions!",
+                    Some(span),
+                    "use `Cstring` or `Cstr` instead",
+                );
+            },
             _ if is_type_lang_item(cx, ty, LangItem::String) => {
-                let mut err = cx.tcx.sess.struct_span_err(expr.span, "can't pass rust String to ffi functions!");
-                err.span_note(span, "local rust String defined here");
-                err.help("use `Cstring` or `Cstr` instead");
-                err.emit();
-            }
+                span_lint_and_help(
+                    cx,
+                    PASSING_STRING_TO_C_FUNCTIONS,
+                    expr.span,
+                    "can't pass rust String to ffi functions!",
+                    Some(span),
+                    "use `Cstring` or `Cstr` instead",
+                );
+            },
             _ => (),
         }
     }
