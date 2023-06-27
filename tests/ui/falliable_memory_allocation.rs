@@ -5,11 +5,24 @@ fn get_untrusted_size() -> usize {
     100
 }
 
-fn allocate(_size: usize) {
-
+fn allocate(size: usize) -> usize {
+    size
 }
 
-fn main() {
+fn is_null(ptr: usize) -> bool {
+    false
+}
+
+fn foo1() {
     let size = get_untrusted_size();
-    allocate(size);
+    let p = allocate(size);
 }
+
+fn foo2() {
+    let size = get_untrusted_size();
+    assert!(size < 100);
+    let p = allocate(size);
+    assert!(!is_null(p));
+}
+
+fn main() {}

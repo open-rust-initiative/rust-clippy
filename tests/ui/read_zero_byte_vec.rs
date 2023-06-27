@@ -13,7 +13,7 @@ use futures::io::{AsyncRead, AsyncReadExt};
 use tokio::io::{AsyncRead as TokioAsyncRead, AsyncReadExt as _, AsyncWrite as TokioAsyncWrite, AsyncWriteExt as _};
 
 fn test() -> io::Result<()> {
-    let cap = usize::min(1000, usize::MAX);
+    let cap = 1000;
     let mut f = File::open("foo.txt").unwrap();
 
     // should lint
