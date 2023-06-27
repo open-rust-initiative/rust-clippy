@@ -1,0 +1,21 @@
+error: must verify size when allocate memories!
+  --> $DIR/falliable_memory_allocation.rs:18:13
+   |
+LL |     let p = allocate(size);
+   |             ^^^^^^^^^^^^^^
+   |
+note: unverified allocate size used here
+  --> $DIR/falliable_memory_allocation.rs:18:22
+   |
+LL |     let p = allocate(size);
+   |                      ^^^^
+   = note: `-D clippy::falliable-memory-allocation` implied by `-D warnings`
+
+error: must verify null pointer after allocating memories!
+  --> $DIR/falliable_memory_allocation.rs:18:13
+   |
+LL |     let p = allocate(size);
+   |             ^^^^^^^^^^^^^^
+
+error: aborting due to 2 previous errors
+

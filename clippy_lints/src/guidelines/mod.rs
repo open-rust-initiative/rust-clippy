@@ -7,6 +7,7 @@ use clippy_utils::def_path_def_ids;
 use rustc_hir as hir;
 use rustc_hir::def_id::{DefId, DefIdSet};
 use rustc_hir::intravisit;
+use rustc_hir::Expr;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{declare_tool_lint, impl_lint_pass};
 use rustc_span::def_id::LocalDefId;
@@ -96,13 +97,15 @@ declare_clippy_lint! {
 pub struct GuidelineLints {
     mem_uns_fns: Vec<String>,
     mem_uns_fns_ty_ids: DefIdSet,
+    io_fns: Vec<String>,
 }
 
 impl GuidelineLints {
-    pub fn new(mem_uns_fns: Vec<String>) -> Self {
+    pub fn new(mem_uns_fns: Vec<String>, io_fns: Vec<String>) -> Self {
         Self {
             mem_uns_fns,
             mem_uns_fns_ty_ids: DefIdSet::new(),
+            io_fns,
         }
     }
 }
@@ -115,15 +118,11 @@ impl_lint_pass!(GuidelineLints => [
 ]);
 
 impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
-    fn check_fn(
-        &mut self,
-        _cx: &LateContext<'tcx>,
-        _kind: intravisit::FnKind<'tcx>,
-        _decl: &'tcx hir::FnDecl<'_>,
-        _body: &'tcx hir::Body<'_>,
-        _span: Span,
-        _def_id: LocalDefId,
-    ) {
+    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
+        mem_unsafe_functions::check(cx, expr, &self.mem_uns_fns_ty_ids);
+        untrusted_lib_loading::check(cx, expr, &self.io_fns);
+        passing_string_to_c_functions::check_expr(cx, expr);
+        falliable_memory_allocation::check_expr(cx, expr);
     }
 
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
@@ -146,10 +145,6 @@ impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
 
     fn check_item(&mut self, _cx: &LateContext<'tcx>, item: &'tcx hir::Item<'_>) {
         mem_unsafe_functions::check_foreign_item(item, &self.mem_uns_fns, &mut self.mem_uns_fns_ty_ids);
-    }
-
-    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx hir::Expr<'_>) {
-        mem_unsafe_functions::check(cx, expr, &self.mem_uns_fns_ty_ids);
     }
 }
 

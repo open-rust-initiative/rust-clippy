@@ -35,6 +35,7 @@ toml = "0.5"
 walkdir = "2.3"
 # This is used by the `collect-metadata` alias.
 filetime = "0.2"
+libloading = "0.8.0"
 
 # A noop dependency that changes in the Rust repository, it's a bit of a hack.
 # See the `src/tools/rustc-workspace-hack/README.md` file in `rust-lang/rust`
