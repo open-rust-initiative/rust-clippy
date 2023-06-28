@@ -52,6 +52,7 @@ const DEFAULT_MEM_UNSAFE_FUNCTIONS: &[&str] = &[
     "memset",
 ];
 
+#[rustfmt::skip]
 const DEFAULT_IO_FUNCTIONS: &[&str] = &[
     // File open functions
     "open",

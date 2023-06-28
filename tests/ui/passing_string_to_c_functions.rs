@@ -6,7 +6,6 @@ extern "C" {
     fn greet(name: *const c_char);
 }
 
-
 fn main() {
     let name = String::from("Rust");
     unsafe { greet(name.as_ptr() as *const _) }

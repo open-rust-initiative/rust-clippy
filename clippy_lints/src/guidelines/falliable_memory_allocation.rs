@@ -3,7 +3,7 @@ use clippy_utils::diagnostics::{span_lint, span_lint_and_note};
 use rustc_hir::def::Res;
 use rustc_hir::intravisit::walk_expr;
 use rustc_hir::intravisit::Visitor;
-use rustc_hir::{Expr, ExprKind, HirId, Node, QPath, BinOpKind};
+use rustc_hir::{BinOpKind, Expr, ExprKind, HirId, Node, QPath};
 use rustc_lint::LateContext;
 use rustc_span::symbol::Ident;
 use rustc_span::Span;
@@ -36,10 +36,11 @@ impl<'tcx> Visitor<'tcx> for MaxNullFinder {
     fn visit_expr(&mut self, ex: &'tcx Expr<'tcx>) {
         if let Some((size, _)) = self.id && !self.max_find && let ExprKind::Binary(op, ex1, _) = ex.kind {
             if let ExprKind::Path(QPath::Resolved(None, name)) = ex1.kind {
-                if let Res::Local(id) = name.res && id == size {
-                    if matches!(op.node, BinOpKind::Le | BinOpKind::Lt | BinOpKind::Eq | BinOpKind::Ge | BinOpKind::Gt) {
-                        self.max_find = true;
-                    }
+                if let Res::Local(id) = name.res && id == size && matches!(
+                    op.node,
+                    BinOpKind::Le | BinOpKind::Lt | BinOpKind::Eq | BinOpKind::Ge | BinOpKind::Gt
+                ) {
+                    self.max_find = true;
                 }
             }
         }
@@ -59,7 +60,6 @@ impl<'tcx> Visitor<'tcx> for MaxNullFinder {
     }
 }
 
-// TODO: Adjust the parameters as necessary
 pub(super) fn check_expr<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
     let mut size: Option<(HirId, Span)> = None;
     let mut ptr: bool = false;
@@ -104,15 +104,13 @@ pub(super) fn check_expr<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
                 );
             }
         }
-        if ptr {
-            if !finder.null_find {
-                span_lint(
-                    cx,
-                    FALLIABLE_MEMORY_ALLOCATION,
-                    expr.span,
-                    "must verify null pointer after allocating memories!",
-                );
-            }
+        if ptr && !finder.null_find {
+            span_lint(
+                cx,
+                FALLIABLE_MEMORY_ALLOCATION,
+                expr.span,
+                "must verify null pointer after allocating memories!",
+            );
         }
     }
 }
