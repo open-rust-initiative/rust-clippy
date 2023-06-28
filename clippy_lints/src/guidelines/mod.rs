@@ -8,7 +8,6 @@ use clippy_utils::def_path_def_ids;
 use rustc_hir as hir;
 use rustc_hir::def_id::{DefId, DefIdSet};
 use rustc_hir::intravisit;
-use rustc_hir::Expr;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{declare_tool_lint, impl_lint_pass};
 use rustc_span::def_id::LocalDefId;
