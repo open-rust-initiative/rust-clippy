@@ -1,0 +1,51 @@
+error: this function call might blocks the thread in async context
+  --> $DIR/blocking_op_in_async.rs:12:5
+   |
+LL |     sleep(Duration::from_secs(1));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: asyncness was determined here
+  --> $DIR/blocking_op_in_async.rs:11:1
+   |
+LL | pub async fn async_std_sleep() {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   = note: `-D clippy::blocking-op-in-async` implied by `-D warnings`
+
+error: this function call might blocks the thread in async context
+  --> $DIR/blocking_op_in_async.rs:39:9
+   |
+LL |         sleep(Duration::from_secs(self.0 as _));
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: asyncness was determined here
+  --> $DIR/blocking_op_in_async.rs:38:5
+   |
+LL |     async fn foo(&self) {
+   |     ^^^^^^^^^^^^^^^^^^^
+
+error: this function call might blocks the thread in async context
+  --> $DIR/blocking_op_in_async.rs:52:9
+   |
+LL |         sleep(Duration::from_secs(1))
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: asyncness was determined here
+  --> $DIR/blocking_op_in_async.rs:51:13
+   |
+LL |     let _ = async || {
+   |             ^^^^^
+
+error: this function call might blocks the thread in async context
+  --> $DIR/blocking_op_in_async.rs:57:9
+   |
+LL |         sleep(Duration::from_secs(1));
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: asyncness was determined here
+  --> $DIR/blocking_op_in_async.rs:54:25
+   |
+LL |     let async_closure = async move |_a: i32| {
+   |                         ^^^^^
+
+error: aborting due to 4 previous errors
+

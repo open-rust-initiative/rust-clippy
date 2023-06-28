@@ -621,6 +621,10 @@ define_Conf! {
     /// The list of function names to lint about
     /// Providing empty list has the same effect as disabling this lint.
     (io_functions: Vec<String> = super::DEFAULT_IO_FUNCTIONS.iter().map(ToString::to_string).collect()),
+    /// Lint: BLOCKING_OP_IN_ASYNC.
+    ///
+    /// Whether to enable checks for non-async IO operations (typically file system IO) in async context.
+    (allow_io_blocking_ops: bool = true),
 }
 
 /// Search for the configuration file.
