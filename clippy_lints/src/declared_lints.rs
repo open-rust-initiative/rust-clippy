@@ -192,6 +192,7 @@ pub(crate) static LINTS: &[&crate::LintInfo] = &[
     crate::functions::TOO_MANY_ARGUMENTS_INFO,
     crate::functions::TOO_MANY_LINES_INFO,
     crate::future_not_send::FUTURE_NOT_SEND_INFO,
+    crate::guidelines::BLOCKING_OP_IN_ASYNC_INFO,
     crate::guidelines::FALLIABLE_MEMORY_ALLOCATION_INFO,
     crate::guidelines::MEM_UNSAFE_FUNCTIONS_INFO,
     crate::guidelines::PASSING_STRING_TO_C_FUNCTIONS_INFO,

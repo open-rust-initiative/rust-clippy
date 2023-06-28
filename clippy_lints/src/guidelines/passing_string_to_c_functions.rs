@@ -29,10 +29,7 @@ pub(super) fn check_expr<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
     if let ExprKind::Call(func, params) = expr.kind {
         if let ExprKind::Path(QPath::Resolved(None, path)) = func.kind {
             if let Res::Def(DefKind::Fn, def_id) = path.res {
-                let def_id = match def_id.as_local() {
-                    Some(id) => id,
-                    None => return,
-                };
+                let Some(def_id) = def_id.as_local() else { return };
                 let func_id = cx.tcx.hir().local_def_id_to_hir_id(def_id);
                 if let Node::ForeignItem(..) = cx.tcx.hir().get(func_id) {
                     let mut finder = ParamsFinder { params: Vec::new() };
@@ -44,12 +41,9 @@ pub(super) fn check_expr<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
             }
         }
     }
-    let params = match foreign_params {
-        Some(params) => params,
-        None => return,
-    };
+    let Some(params) = foreign_params else { return };
 
-    for (param, span) in params.into_iter() {
+    for (param, span) in params {
         let ty = cx.typeck_results().node_type(param);
         match ty.kind() {
             ty::Ref(_, t, _) if *t.kind() == ty::Str => {
