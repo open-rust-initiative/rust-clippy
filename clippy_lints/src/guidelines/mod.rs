@@ -2,9 +2,11 @@ mod blocking_op_in_async;
 mod falliable_memory_allocation;
 mod mem_unsafe_functions;
 mod passing_string_to_c_functions;
+mod unsafe_block_in_proc_macro;
 mod untrusted_lib_loading;
 
 use clippy_utils::def_path_def_ids;
+use rustc_data_structures::fx::FxHashSet;
 use rustc_hir as hir;
 use rustc_hir::def_id::{DefId, DefIdSet};
 use rustc_hir::intravisit;
@@ -121,6 +123,51 @@ declare_clippy_lint! {
     "calling blocking funtions in an async context"
 }
 
+declare_clippy_lint! {
+    /// ### What it does
+    /// Checks for unsafe block written in procedural macro
+    ///
+    /// ### Why is this bad?
+    /// It hides the unsafe code, making the safety of expended code unsound.
+    ///
+    /// ### Known problems
+    /// Possible FP when the user uses proc-macro to generate a function with unsafe block in it.
+    ///
+    /// ### Example
+    /// ```rust
+    /// #[proc_macro]
+    /// pub fn rprintf(input: TokenStream) -> TokenStream {
+    ///     let expr = parse_macro_input!(input as syn::Expr);
+    ///     quote!({
+    ///         unsafe {
+    ///             // unsafe operation
+    ///         }
+    ///     })
+    /// }
+    ///
+    /// // This allows users to use this macro without `unsafe` block
+    /// rprintf!();
+    /// ```
+    /// Use instead:
+    /// ```rust
+    /// #[proc_macro]
+    /// pub fn rprintf(input: TokenStream) -> TokenStream {
+    ///     let expr = parse_macro_input!(input as syn::Expr);
+    ///     quote!({
+    ///         // unsafe operation
+    ///     })
+    /// }
+    ///
+    /// // When using this macro, an outer `unsafe` block is needed,
+    /// // making the safety of this macro much clearer.
+    /// unsafe { rprintf!(); }
+    /// ```
+    #[clippy::version = "1.70.0"]
+    pub UNSAFE_BLOCK_IN_PROC_MACRO,
+    nursery,
+    "using unsafe block in procedural macro's definition"
+}
+
 /// Helper struct with user configured path-like functions, such as `std::fs::read`,
 /// and a set for `def_id`s which should be filled during checks.
 ///
@@ -146,6 +193,7 @@ pub struct GuidelineLints {
     io_fns: FnPathsAndIds,
     allow_io_blocking_ops: bool,
     blocking_fn_ids: DefIdSet,
+    macro_call_sites: FxHashSet<Span>,
 }
 
 impl GuidelineLints {
@@ -155,6 +203,7 @@ impl GuidelineLints {
             io_fns: FnPathsAndIds::with_paths(io_fns),
             allow_io_blocking_ops,
             blocking_fn_ids: DefIdSet::new(),
+            macro_call_sites: FxHashSet::default(),
         }
     }
 }
@@ -165,6 +214,7 @@ impl_lint_pass!(GuidelineLints => [
     PASSING_STRING_TO_C_FUNCTIONS,
     FALLIABLE_MEMORY_ALLOCATION,
     BLOCKING_OP_IN_ASYNC,
+    UNSAFE_BLOCK_IN_PROC_MACRO,
 ]);
 
 impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
@@ -223,6 +273,7 @@ impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
         falliable_memory_allocation::check_expr(cx, expr);
         mem_unsafe_functions::check(cx, expr, &self.mem_uns_fns.ids);
         blocking_op_in_async::check_closure(cx, expr, &self.blocking_fn_ids);
+        unsafe_block_in_proc_macro::check(cx, expr, &mut self.macro_call_sites);
     }
 }
 

@@ -297,7 +297,6 @@ mod unnecessary_owned_empty_strings;
 mod unnecessary_self_imports;
 mod unnecessary_wraps;
 mod unnested_or_patterns;
-mod unsafe_block_in_proc_macro;
 mod unsafe_removed_from_name;
 mod unused_async;
 mod unused_io_amount;
@@ -925,7 +924,6 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
             allow_io_blocking_ops,
         ))
     });
-    store.register_late_pass(|_| Box::new(unsafe_block_in_proc_macro::UnsafeBlockInProcMacro::new()));
     store.register_early_pass(|| Box::new(implicit_abi::ImplicitAbi));
     store.register_early_pass(|| Box::new(non_reentrant_functions::NonReentrantFunctions));
     store.register_early_pass(|| Box::new(loop_without_break_or_return::LoopWithoutBreakOrReturn));
