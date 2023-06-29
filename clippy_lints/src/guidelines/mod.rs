@@ -179,7 +179,7 @@ pub struct FnPathsAndIds {
 }
 
 impl FnPathsAndIds {
-    pub fn with_paths(paths: Vec<String>) -> Self {
+    fn with_paths(paths: Vec<String>) -> Self {
         Self {
             paths,
             ids: DefIdSet::new(),
@@ -191,8 +191,8 @@ impl FnPathsAndIds {
 pub struct GuidelineLints {
     mem_uns_fns: FnPathsAndIds,
     io_fns: FnPathsAndIds,
+    blocking_fns: FnPathsAndIds,
     allow_io_blocking_ops: bool,
-    blocking_fn_ids: DefIdSet,
     macro_call_sites: FxHashSet<Span>,
 }
 
@@ -201,8 +201,8 @@ impl GuidelineLints {
         Self {
             mem_uns_fns: FnPathsAndIds::with_paths(mem_uns_fns),
             io_fns: FnPathsAndIds::with_paths(io_fns),
+            blocking_fns: FnPathsAndIds::default(),
             allow_io_blocking_ops,
-            blocking_fn_ids: DefIdSet::new(),
             macro_call_sites: FxHashSet::default(),
         }
     }
@@ -228,7 +228,7 @@ impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
         _def_id: LocalDefId,
     ) {
         if !matches!(kind, intravisit::FnKind::Closure) {
-            blocking_op_in_async::check_fn(cx, kind, body, span, &self.blocking_fn_ids);
+            blocking_op_in_async::check_fn(cx, kind, body, span, &self.blocking_fns.ids);
         }
     }
 
@@ -249,18 +249,7 @@ impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
             }
         }
 
-        for blk_fn_path in blocking_op_in_async::FUNCTIONS_BLACKLIST {
-            for did in def_path_def_ids(cx, blk_fn_path) {
-                self.blocking_fn_ids.insert(did);
-            }
-        }
-        if !self.allow_io_blocking_ops {
-            for io_blk_fn_path in blocking_op_in_async::IO_FUNCTIONS_BLACKLIST {
-                for did in def_path_def_ids(cx, io_blk_fn_path) {
-                    self.blocking_fn_ids.insert(did);
-                }
-            }
-        }
+        blocking_op_in_async::init_blacklist_ids(cx, self.allow_io_blocking_ops, &mut self.blocking_fns.ids);
     }
 
     fn check_item(&mut self, _cx: &LateContext<'tcx>, item: &'tcx hir::Item<'_>) {
@@ -272,7 +261,7 @@ impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
         passing_string_to_c_functions::check_expr(cx, expr);
         falliable_memory_allocation::check_expr(cx, expr);
         mem_unsafe_functions::check(cx, expr, &self.mem_uns_fns.ids);
-        blocking_op_in_async::check_closure(cx, expr, &self.blocking_fn_ids);
+        blocking_op_in_async::check_closure(cx, expr, &self.blocking_fns.ids);
         unsafe_block_in_proc_macro::check(cx, expr, &mut self.macro_call_sites);
     }
 }
