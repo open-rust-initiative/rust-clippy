@@ -1,4 +1,5 @@
 error: error reading Clippy's configuration file `$DIR/clippy.toml`: unknown field `foobar`, expected one of
+           alloc-size-check-functions
            allow-dbg-in-tests
            allow-expect-in-tests
            allow-io-blocking-ops
@@ -36,6 +37,7 @@ error: error reading Clippy's configuration file `$DIR/clippy.toml`: unknown fie
            max-struct-bools
            max-suggested-slice-pattern-length
            max-trait-bounds
+           mem-alloc-functions
            mem-unsafe-functions
            missing-docs-in-crate-items
            msrv
