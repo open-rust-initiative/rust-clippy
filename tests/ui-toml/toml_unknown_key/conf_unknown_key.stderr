@@ -3,6 +3,7 @@ error: error reading Clippy's configuration file: unknown field `foobar`, expect
            absolute-paths-max-segments
            accept-comment-above-attributes
            accept-comment-above-statement
+           alloc-size-check-functions
            allow-dbg-in-tests
            allow-expect-in-tests
            allow-io-blocking-ops
@@ -48,6 +49,8 @@ error: error reading Clippy's configuration file: unknown field `foobar`, expect
            max-trait-bounds
            min-ident-chars-threshold
            missing-docs-in-crate-items
+           mem-alloc-functions
+           mem-unsafe-functions
            msrv
            pass-by-value-size-limit
            semicolon-inside-block-ignore-singleline

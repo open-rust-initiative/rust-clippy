@@ -626,6 +626,14 @@ define_Conf! {
     ///
     /// Whether to enable checks for non-async IO operations (typically file system IO) in async context.
     (allow_io_blocking_ops: bool = true),
+    /// Lint: FALLIBLE_MEMORY_ALLOCATION.
+    ///
+    /// A whitelist of additional function names that are used for size verification.
+    (alloc_size_check_functions: Vec<String> = Vec::new()),
+    /// Lint: FALLIBLE_MEMORY_ALLOCATION.
+    ///
+    /// A list of additional memory allocation functions to check.
+    (mem_alloc_functions: Vec<String> = Vec::new()),
 }
 
 /// Search for the configuration file.
