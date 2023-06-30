@@ -85,8 +85,8 @@ fn get_async_span(cx: &LateContext<'_>, span: Span) -> Option<Span> {
     }
 }
 
-fn look_for_call_in_closure<'tcx>(
-    cx: &'tcx LateContext<'_>,
+fn look_for_call_in_closure(
+    cx: &LateContext<'_>,
     closure: &Closure<'_>,
     blacklist_ids: &DefIdSet,
     decl_span: Span,
