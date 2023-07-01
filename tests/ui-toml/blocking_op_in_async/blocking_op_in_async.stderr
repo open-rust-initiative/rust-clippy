@@ -12,6 +12,42 @@ LL | pub async fn async_std_read() {
    = note: `-D clippy::blocking-op-in-async` implied by `-D warnings`
 
 error: this function call might blocks the thread in async context
+  --> $DIR/blocking_op_in_async.rs:17:5
+   |
+LL |     std::fs::remove_dir("non_exist_dir")?;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: asyncness was determined here
+  --> $DIR/blocking_op_in_async.rs:16:1
+   |
+LL | pub async fn async_std_fn_paths() -> std::io::Result<()> {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: this function call might blocks the thread in async context
+  --> $DIR/blocking_op_in_async.rs:18:5
+   |
+LL |     std::fs::write("non_exist.txt", b"Lorem ipsum")?;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: asyncness was determined here
+  --> $DIR/blocking_op_in_async.rs:16:1
+   |
+LL | pub async fn async_std_fn_paths() -> std::io::Result<()> {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: this function call might blocks the thread in async context
+  --> $DIR/blocking_op_in_async.rs:19:5
+   |
+LL |     fs::copy("non_exist.txt", "non_exist_1.txt")?;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: asyncness was determined here
+  --> $DIR/blocking_op_in_async.rs:16:1
+   |
+LL | pub async fn async_std_fn_paths() -> std::io::Result<()> {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: this function call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:20:13
    |
 LL |     let _ = fs::canonicalize("./non/exist/dir/");
@@ -215,5 +251,5 @@ note: asyncness was determined here
 LL | pub async fn if_and_matches() -> Result<(), ()> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: aborting due to 18 previous errors
+error: aborting due to 21 previous errors
 

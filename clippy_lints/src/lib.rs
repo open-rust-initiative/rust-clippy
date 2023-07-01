@@ -314,7 +314,6 @@ mod unnecessary_self_imports;
 mod unnecessary_struct_initialization;
 mod unnecessary_wraps;
 mod unnested_or_patterns;
-mod unsafe_block_in_proc_macro;
 mod unsafe_removed_from_name;
 mod unused_async;
 mod unused_io_amount;
@@ -968,14 +967,17 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     let mem_unsafe_functions = conf.mem_unsafe_functions.clone();
     let io_functions = conf.io_functions.clone();
     let allow_io_blocking_ops = conf.allow_io_blocking_ops;
+    let alloc_size_check_fns = conf.alloc_size_check_functions.clone();
+    let mem_alloc_fns = conf.mem_alloc_functions.clone();
     store.register_late_pass(move |_| {
         Box::new(guidelines::GuidelineLints::new(
             mem_unsafe_functions.clone(),
             io_functions.clone(),
             allow_io_blocking_ops,
+            alloc_size_check_fns.clone(),
+            mem_alloc_fns.clone(),
         ))
     });
-    store.register_late_pass(|_| Box::new(unsafe_block_in_proc_macro::UnsafeBlockInProcMacro::new()));
     store.register_early_pass(|| Box::new(implicit_abi::ImplicitAbi));
     store.register_early_pass(|| Box::new(non_reentrant_functions::NonReentrantFunctions));
     store.register_early_pass(|| Box::new(loop_without_break_or_return::LoopWithoutBreakOrReturn));

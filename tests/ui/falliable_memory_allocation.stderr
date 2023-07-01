@@ -1,21 +1,45 @@
-error: must verify size when allocate memories!
-  --> $DIR/falliable_memory_allocation.rs:18:13
+error: allocating memory without verifying the size
+  --> $DIR/falliable_memory_allocation.rs:26:13
    |
-LL |     let p = allocate(size);
-   |             ^^^^^^^^^^^^^^
+LL |     let p = malloc(size); // lint
+   |             ^^^^^^^^^^^^
    |
-note: unverified allocate size used here
-  --> $DIR/falliable_memory_allocation.rs:18:22
+note: unverified size used here
+  --> $DIR/falliable_memory_allocation.rs:26:20
    |
-LL |     let p = allocate(size);
-   |                      ^^^^
-   = note: `-D clippy::falliable-memory-allocation` implied by `-D warnings`
+LL |     let p = malloc(size); // lint
+   |                    ^^^^
+   = note: `-D clippy::fallible-memory-allocation` implied by `-D warnings`
 
-error: must verify null pointer after allocating memories!
-  --> $DIR/falliable_memory_allocation.rs:18:13
+error: allocating memory without checking if the result pointer is null
+  --> $DIR/falliable_memory_allocation.rs:26:13
    |
-LL |     let p = allocate(size);
-   |             ^^^^^^^^^^^^^^
+LL |     let p = malloc(size); // lint
+   |             ^^^^^^^^^^^^
 
-error: aborting due to 2 previous errors
+error: allocating memory without verifying the size
+  --> $DIR/falliable_memory_allocation.rs:112:24
+   |
+LL |     let arr: Vec<u8> = Vec::with_capacity(size); // lint
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: unverified size used here
+  --> $DIR/falliable_memory_allocation.rs:112:43
+   |
+LL |     let arr: Vec<u8> = Vec::with_capacity(size); // lint
+   |                                           ^^^^
+
+error: allocating memory without verifying the size
+  --> $DIR/falliable_memory_allocation.rs:116:24
+   |
+LL |     let arr: Vec<u8> = Vec::with_capacity(bad_size); // lint
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: unverified size used here
+  --> $DIR/falliable_memory_allocation.rs:116:43
+   |
+LL |     let arr: Vec<u8> = Vec::with_capacity(bad_size); // lint
+   |                                           ^^^^^^^^
+
+error: aborting due to 4 previous errors
 
