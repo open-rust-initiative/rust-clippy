@@ -85,12 +85,7 @@ fn get_async_span(cx: &LateContext<'_>, span: Span) -> Option<Span> {
     }
 }
 
-fn look_for_call_in_closure(
-    cx: &LateContext<'_>,
-    closure: &Closure<'_>,
-    blacklist_ids: &DefIdSet,
-    decl_span: Span,
-) {
+fn look_for_call_in_closure(cx: &LateContext<'_>, closure: &Closure<'_>, blacklist_ids: &DefIdSet, decl_span: Span) {
     let body_expr = cx.tcx.hir().find(closure.body.hir_id);
 
     if let Some(Node::Expr(expr)) = body_expr {
