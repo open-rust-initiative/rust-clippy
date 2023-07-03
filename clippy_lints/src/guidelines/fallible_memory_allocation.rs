@@ -1,7 +1,7 @@
 use super::FALLIBLE_MEMORY_ALLOCATION;
 use clippy_utils::diagnostics::{span_lint, span_lint_and_note};
-use clippy_utils::source::snippet_opt;
 use clippy_utils::fn_def_id;
+use clippy_utils::source::snippet_opt;
 use rustc_hir::def::Res;
 use rustc_hir::def_id::DefIdSet;
 use rustc_hir::intravisit::Visitor;
@@ -57,7 +57,8 @@ impl<'tcx, 'a> Visitor<'tcx> for VerifierFinder<'a> {
     fn visit_stmt(&mut self, stmt: &'tcx Stmt<'tcx>) {
         if let StmtKind::Local(Local {
             pat, init: Some(init), ..
-        }) = stmt.kind {
+        }) = stmt.kind
+        {
             if pat.hir_id != self.id {
                 return;
             }
