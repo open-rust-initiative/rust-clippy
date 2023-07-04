@@ -1,15 +1,27 @@
-error: can't pass rust String to ffi functions!
-  --> $DIR/passing_string_to_c_functions.rs:11:14
+error: passing native strings to external functions
+  --> $DIR/passing_string_to_c_functions.rs:23:9
    |
-LL |     unsafe { greet(name.as_ptr() as *const _) }
-   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LL |         greet(name.as_ptr() as *const _); // lint
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-help: use `Cstring` or `Cstr` instead
-  --> $DIR/passing_string_to_c_functions.rs:11:20
+help: use `CString` or `CStr` instead
+  --> $DIR/passing_string_to_c_functions.rs:23:15
    |
-LL |     unsafe { greet(name.as_ptr() as *const _) }
-   |                    ^^^^
+LL |         greet(name.as_ptr() as *const _); // lint
+   |               ^^^^
    = note: `-D clippy::passing-string-to-c-functions` implied by `-D warnings`
 
-error: aborting due to previous error
+error: passing native strings to external functions
+  --> $DIR/passing_string_to_c_functions.rs:26:9
+   |
+LL |         strlen(name.as_ptr() as *const _); // lint
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `CString` or `CStr` instead
+  --> $DIR/passing_string_to_c_functions.rs:26:16
+   |
+LL |         strlen(name.as_ptr() as *const _); // lint
+   |                ^^^^
+
+error: aborting due to 2 previous errors
 
