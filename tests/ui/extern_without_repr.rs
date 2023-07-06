@@ -14,7 +14,7 @@ struct Foo1 {
 }
 
 #[repr(packed)]
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct Foo2 {
     a: libc::c_char,
     b: libc::c_int,
