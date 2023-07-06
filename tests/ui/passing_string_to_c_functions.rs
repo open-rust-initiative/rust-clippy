@@ -3,8 +3,8 @@
 #![feature(rustc_private)]
 extern crate libc;
 
-use std::ffi::{c_char, CString};
 use libc::strlen;
+use std::ffi::{c_char, CString};
 
 extern "C" {
     fn greet(name: *const c_char);
