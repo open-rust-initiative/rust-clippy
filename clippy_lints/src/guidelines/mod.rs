@@ -1,4 +1,5 @@
 mod blocking_op_in_async;
+mod extern_without_repr;
 mod fallible_memory_allocation;
 mod mem_unsafe_functions;
 mod passing_string_to_c_functions;
@@ -168,6 +169,36 @@ declare_clippy_lint! {
     "using unsafe block in procedural macro's definition"
 }
 
+declare_clippy_lint! {
+    /// ### What it does
+    ///
+    /// ### Why is this bad?
+    ///
+    /// ### Example
+    /// ```rust
+    /// struct Foo3 {
+    ///     a: libc::c_char,
+    ///     b: libc::c_int,
+    ///     c: libc::c_longlong,
+    /// }
+    /// extern "C" fn c_abi_fn4(arg_one: u32, arg_two: *const Foo3) {}
+    /// ```
+    /// Use instead:
+    /// ```rust
+    /// #[repr(C)]
+    /// struct Foo3 {
+    ///     a: libc::c_char,
+    ///     b: libc::c_int,
+    ///     c: libc::c_longlong,
+    /// }
+    /// extern "C" fn c_abi_fn4(arg_one: u32, arg_two: *const Foo3) {}
+    /// ```
+    #[clippy::version = "1.72.0"]
+    pub EXTERN_WITHOUT_REPR,
+    pedantic,
+    "Should use repr to specifing data layout when struct is used in FFI"
+}
+
 /// Helper struct with user configured path-like functions, such as `std::fs::read`,
 /// and a set for `def_id`s which should be filled during checks.
 ///
@@ -188,7 +219,7 @@ impl FnPathsAndIds {
 }
 
 #[derive(Clone, Default)]
-pub struct GuidelineLints {
+pub struct LintGroup {
     mem_uns_fns: FnPathsAndIds,
     /// additional external memory allocation function names
     /// other than [`fallible_memory_allocation::DEFAULT_MEM_ALLOC_FNS`]
@@ -202,7 +233,7 @@ pub struct GuidelineLints {
     alloc_size_check_fns: Vec<String>,
 }
 
-impl GuidelineLints {
+impl LintGroup {
     #[allow(clippy::needless_pass_by_value)]
     pub fn new(
         mem_uns_fns: Vec<String>,
@@ -228,16 +259,17 @@ impl GuidelineLints {
     }
 }
 
-impl_lint_pass!(GuidelineLints => [
+impl_lint_pass!(LintGroup => [
     MEM_UNSAFE_FUNCTIONS,
     UNTRUSTED_LIB_LOADING,
     PASSING_STRING_TO_C_FUNCTIONS,
     FALLIBLE_MEMORY_ALLOCATION,
     BLOCKING_OP_IN_ASYNC,
     UNSAFE_BLOCK_IN_PROC_MACRO,
+    EXTERN_WITHOUT_REPR,
 ]);
 
-impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
+impl<'tcx> LateLintPass<'tcx> for LintGroup {
     fn check_fn(
         &mut self,
         cx: &LateContext<'tcx>,
@@ -258,9 +290,11 @@ impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
         blocking_op_in_async::init_blacklist_ids(cx, self.allow_io_blocking_ops, &mut self.blocking_fns.ids);
     }
 
-    fn check_item(&mut self, _cx: &LateContext<'tcx>, item: &'tcx hir::Item<'_>) {
+    fn check_item(&mut self, cx: &LateContext<'tcx>, item: &'tcx hir::Item<'_>) {
         add_extern_fn_ids(item, &self.mem_uns_fns.paths, &mut self.mem_uns_fns.ids);
         add_extern_fn_ids(item, &self.mem_alloc_fns.paths, &mut self.mem_alloc_fns.ids);
+
+        extern_without_repr::check_item(cx, item);
     }
 
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx hir::Expr<'_>) {
