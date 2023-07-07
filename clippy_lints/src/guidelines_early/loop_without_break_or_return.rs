@@ -1,49 +1,14 @@
+use super::LOOP_WITHOUT_BREAK_OR_RETURN;
 use clippy_utils::diagnostics::span_lint;
 use rustc_ast::ast::{Block, Expr, ExprKind, Label, StmtKind};
-use rustc_lint::{EarlyContext, EarlyLintPass};
-use rustc_session::{declare_lint_pass, declare_tool_lint};
+use rustc_lint::EarlyContext;
 
-declare_clippy_lint! {
-    /// ### What it does
-    /// Checks for loop-without-exit-mechanism.
-    ///
-    /// ### Why is this bad?
-    /// This makes code bug-prone.
-    ///
-    /// ### Example
-    /// ```rust
-    /// loop {
-    ///     println!("so something");
-    /// }
-    /// ```
-    /// Use instead:
-    /// ```rust
-    /// loop {
-    ///     println!("do something");
-    ///     if flag {
-    ///         break;
-    ///     }
-    /// }
-    /// ```
-    #[clippy::version = "1.70.0"]
-    pub LOOP_WITHOUT_BREAK_OR_RETURN,
-    nursery,
-    "loop block without `break` or `return` statement"
-}
-declare_lint_pass!(LoopWithoutBreakOrReturn => [LOOP_WITHOUT_BREAK_OR_RETURN]);
+pub(super) fn check(cx: &EarlyContext<'_>, expr: &Expr) {
+    let msg: &str = "consider adding `break` or `return` statement in the loop block";
 
-impl EarlyLintPass for LoopWithoutBreakOrReturn {
-    fn check_expr(&mut self, cx: &EarlyContext<'_>, expr: &Expr) {
-        if expr.span.from_expansion() {
-            return;
-        }
-
-        let msg: &str = "consider adding `break` or `return` statement in the loop block";
-
-        if let ExprKind::Loop(block, label, _) = &expr.kind {
-            if !check_block(block, label, true) {
-                span_lint(cx, LOOP_WITHOUT_BREAK_OR_RETURN, expr.span, msg);
-            }
+    if let ExprKind::Loop(block, label, _) = &expr.kind {
+        if !check_block(block, label, true) {
+            span_lint(cx, LOOP_WITHOUT_BREAK_OR_RETURN, expr.span, msg);
         }
     }
 }
