@@ -1,0 +1,39 @@
+error: loading dynamic library from untrusted source
+  --> $DIR/untrusted_lib_loading.rs:27:18
+   |
+LL |         let _a = libloading::Library::new(&name_a); // lint
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: untrusted IO function called here
+  --> $DIR/untrusted_lib_loading.rs:19:5
+   |
+LL |     f.read_to_string(&mut name_a).unwrap();
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   = note: `-D clippy::untrusted-lib-loading` implied by `-D warnings`
+
+error: loading dynamic library from untrusted source
+  --> $DIR/untrusted_lib_loading.rs:28:18
+   |
+LL |         let _b = Library::new(name_b); // lint
+   |                  ^^^^^^^^^^^^^^^^^^^^
+   |
+note: untrusted IO function called here
+  --> $DIR/untrusted_lib_loading.rs:21:18
+   |
+LL |     let name_b = std::fs::read_to_string("foo").unwrap();
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: loading dynamic library from untrusted source
+  --> $DIR/untrusted_lib_loading.rs:32:18
+   |
+LL |         let _e = dlopen(name_a.as_ptr() as *const c_char, 1); // lint
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: untrusted IO function called here
+  --> $DIR/untrusted_lib_loading.rs:19:5
+   |
+LL |     f.read_to_string(&mut name_a).unwrap();
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 3 previous errors
+

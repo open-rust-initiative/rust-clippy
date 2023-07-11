@@ -1,12 +1,20 @@
 #![warn(clippy::non_reentrant_functions)]
 #![allow(unused)]
-#![feature(rustc_private)]
-extern crate libc;
+
+mod libc {
+    pub use std::ffi::{c_char, c_int, c_void};
+    #[allow(non_camel_case_types)]
+    pub type time_t = i64;
+
+    extern "C" {
+        pub fn strtok(s: *mut c_char, t: *const c_char) -> *mut c_char;
+        pub fn localtime(t: *const time_t) -> i64;
+    }
+}
 
 use std::ffi::{CStr, CString};
 
 fn test_libc_localtime() {
-    // test code goes here
     unsafe {
         let _tm = libc::localtime(&0i64 as *const libc::time_t);
     }

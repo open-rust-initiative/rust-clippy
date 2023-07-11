@@ -123,7 +123,6 @@ mod excessive_bools;
 mod exhaustive_items;
 mod exit;
 mod explicit_write;
-mod extern_without_repr;
 mod extra_unused_type_parameters;
 mod fallible_impl_from;
 mod float_literal;
@@ -140,10 +139,10 @@ mod from_str_radix_10;
 mod functions;
 mod future_not_send;
 mod guidelines;
+mod guidelines_early;
 mod if_let_mutex;
 mod if_not_else;
 mod if_then_some_else_none;
-mod implicit_abi;
 mod implicit_hasher;
 mod implicit_return;
 mod implicit_saturating_add;
@@ -174,7 +173,6 @@ mod let_with_type_underscore;
 mod lifetimes;
 mod lines_filter_map_ok;
 mod literal_representation;
-mod loop_without_break_or_return;
 mod loops;
 mod macro_use;
 mod main_recursion;
@@ -234,7 +232,6 @@ mod no_mangle_with_rust_abi;
 mod non_copy_const;
 mod non_expressive_names;
 mod non_octal_unix_permissions;
-mod non_reentrant_functions;
 mod non_send_fields_in_send_ty;
 mod nonstandard_macro_braces;
 mod octal_escapes;
@@ -966,22 +963,21 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     store.register_early_pass(|| Box::new(suspicious_doc_comments::SuspiciousDocComments));
     let mem_unsafe_functions = conf.mem_unsafe_functions.clone();
     let io_functions = conf.io_functions.clone();
+    let lib_loading_fns = conf.lib_loading_functions.clone();
     let allow_io_blocking_ops = conf.allow_io_blocking_ops;
     let alloc_size_check_fns = conf.alloc_size_check_functions.clone();
     let mem_alloc_fns = conf.mem_alloc_functions.clone();
     store.register_late_pass(move |_| {
-        Box::new(guidelines::GuidelineLints::new(
+        Box::new(guidelines::LintGroup::new(
             mem_unsafe_functions.clone(),
             io_functions.clone(),
+            lib_loading_fns.clone(),
             allow_io_blocking_ops,
             alloc_size_check_fns.clone(),
             mem_alloc_fns.clone(),
         ))
     });
-    store.register_early_pass(|| Box::new(implicit_abi::ImplicitAbi));
-    store.register_early_pass(|| Box::new(non_reentrant_functions::NonReentrantFunctions));
-    store.register_early_pass(|| Box::new(loop_without_break_or_return::LoopWithoutBreakOrReturn));
-    store.register_late_pass(|_| Box::new(extern_without_repr::ExternWithoutRepr));
+    store.register_early_pass(|| Box::new(guidelines_early::LintGroup));
     // add lints here, do not remove this comment, it's used in `new_lint`
 }
 

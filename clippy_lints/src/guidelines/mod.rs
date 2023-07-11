@@ -1,4 +1,5 @@
 mod blocking_op_in_async;
+mod extern_without_repr;
 mod fallible_memory_allocation;
 mod mem_unsafe_functions;
 mod passing_string_to_c_functions;
@@ -168,11 +169,41 @@ declare_clippy_lint! {
     "using unsafe block in procedural macro's definition"
 }
 
+declare_clippy_lint! {
+    /// ### What it does
+    ///
+    /// ### Why is this bad?
+    ///
+    /// ### Example
+    /// ```rust
+    /// struct Foo3 {
+    ///     a: libc::c_char,
+    ///     b: libc::c_int,
+    ///     c: libc::c_longlong,
+    /// }
+    /// extern "C" fn c_abi_fn4(arg_one: u32, arg_two: *const Foo3) {}
+    /// ```
+    /// Use instead:
+    /// ```rust
+    /// #[repr(C)]
+    /// struct Foo3 {
+    ///     a: libc::c_char,
+    ///     b: libc::c_int,
+    ///     c: libc::c_longlong,
+    /// }
+    /// extern "C" fn c_abi_fn4(arg_one: u32, arg_two: *const Foo3) {}
+    /// ```
+    #[clippy::version = "1.72.0"]
+    pub EXTERN_WITHOUT_REPR,
+    pedantic,
+    "Should use repr to specifing data layout when struct is used in FFI"
+}
+
 /// Helper struct with user configured path-like functions, such as `std::fs::read`,
 /// and a set for `def_id`s which should be filled during checks.
 ///
 /// NB: They might not have a one-on-one relation.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct FnPathsAndIds {
     pub paths: Vec<String>,
     pub ids: DefIdSet,
@@ -188,12 +219,16 @@ impl FnPathsAndIds {
 }
 
 #[derive(Clone, Default)]
-pub struct GuidelineLints {
+pub struct LintGroup {
     mem_uns_fns: FnPathsAndIds,
     /// additional external memory allocation function names
     /// other than [`fallible_memory_allocation::DEFAULT_MEM_ALLOC_FNS`]
     mem_alloc_fns: FnPathsAndIds,
+    /// additional IO functions other than [`untrusted_lib_loading::IO_FUNCTIONS`]
     io_fns: FnPathsAndIds,
+    /// additional dynamic library loading functions
+    /// other than [`untrusted_lib_loading::LOADING_FNS`]
+    lib_loading_fns: FnPathsAndIds,
     blocking_fns: FnPathsAndIds,
     allow_io_blocking_ops: bool,
     macro_call_sites: FxHashSet<Span>,
@@ -202,11 +237,12 @@ pub struct GuidelineLints {
     alloc_size_check_fns: Vec<String>,
 }
 
-impl GuidelineLints {
+impl LintGroup {
     #[allow(clippy::needless_pass_by_value)]
     pub fn new(
         mem_uns_fns: Vec<String>,
         io_fns: Vec<String>,
+        lib_loading_fns: Vec<String>,
         allow_io_blocking_ops: bool,
         alloc_size_check_fns: Vec<String>,
         mem_alloc_fns: Vec<String>,
@@ -215,11 +251,16 @@ impl GuidelineLints {
         all_checker_fns.extend_from_slice(&alloc_size_check_fns);
         let mut all_mem_alloc_fns = str_slice_owned(fallible_memory_allocation::DEFAULT_MEM_ALLOC_FNS);
         all_mem_alloc_fns.extend_from_slice(&mem_alloc_fns);
+        let mut all_io_fns = str_slice_owned(untrusted_lib_loading::IO_FUNCTIONS);
+        all_io_fns.extend_from_slice(&io_fns);
+        let mut all_loaders = str_slice_owned(untrusted_lib_loading::LOADING_FNS);
+        all_loaders.extend_from_slice(&lib_loading_fns);
 
         Self {
             mem_uns_fns: FnPathsAndIds::with_paths(mem_uns_fns),
             mem_alloc_fns: FnPathsAndIds::with_paths(all_mem_alloc_fns),
-            io_fns: FnPathsAndIds::with_paths(io_fns),
+            io_fns: FnPathsAndIds::with_paths(all_io_fns),
+            lib_loading_fns: FnPathsAndIds::with_paths(all_loaders),
             blocking_fns: FnPathsAndIds::default(),
             allow_io_blocking_ops,
             macro_call_sites: FxHashSet::default(),
@@ -228,16 +269,17 @@ impl GuidelineLints {
     }
 }
 
-impl_lint_pass!(GuidelineLints => [
+impl_lint_pass!(LintGroup => [
     MEM_UNSAFE_FUNCTIONS,
     UNTRUSTED_LIB_LOADING,
     PASSING_STRING_TO_C_FUNCTIONS,
     FALLIBLE_MEMORY_ALLOCATION,
     BLOCKING_OP_IN_ASYNC,
     UNSAFE_BLOCK_IN_PROC_MACRO,
+    EXTERN_WITHOUT_REPR,
 ]);
 
-impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
+impl<'tcx> LateLintPass<'tcx> for LintGroup {
     fn check_fn(
         &mut self,
         cx: &LateContext<'tcx>,
@@ -253,18 +295,25 @@ impl<'tcx> LateLintPass<'tcx> for GuidelineLints {
     }
 
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
-        add_configured_c_fn_ids(cx, &self.mem_uns_fns.paths, &mut self.mem_uns_fns.ids);
-        add_configured_c_fn_ids(cx, &self.mem_alloc_fns.paths, &mut self.mem_alloc_fns.ids);
+        add_configured_fn_ids(cx, &mut self.mem_uns_fns);
+        add_configured_fn_ids(cx, &mut self.mem_alloc_fns);
+        add_configured_fn_ids(cx, &mut self.io_fns);
+        add_configured_fn_ids(cx, &mut self.lib_loading_fns);
+
         blocking_op_in_async::init_blacklist_ids(cx, self.allow_io_blocking_ops, &mut self.blocking_fns.ids);
     }
 
-    fn check_item(&mut self, _cx: &LateContext<'tcx>, item: &'tcx hir::Item<'_>) {
-        add_extern_fn_ids(item, &self.mem_uns_fns.paths, &mut self.mem_uns_fns.ids);
-        add_extern_fn_ids(item, &self.mem_alloc_fns.paths, &mut self.mem_alloc_fns.ids);
+    fn check_item(&mut self, cx: &LateContext<'tcx>, item: &'tcx hir::Item<'_>) {
+        add_extern_fn_ids(item, &mut self.mem_uns_fns);
+        add_extern_fn_ids(item, &mut self.mem_alloc_fns);
+        add_extern_fn_ids(item, &mut self.io_fns);
+        add_extern_fn_ids(item, &mut self.lib_loading_fns);
+
+        extern_without_repr::check_item(cx, item);
     }
 
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx hir::Expr<'_>) {
-        untrusted_lib_loading::check(cx, expr, &self.io_fns.paths);
+        untrusted_lib_loading::check(cx, expr, &self.io_fns.ids, &self.lib_loading_fns.ids);
         passing_string_to_c_functions::check_expr(cx, expr);
         fallible_memory_allocation::check_expr(cx, expr, &self.alloc_size_check_fns, &self.mem_alloc_fns.ids);
         mem_unsafe_functions::check(cx, expr, &self.mem_uns_fns.ids);
@@ -278,32 +327,34 @@ fn str_slice_owned(seq: &[&str]) -> Vec<String> {
     seq.iter().map(ToString::to_string).collect()
 }
 
-/// Resolve and insert the `def_id` of user configure extern C functions into `ids`.
-fn add_configured_c_fn_ids(cx: &LateContext<'_>, fns: &[String], ids: &mut DefIdSet) {
-    for fn_name in fns {
+/// Resolve and insert the `def_id` of user configure functions if:
+///
+/// 1. They are the full path like string, such as: `krate::module::func`.
+/// 2. They are function names in libc crate.
+fn add_configured_fn_ids(cx: &LateContext<'_>, fns: &mut FnPathsAndIds) {
+    for fn_name in &fns.paths {
         // Path like function names such as `libc::foo` or `aa::bb::cc::bar`,
         // this only works with dependencies.
         if fn_name.contains("::") {
             let path: Vec<&str> = fn_name.split("::").collect();
             for did in def_path_def_ids(cx, path.as_slice()) {
-                ids.insert(did);
+                fns.ids.insert(did);
             }
         }
         // Plain function names, then we should take its libc variant into account
         else if let Some(did) = def_path_def_ids(cx, &["libc", fn_name]).next() {
-            ids.insert(did);
+            fns.ids.insert(did);
         }
     }
 }
 
-/// Insert the `def_id` of external functions into `ids` if those functions were stated in the `fns`
-/// slice.
-fn add_extern_fn_ids(item: &hir::Item<'_>, fns: &[String], ids: &mut DefIdSet) {
+/// Resolve and insert the `def_id` of functions if they could be found in an `extern` block
+fn add_extern_fn_ids(item: &hir::Item<'_>, fns: &mut FnPathsAndIds) {
     if let hir::ItemKind::ForeignMod { items, .. } = item.kind {
         for f_item in items {
-            if fns.contains(&f_item.ident.as_str().to_string()) {
+            if fns.paths.contains(&f_item.ident.as_str().to_string()) {
                 let f_did = f_item.id.hir_id().owner.def_id.to_def_id();
-                ids.insert(f_did);
+                fns.ids.insert(f_did);
             }
         }
     }
