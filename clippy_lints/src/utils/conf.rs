@@ -52,17 +52,6 @@ const DEFAULT_MEM_UNSAFE_FUNCTIONS: &[&str] = &[
     "memset",
 ];
 
-#[rustfmt::skip]
-const DEFAULT_IO_FUNCTIONS: &[&str] = &[
-    // File open functions
-    "open",
-    // standard input
-    "gets", "getchar",
-    // formatted input functions
-    "scanf", "wscanf", "vscanf", "vwscanf", "fscanf", "fwscanf", "vfscanf", "vfwscanf",
-    "sscanf", "swscanf", "vsscanf", "vswscanf",
-];
-
 /// Holds information used by `MISSING_ENFORCED_IMPORT_RENAMES` lint.
 #[derive(Clone, Debug, Deserialize)]
 pub struct Rename {
@@ -619,9 +608,14 @@ define_Conf! {
     (mem_unsafe_functions: Vec<String> = super::DEFAULT_MEM_UNSAFE_FUNCTIONS.iter().map(ToString::to_string).collect()),
     /// Lint: UNTRUSTED_LIB_LOADING
     ///
-    /// The list of function names to lint about
-    /// Providing empty list has the same effect as disabling this lint.
-    (io_functions: Vec<String> = super::DEFAULT_IO_FUNCTIONS.iter().map(ToString::to_string).collect()),
+    /// The list of additional IO functions to detect, e.g. `crate_a::mod_a::read`,
+    /// or externally defined functions, e.g. `scanf`.
+    (io_functions: Vec<String> = Vec::new()),
+    /// Lint: UNTRUSTED_LIB_LOADING
+    ///
+    /// The list of dynamic library loader functions to detect, e.g. `crate_a::mod_a::load_lib`,
+    /// or externally defined functions, e.g. `dlopen`.
+    (lib_loading_functions: Vec<String> = Vec::new()),
     /// Lint: BLOCKING_OP_IN_ASYNC.
     ///
     /// Whether to enable checks for non-async IO operations (typically file system IO) in async context.
