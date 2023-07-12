@@ -304,11 +304,12 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
     }
 
     fn check_item(&mut self, cx: &LateContext<'tcx>, item: &'tcx hir::Item<'_>) {
-        add_extern_fn_ids(item, &mut self.mem_uns_fns);
-        add_extern_fn_ids(item, &mut self.mem_alloc_fns);
-        add_extern_fn_ids(item, &mut self.io_fns);
-        add_extern_fn_ids(item, &mut self.lib_loading_fns);
-
+        if let hir::ItemKind::ForeignMod { items, .. } = item.kind {
+            add_extern_fn_ids(items, &mut self.mem_uns_fns);
+            add_extern_fn_ids(items, &mut self.mem_alloc_fns);
+            add_extern_fn_ids(items, &mut self.io_fns);
+            add_extern_fn_ids(items, &mut self.lib_loading_fns);
+        }
         extern_without_repr::check_item(cx, item);
     }
 
@@ -348,14 +349,12 @@ fn add_configured_fn_ids(cx: &LateContext<'_>, fns: &mut FnPathsAndIds) {
     }
 }
 
-/// Resolve and insert the `def_id` of functions if they could be found in an `extern` block
-fn add_extern_fn_ids(item: &hir::Item<'_>, fns: &mut FnPathsAndIds) {
-    if let hir::ItemKind::ForeignMod { items, .. } = item.kind {
-        for f_item in items {
-            if fns.paths.contains(&f_item.ident.as_str().to_string()) {
-                let f_did = f_item.id.hir_id().owner.def_id.to_def_id();
-                fns.ids.insert(f_did);
-            }
+/// Resolve and insert the `def_id` of functions declared in an `extern` block
+fn add_extern_fn_ids(items: &[hir::ForeignItemRef], fns: &mut FnPathsAndIds) {
+    for f_item in items {
+        if fns.paths.contains(&f_item.ident.as_str().to_string()) {
+            let f_did = f_item.id.hir_id().owner.def_id.to_def_id();
+            fns.ids.insert(f_did);
         }
     }
 }

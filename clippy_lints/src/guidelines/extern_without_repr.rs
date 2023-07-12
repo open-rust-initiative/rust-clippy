@@ -1,63 +1,64 @@
-use rustc_hir::{ForeignItemKind, Item, ItemKind, Node};
-use rustc_lint::LateContext;
-
 use super::EXTERN_WITHOUT_REPR;
-use clippy_utils::diagnostics::span_lint_and_then;
-use clippy_utils::source::snippet_with_applicability;
+use clippy_utils::diagnostics::span_lint_and_note;
 use clippy_utils::ty::walk_ptrs_hir_ty;
-use if_chain::if_chain;
-use rustc_errors::Applicability;
+use rustc_hir::{FnHeader, FnSig, ForeignItemKind, Item, ItemKind, Node, Ty};
 use rustc_hir_analysis::hir_ty_to_ty;
+use rustc_lint::LateContext;
+use rustc_span::Span;
 use rustc_target::spec::abi::Abi;
 
 pub(super) fn check_item<'tcx>(cx: &LateContext<'tcx>, item: &'tcx Item<'tcx>) {
-    let msg = "Should use repr to specifing data layout when struct is used in FFI";
-    if let ItemKind::Fn(fn_sig, _, _) = &item.kind {
-        let mut app = Applicability::MaybeIncorrect;
-        let snippet = snippet_with_applicability(cx, fn_sig.span, "..", &mut app);
-        if let Some((fn_attrs, _)) = snippet.split_once("fn") {
-            if fn_attrs.contains("extern \"C\"") {
-                for i in 0..fn_sig.decl.inputs.len() {
-                    let t = hir_ty_to_ty(cx.tcx, walk_ptrs_hir_ty(&fn_sig.decl.inputs[i]));
-                    if let Some(adt) = t.ty_adt_def() {
-                        let repr = adt.repr();
-                        if repr.packed() || repr.transparent() || repr.c() || repr.align.is_some() {
-                            continue;
-                        }
-                        let struct_span = cx.tcx.def_span(adt.did());
-                        span_lint_and_then(cx, EXTERN_WITHOUT_REPR, struct_span, msg, |_| {});
-                    }
-                }
-            }
-        }
-    }
-
-    if_chain! {
-        if let ItemKind::ForeignMod { abi, items } = &item.kind;
-        if let Abi::C { unwind: _ } = abi;
-        then {
-            for i in 0..items.len() {
-                if let Some(Node::ForeignItem(f)) = cx.tcx.hir().find(items[i].id.hir_id()) {
+    match &item.kind {
+        ItemKind::Fn(
+            FnSig {
+                header: FnHeader { abi: Abi::C { .. }, .. },
+                decl,
+                ..
+            },
+            ..,
+        ) => lint_for_tys(cx, decl.inputs),
+        ItemKind::ForeignMod {
+            abi: Abi::C { .. },
+            items,
+        } => {
+            for f_item in items.iter() {
+                if let Some(Node::ForeignItem(f)) = cx.tcx.hir().find(f_item.id.hir_id()) {
                     if let ForeignItemKind::Fn(decl, ..) = f.kind {
-                        for j in 0..decl.inputs.len() {
-                            let t = hir_ty_to_ty(cx.tcx, walk_ptrs_hir_ty(&decl.inputs[j]));
-                            if let Some(adt) = t.ty_adt_def() {
-                                let repr = adt.repr();
-                                if repr.packed()
-                                    || repr.transparent()
-                                    || repr.c()
-                                    || repr.simd()
-                                    || repr.align.is_some()
-                                {
-                                    continue;
-                                }
-                                let struct_span = cx.tcx.def_span(adt.did());
-                                span_lint_and_then(cx, EXTERN_WITHOUT_REPR, struct_span, msg, |_| {});
-                            }
-                        }
+                        lint_for_tys(cx, decl.inputs);
                     }
                 }
             }
-        }
+        },
+        _ => (),
+    }
+}
+
+/// Return the span of where the given `ty` was declared if it DOES NOT
+/// have `repr(C|transparent|packed|align(x))` attribute.
+fn non_ffi_safe_ty_span(cx: &LateContext<'_>, ty: &Ty<'_>) -> Option<Span> {
+    let mid_ty = hir_ty_to_ty(cx.tcx, walk_ptrs_hir_ty(ty));
+    let adt = mid_ty.ty_adt_def()?;
+    let repr = adt.repr();
+    if repr.c() || repr.transparent() || repr.packed() || repr.align.is_some() {
+        None
+    } else {
+        Some(cx.tcx.def_span(adt.did()))
+    }
+}
+
+fn lint_for_tys(cx: &LateContext<'_>, tys: &[Ty<'_>]) {
+    let decl_and_usage_spans: Vec<(Span, Span)> = tys
+        .iter()
+        .filter_map(|ty| non_ffi_safe_ty_span(cx, ty).map(|s| (s, ty.span)))
+        .collect();
+    for (decl_span, usage_span) in decl_and_usage_spans {
+        span_lint_and_note(
+            cx,
+            EXTERN_WITHOUT_REPR,
+            usage_span,
+            "should use `#[repr(..)]` to specifing data layout when type is used in FFI",
+            Some(decl_span),
+            "type declared here",
+        );
     }
 }
