@@ -1,10 +1,147 @@
-error: Should use repr to specifing data layout when struct is used in FFI
-  --> $DIR/extern_without_repr.rs:24:1
+error: should use `#[repr(..)]` to specifing data layout when type is used in FFI
+  --> $DIR/extern_without_repr.rs:52:30
    |
-LL | struct Foo3 {
-   | ^^^^^^^^^^^
+LL | extern "C" fn c_abi_fn5(arg: ReprSimd) {}
+   |                              ^^^^^^^^
    |
+note: type declared here
+  --> $DIR/extern_without_repr.rs:30:1
+   |
+LL | struct ReprSimd {
+   | ^^^^^^^^^^^^^^^
    = note: `-D clippy::extern-without-repr` implied by `-D warnings`
 
-error: aborting due to previous error
+error: should use `#[repr(..)]` to specifing data layout when type is used in FFI
+  --> $DIR/extern_without_repr.rs:54:45
+   |
+LL | extern "C" fn bad1(arg_one: c_int, arg_two: *const NakedStruct) {}
+   |                                             ^^^^^^^^^^^^^^^^^^
+   |
+note: type declared here
+  --> $DIR/extern_without_repr.rs:39:1
+   |
+LL | struct NakedStruct {
+   | ^^^^^^^^^^^^^^^^^^
+
+error: should use `#[repr(..)]` to specifing data layout when type is used in FFI
+  --> $DIR/extern_without_repr.rs:55:25
+   |
+LL | extern "C" fn bad2(arg: NakedStruct) {}
+   |                         ^^^^^^^^^^^
+   |
+note: type declared here
+  --> $DIR/extern_without_repr.rs:39:1
+   |
+LL | struct NakedStruct {
+   | ^^^^^^^^^^^^^^^^^^
+
+error: should use `#[repr(..)]` to specifing data layout when type is used in FFI
+  --> $DIR/extern_without_repr.rs:56:25
+   |
+LL | extern "C" fn bad3(arg: NakedEnum) {}
+   |                         ^^^^^^^^^
+   |
+note: type declared here
+  --> $DIR/extern_without_repr.rs:43:1
+   |
+LL | pub enum NakedEnum {
+   | ^^^^^^^^^^^^^^^^^^
+
+error: should use `#[repr(..)]` to specifing data layout when type is used in FFI
+  --> $DIR/extern_without_repr.rs:57:25
+   |
+LL | extern "C" fn bad4(arg: NakedEnum, arg2: NakedStruct) {}
+   |                         ^^^^^^^^^
+   |
+note: type declared here
+  --> $DIR/extern_without_repr.rs:43:1
+   |
+LL | pub enum NakedEnum {
+   | ^^^^^^^^^^^^^^^^^^
+
+error: should use `#[repr(..)]` to specifing data layout when type is used in FFI
+  --> $DIR/extern_without_repr.rs:57:42
+   |
+LL | extern "C" fn bad4(arg: NakedEnum, arg2: NakedStruct) {}
+   |                                          ^^^^^^^^^^^
+   |
+note: type declared here
+  --> $DIR/extern_without_repr.rs:39:1
+   |
+LL | struct NakedStruct {
+   | ^^^^^^^^^^^^^^^^^^
+
+error: should use `#[repr(..)]` to specifing data layout when type is used in FFI
+  --> $DIR/extern_without_repr.rs:64:29
+   |
+LL |     fn c_abi_in_block5(arg: ReprSimd);
+   |                             ^^^^^^^^
+   |
+note: type declared here
+  --> $DIR/extern_without_repr.rs:30:1
+   |
+LL | struct ReprSimd {
+   | ^^^^^^^^^^^^^^^
+
+error: should use `#[repr(..)]` to specifing data layout when type is used in FFI
+  --> $DIR/extern_without_repr.rs:65:47
+   |
+LL |     fn bad_in_block1(arg_one: c_int, arg_two: NakedStruct);
+   |                                               ^^^^^^^^^^^
+   |
+note: type declared here
+  --> $DIR/extern_without_repr.rs:39:1
+   |
+LL | struct NakedStruct {
+   | ^^^^^^^^^^^^^^^^^^
+
+error: should use `#[repr(..)]` to specifing data layout when type is used in FFI
+  --> $DIR/extern_without_repr.rs:66:27
+   |
+LL |     fn bad_in_block2(arg: *mut NakedEnum);
+   |                           ^^^^^^^^^^^^^^
+   |
+note: type declared here
+  --> $DIR/extern_without_repr.rs:43:1
+   |
+LL | pub enum NakedEnum {
+   | ^^^^^^^^^^^^^^^^^^
+
+error: should use `#[repr(..)]` to specifing data layout when type is used in FFI
+  --> $DIR/extern_without_repr.rs:67:27
+   |
+LL |     fn bad_in_block3(arg: *mut NakedEnum, arg2: NakedStruct, arg3: *const ReprSimd);
+   |                           ^^^^^^^^^^^^^^
+   |
+note: type declared here
+  --> $DIR/extern_without_repr.rs:43:1
+   |
+LL | pub enum NakedEnum {
+   | ^^^^^^^^^^^^^^^^^^
+
+error: should use `#[repr(..)]` to specifing data layout when type is used in FFI
+  --> $DIR/extern_without_repr.rs:67:49
+   |
+LL |     fn bad_in_block3(arg: *mut NakedEnum, arg2: NakedStruct, arg3: *const ReprSimd);
+   |                                                 ^^^^^^^^^^^
+   |
+note: type declared here
+  --> $DIR/extern_without_repr.rs:39:1
+   |
+LL | struct NakedStruct {
+   | ^^^^^^^^^^^^^^^^^^
+
+error: should use `#[repr(..)]` to specifing data layout when type is used in FFI
+  --> $DIR/extern_without_repr.rs:67:68
+   |
+LL |     fn bad_in_block3(arg: *mut NakedEnum, arg2: NakedStruct, arg3: *const ReprSimd);
+   |                                                                    ^^^^^^^^^^^^^^^
+   |
+note: type declared here
+  --> $DIR/extern_without_repr.rs:30:1
+   |
+LL | struct ReprSimd {
+   | ^^^^^^^^^^^^^^^
+
+error: aborting due to 12 previous errors
 
