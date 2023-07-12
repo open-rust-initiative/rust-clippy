@@ -1,9 +1,9 @@
 use super::NON_REENTRANT_FUNCTIONS;
 use clippy_utils::diagnostics::span_lint;
-use rustc_ast::ast::{Expr, ExprKind, Path};
-use rustc_lint::EarlyContext;
+use rustc_hir::{Expr, ExprKind, QPath, Path};
+use rustc_lint::LateContext;
 
-pub(super) fn check(cx: &EarlyContext<'_>, expr: &Expr) {
+pub(super) fn check(cx: &LateContext<'_>, expr: &Expr<'_>) {
     let msg: &str = "consider using the reentrant version of the function";
 
     if let ExprKind::Call(func, _) = &expr.kind {
@@ -13,9 +13,9 @@ pub(super) fn check(cx: &EarlyContext<'_>, expr: &Expr) {
     }
 }
 
-fn is_reentrant_fn(func: &Expr) -> bool {
+fn is_reentrant_fn(func: &Expr<'_>) -> bool {
     match &func.kind {
-        ExprKind::Path(_, Path { segments, .. }) => {
+        ExprKind::Path(QPath::Resolved(None, Path { segments, .. })) => {
             if segments.len() != 2 || segments[0].ident.name != rustc_span::sym::libc {
                 return false;
             }

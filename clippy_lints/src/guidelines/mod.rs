@@ -2,6 +2,7 @@ mod blocking_op_in_async;
 mod extern_without_repr;
 mod fallible_memory_allocation;
 mod mem_unsafe_functions;
+mod non_reentrant_functions;
 mod passing_string_to_c_functions;
 mod unsafe_block_in_proc_macro;
 mod untrusted_lib_loading;
@@ -199,6 +200,29 @@ declare_clippy_lint! {
     "Should use repr to specifing data layout when struct is used in FFI"
 }
 
+declare_clippy_lint! {
+    /// ### What it does
+    /// Checks for non-reentrant functions.
+    ///
+    /// ### Why is this bad?
+    /// This makes code safer, especially in the context of concurrency.
+    ///
+    /// ### Example
+    /// ```rust
+    /// let _tm = libc::localtime(&0i64 as *const libc::time_t);
+    /// ```
+    /// Use instead:
+    /// ```rust
+    /// let res = libc::malloc(std::mem::size_of::<libc::tm>());
+    ///
+    /// libc::locatime_r(&0i64 as *const libc::time_t, res);
+    /// ```
+    #[clippy::version = "1.70.0"]
+    pub NON_REENTRANT_FUNCTIONS,
+    nursery,
+    "this function is a non-reentrant-function"
+}
+
 /// Helper struct with user configured path-like functions, such as `std::fs::read`,
 /// and a set for `def_id`s which should be filled during checks.
 ///
@@ -277,6 +301,7 @@ impl_lint_pass!(LintGroup => [
     BLOCKING_OP_IN_ASYNC,
     UNSAFE_BLOCK_IN_PROC_MACRO,
     EXTERN_WITHOUT_REPR,
+    NON_REENTRANT_FUNCTIONS,
 ]);
 
 impl<'tcx> LateLintPass<'tcx> for LintGroup {
@@ -320,6 +345,9 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
         mem_unsafe_functions::check(cx, expr, &self.mem_uns_fns.ids);
         blocking_op_in_async::check_closure(cx, expr, &self.blocking_fns.ids);
         unsafe_block_in_proc_macro::check(cx, expr, &mut self.macro_call_sites);
+        if !expr.span.from_expansion() {
+            non_reentrant_functions::check(cx, expr);
+        }
     }
 }
 
