@@ -1,14 +1,19 @@
 use super::LOOP_WITHOUT_BREAK_OR_RETURN;
-use clippy_utils::diagnostics::span_lint;
+use clippy_utils::diagnostics::span_lint_and_help;
 use rustc_ast::ast::{Block, Expr, ExprKind, Label, StmtKind};
 use rustc_lint::EarlyContext;
 
 pub(super) fn check(cx: &EarlyContext<'_>, expr: &Expr) {
-    let msg: &str = "consider adding `break` or `return` statement in the loop block";
-
     if let ExprKind::Loop(block, label, _) = &expr.kind {
         if !check_block(block, label, true) {
-            span_lint(cx, LOOP_WITHOUT_BREAK_OR_RETURN, expr.span, msg);
+            span_lint_and_help(
+                cx,
+                LOOP_WITHOUT_BREAK_OR_RETURN,
+                expr.span,
+                "loop without break condition",
+                None,
+                "consider adding `break` or `return` statement in the loop block",
+            );
         }
     }
 }
