@@ -1,22 +1,28 @@
 error: consider using the reentrant version of the function
-  --> $DIR/non_reentrant_functions.rs:19:19
+  --> $DIR/non_reentrant_functions.rs:37:21
    |
-LL |         let _tm = libc::localtime(&0i64 as *const libc::time_t);
-   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LL |             let _ = libc::strtok(string, delim); // lint
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: `-D clippy::non-reentrant-functions` implied by `-D warnings`
 
 error: consider using the reentrant version of the function
-  --> $DIR/non_reentrant_functions.rs:29:30
+  --> $DIR/non_reentrant_functions.rs:51:21
    |
-LL |     let mut token = unsafe { libc::strtok(string, delim) };
-   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LL |             let _ = libc::strtok(setlocale(0, loc), "".as_ptr() as *const c_char); // lint both `set_locale` and `strtok`
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: consider using the reentrant version of the function
-  --> $DIR/non_reentrant_functions.rs:32:26
+  --> $DIR/non_reentrant_functions.rs:73:21
    |
-LL |         token = unsafe { libc::strtok(std::ptr::null_mut(), delim) };
-   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LL |             let _ = libc::strtok(null_mut(), null()); // don't lint
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: aborting due to 3 previous errors
+error: consider using the reentrant version of the function
+  --> $DIR/non_reentrant_functions.rs:74:13
+   |
+LL |             libc::strtok(null_mut(), null()); // don't lint
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 4 previous errors
 
