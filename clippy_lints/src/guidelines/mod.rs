@@ -254,6 +254,7 @@ pub struct LintGroup {
     /// other than [`untrusted_lib_loading::LOADING_FNS`]
     lib_loading_fns: FnPathsAndIds,
     blocking_fns: FnPathsAndIds,
+    non_reentrant_fns: FnPathsAndIds,
     allow_io_blocking_ops: bool,
     macro_call_sites: FxHashSet<Span>,
     /// additional checker function names
@@ -270,6 +271,7 @@ impl LintGroup {
         allow_io_blocking_ops: bool,
         alloc_size_check_fns: Vec<String>,
         mem_alloc_fns: Vec<String>,
+        non_reentrant_fns: Vec<String>,
     ) -> Self {
         let mut all_checker_fns = str_slice_owned(fallible_memory_allocation::DEFAULT_ALLOC_SIZE_CHECK_FNS);
         all_checker_fns.extend_from_slice(&alloc_size_check_fns);
@@ -286,6 +288,7 @@ impl LintGroup {
             io_fns: FnPathsAndIds::with_paths(all_io_fns),
             lib_loading_fns: FnPathsAndIds::with_paths(all_loaders),
             blocking_fns: FnPathsAndIds::default(),
+            non_reentrant_fns: FnPathsAndIds::with_paths(non_reentrant_fns),
             allow_io_blocking_ops,
             macro_call_sites: FxHashSet::default(),
             alloc_size_check_fns: all_checker_fns,
@@ -324,6 +327,7 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
         add_configured_fn_ids(cx, &mut self.mem_alloc_fns);
         add_configured_fn_ids(cx, &mut self.io_fns);
         add_configured_fn_ids(cx, &mut self.lib_loading_fns);
+        add_configured_fn_ids(cx, &mut self.non_reentrant_fns);
 
         blocking_op_in_async::init_blacklist_ids(cx, self.allow_io_blocking_ops, &mut self.blocking_fns.ids);
     }
@@ -334,6 +338,7 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
             add_extern_fn_ids(items, &mut self.mem_alloc_fns);
             add_extern_fn_ids(items, &mut self.io_fns);
             add_extern_fn_ids(items, &mut self.lib_loading_fns);
+            add_extern_fn_ids(items, &mut self.non_reentrant_fns);
         }
         extern_without_repr::check_item(cx, item);
     }
@@ -345,9 +350,7 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
         mem_unsafe_functions::check(cx, expr, &self.mem_uns_fns.ids);
         blocking_op_in_async::check_closure(cx, expr, &self.blocking_fns.ids);
         unsafe_block_in_proc_macro::check(cx, expr, &mut self.macro_call_sites);
-        if !expr.span.from_expansion() {
-            non_reentrant_functions::check(cx, expr);
-        }
+        non_reentrant_functions::check(cx, expr, &self.non_reentrant_fns.ids);
     }
 }
 

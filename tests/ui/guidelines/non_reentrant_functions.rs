@@ -3,7 +3,7 @@
 #![allow(non_camel_case_types)]
 #![feature(rustc_private)]
 
-use std::ffi::{CString, c_int, c_char};
+use std::ffi::{c_char, c_int, CString};
 use std::ptr::null_mut;
 
 // Mocked `tm` type. (`libc::tm` is a unix specific type)
@@ -23,16 +23,16 @@ mod with_libc_and_extern {
         fn localtime(time: *const time_t) -> *mut tm;
         fn setlocale(category: c_int, locale: *const c_char) -> *mut c_char;
     }
-    
-    use libc::{time_t, strtok};
+
     use super::*;
+    use libc::{strtok, time_t};
 
     fn test_libc_strtok() {
         let string = CString::new("welcome-to-rust").unwrap();
         let string = string.as_ptr() as *mut libc::c_char;
         let delim = CString::new(" - ").unwrap();
         let delim = delim.as_ptr();
-    
+
         unsafe {
             let _ = libc::strtok(string, delim); // lint
             let _ = strtok(string, delim); // lint
@@ -43,7 +43,7 @@ mod with_libc_and_extern {
     fn test_extern_fns() {
         let time = &123456_i64 as *const time_t;
         let loc = "".as_ptr() as *const c_char;
-    
+
         unsafe {
             let _ = localtime(time); // lint
             localtime(time); // lint
@@ -59,9 +59,11 @@ mod fake_libc {
         #[allow(non_camel_case_types)]
         pub type time_t = i64;
 
-        extern "C" {
-            pub fn strtok(s: *mut c_char, t: *const c_char) -> *mut c_char;
-            pub fn stderr(t: c_int) -> *mut c_char;
+        pub fn strtok(s: *mut c_char, t: *const c_char) -> *mut c_char {
+            std::ptr::null_mut()
+        }
+        pub fn strerror(t: c_int) -> *mut c_char {
+            std::ptr::null_mut()
         }
     }
 
@@ -72,28 +74,27 @@ mod fake_libc {
         unsafe {
             let _ = libc::strtok(null_mut(), null()); // don't lint
             libc::strtok(null_mut(), null()); // don't lint
-            libc::stderr(0); // don't lint
+            libc::strerror(0); // don't lint
         }
     }
 }
 
 mod free_fns {
-    use super::{time_t, tm, null_mut};
+    use super::{null_mut, time_t, tm};
 
     fn localtime(_t: *const time_t) -> *mut tm {
         null_mut()
     }
-    
+
     fn strtok() {}
-    
+
     fn test_locatime() {
         localtime(1 as *const _); // don't lint
     }
-    
+
     fn test_strtok() {
         strtok(); // don't lint
     }
-
 }
 
 fn main() {}
