@@ -46,6 +46,19 @@ const DEFAULT_MEM_UNSAFE_FUNCTIONS: &[&str] = &[
     // memory initialization
     "memset",
 ];
+const DEFAULT_NON_REENTRANT_FNS: &[&str] = &[
+    "getenv",
+    "strtok",
+    "strerror",
+    "asctime",
+    "ctime",
+    "localtime",
+    "gmtime",
+    "setlocale",
+    "localconv",
+    "syslog",
+    "getlogin",
+];
 
 /// Holds information used by `MISSING_ENFORCED_IMPORT_RENAMES` lint.
 #[derive(Clone, Debug, Deserialize)]
@@ -505,6 +518,11 @@ define_Conf! {
     ///
     /// A list of additional memory allocation functions to check.
     (mem_alloc_functions: Vec<String> = Vec::new()),
+    /// Lint: NON_REENTRANT_FUNCTIONS.
+    ///
+    /// The list of non-reentrant functions to warn.
+    /// Providing empty list has the same effect as disabling this lint.
+    (non_reentrant_functions: Vec<String> = super::DEFAULT_NON_REENTRANT_FNS.iter().map(ToString::to_string).collect()),
 }
 
 /// Search for the configuration file.
