@@ -29,6 +29,7 @@ error: error reading Clippy's configuration file `$DIR/clippy.toml`: unknown fie
            ignore-interior-mutability
            io-functions
            large-error-threshold
+           lib-loading-functions
            literal-representation-threshold
            matches-for-let-else
            max-fn-params-bools
@@ -39,6 +40,7 @@ error: error reading Clippy's configuration file `$DIR/clippy.toml`: unknown fie
            mem-alloc-functions
            mem-unsafe-functions
            msrv
+           non-reentrant-functions
            pass-by-value-size-limit
            single-char-binding-names-threshold
            standard-macro-braces
