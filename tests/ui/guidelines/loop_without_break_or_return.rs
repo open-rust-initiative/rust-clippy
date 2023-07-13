@@ -97,6 +97,32 @@ fn test_04() {
     }
 }
 
-fn main() {
-    // test code goes here
+fn test_05() {
+    fn immediate_ret() {
+        loop {
+            return;
+        }
+    }
+
+    fn ret_in_inner() {
+        'outer: loop {
+            // don't lint
+            'inner: loop {
+                return;
+            }
+        }
+    }
+
+    fn cond_ret_in_inner(flag: bool) {
+        'outer: loop {
+            // don't lint
+            'inner: loop {
+                if flag {
+                    return;
+                }
+            }
+        }
+    }
 }
+
+fn main() {}
