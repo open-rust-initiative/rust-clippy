@@ -967,6 +967,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     let allow_io_blocking_ops = conf.allow_io_blocking_ops;
     let alloc_size_check_fns = conf.alloc_size_check_functions.clone();
     let mem_alloc_fns = conf.mem_alloc_functions.clone();
+    let non_reentrant_fns = conf.non_reentrant_functions.clone();
     store.register_late_pass(move |_| {
         Box::new(guidelines::LintGroup::new(
             mem_unsafe_functions.clone(),
@@ -975,6 +976,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
             allow_io_blocking_ops,
             alloc_size_check_fns.clone(),
             mem_alloc_fns.clone(),
+            non_reentrant_fns.clone(),
         ))
     });
     store.register_early_pass(|| Box::new(guidelines_early::LintGroup));

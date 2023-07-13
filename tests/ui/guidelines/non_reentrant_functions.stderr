@@ -1,22 +1,67 @@
-error: consider using the reentrant version of the function
-  --> $DIR/non_reentrant_functions.rs:19:19
+error: use of non-reentrant function
+  --> $DIR/non_reentrant_functions.rs:37:21
    |
-LL |         let _tm = libc::localtime(&0i64 as *const libc::time_t);
-   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LL |             let _ = libc::strtok(string, delim); // lint
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
+   = help: consider using its reentrant counterpart
    = note: `-D clippy::non-reentrant-functions` implied by `-D warnings`
 
-error: consider using the reentrant version of the function
-  --> $DIR/non_reentrant_functions.rs:29:30
+error: use of non-reentrant function
+  --> $DIR/non_reentrant_functions.rs:38:21
    |
-LL |     let mut token = unsafe { libc::strtok(string, delim) };
-   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-error: consider using the reentrant version of the function
-  --> $DIR/non_reentrant_functions.rs:32:26
+LL |             let _ = strtok(string, delim); // lint
+   |                     ^^^^^^^^^^^^^^^^^^^^^
    |
-LL |         token = unsafe { libc::strtok(std::ptr::null_mut(), delim) };
-   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   = help: consider using its reentrant counterpart
 
-error: aborting due to 3 previous errors
+error: use of non-reentrant function
+  --> $DIR/non_reentrant_functions.rs:39:21
+   |
+LL |             let _ = strtok(std::ptr::null_mut(), delim); // lint
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: consider using its reentrant counterpart
+
+error: use of non-reentrant function
+  --> $DIR/non_reentrant_functions.rs:48:21
+   |
+LL |             let _ = localtime(time); // lint
+   |                     ^^^^^^^^^^^^^^^
+   |
+   = help: consider using its reentrant counterpart
+
+error: use of non-reentrant function
+  --> $DIR/non_reentrant_functions.rs:49:13
+   |
+LL |             localtime(time); // lint
+   |             ^^^^^^^^^^^^^^^
+   |
+   = help: consider using its reentrant counterpart
+
+error: use of non-reentrant function
+  --> $DIR/non_reentrant_functions.rs:50:21
+   |
+LL |             let a = setlocale(0, loc); // lint
+   |                     ^^^^^^^^^^^^^^^^^
+   |
+   = help: consider using its reentrant counterpart
+
+error: use of non-reentrant function
+  --> $DIR/non_reentrant_functions.rs:51:21
+   |
+LL |             let _ = libc::strtok(setlocale(0, loc), "".as_ptr() as *const c_char); // lint both `set_locale` and `strtok`
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: consider using its reentrant counterpart
+
+error: use of non-reentrant function
+  --> $DIR/non_reentrant_functions.rs:51:34
+   |
+LL |             let _ = libc::strtok(setlocale(0, loc), "".as_ptr() as *const c_char); // lint both `set_locale` and `strtok`
+   |                                  ^^^^^^^^^^^^^^^^^
+   |
+   = help: consider using its reentrant counterpart
+
+error: aborting due to 8 previous errors
 

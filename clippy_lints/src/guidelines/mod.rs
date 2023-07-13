@@ -2,6 +2,7 @@ mod blocking_op_in_async;
 mod extern_without_repr;
 mod fallible_memory_allocation;
 mod mem_unsafe_functions;
+mod non_reentrant_functions;
 mod passing_string_to_c_functions;
 mod unsafe_block_in_proc_macro;
 mod untrusted_lib_loading;
@@ -199,6 +200,29 @@ declare_clippy_lint! {
     "Should use repr to specifing data layout when struct is used in FFI"
 }
 
+declare_clippy_lint! {
+    /// ### What it does
+    /// Checks for non-reentrant functions.
+    ///
+    /// ### Why is this bad?
+    /// This makes code safer, especially in the context of concurrency.
+    ///
+    /// ### Example
+    /// ```rust
+    /// let _tm = libc::localtime(&0i64 as *const libc::time_t);
+    /// ```
+    /// Use instead:
+    /// ```rust
+    /// let res = libc::malloc(std::mem::size_of::<libc::tm>());
+    ///
+    /// libc::locatime_r(&0i64 as *const libc::time_t, res);
+    /// ```
+    #[clippy::version = "1.70.0"]
+    pub NON_REENTRANT_FUNCTIONS,
+    nursery,
+    "this function is a non-reentrant-function"
+}
+
 /// Helper struct with user configured path-like functions, such as `std::fs::read`,
 /// and a set for `def_id`s which should be filled during checks.
 ///
@@ -230,6 +254,7 @@ pub struct LintGroup {
     /// other than [`untrusted_lib_loading::LOADING_FNS`]
     lib_loading_fns: FnPathsAndIds,
     blocking_fns: FnPathsAndIds,
+    non_reentrant_fns: FnPathsAndIds,
     allow_io_blocking_ops: bool,
     macro_call_sites: FxHashSet<Span>,
     /// additional checker function names
@@ -246,6 +271,7 @@ impl LintGroup {
         allow_io_blocking_ops: bool,
         alloc_size_check_fns: Vec<String>,
         mem_alloc_fns: Vec<String>,
+        non_reentrant_fns: Vec<String>,
     ) -> Self {
         let mut all_checker_fns = str_slice_owned(fallible_memory_allocation::DEFAULT_ALLOC_SIZE_CHECK_FNS);
         all_checker_fns.extend_from_slice(&alloc_size_check_fns);
@@ -262,6 +288,7 @@ impl LintGroup {
             io_fns: FnPathsAndIds::with_paths(all_io_fns),
             lib_loading_fns: FnPathsAndIds::with_paths(all_loaders),
             blocking_fns: FnPathsAndIds::default(),
+            non_reentrant_fns: FnPathsAndIds::with_paths(non_reentrant_fns),
             allow_io_blocking_ops,
             macro_call_sites: FxHashSet::default(),
             alloc_size_check_fns: all_checker_fns,
@@ -277,6 +304,7 @@ impl_lint_pass!(LintGroup => [
     BLOCKING_OP_IN_ASYNC,
     UNSAFE_BLOCK_IN_PROC_MACRO,
     EXTERN_WITHOUT_REPR,
+    NON_REENTRANT_FUNCTIONS,
 ]);
 
 impl<'tcx> LateLintPass<'tcx> for LintGroup {
@@ -299,6 +327,7 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
         add_configured_fn_ids(cx, &mut self.mem_alloc_fns);
         add_configured_fn_ids(cx, &mut self.io_fns);
         add_configured_fn_ids(cx, &mut self.lib_loading_fns);
+        add_configured_fn_ids(cx, &mut self.non_reentrant_fns);
 
         blocking_op_in_async::init_blacklist_ids(cx, self.allow_io_blocking_ops, &mut self.blocking_fns.ids);
     }
@@ -309,6 +338,7 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
             add_extern_fn_ids(items, &mut self.mem_alloc_fns);
             add_extern_fn_ids(items, &mut self.io_fns);
             add_extern_fn_ids(items, &mut self.lib_loading_fns);
+            add_extern_fn_ids(items, &mut self.non_reentrant_fns);
         }
         extern_without_repr::check_item(cx, item);
     }
@@ -320,6 +350,7 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
         mem_unsafe_functions::check(cx, expr, &self.mem_uns_fns.ids);
         blocking_op_in_async::check_closure(cx, expr, &self.blocking_fns.ids);
         unsafe_block_in_proc_macro::check(cx, expr, &mut self.macro_call_sites);
+        non_reentrant_functions::check(cx, expr, &self.non_reentrant_fns.ids);
     }
 }
 
