@@ -961,20 +961,20 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     store.register_late_pass(|_| Box::new(tests_outside_test_module::TestsOutsideTestModule));
     store.register_late_pass(|_| Box::new(manual_slice_size_calculation::ManualSliceSizeCalculation));
     store.register_early_pass(|| Box::new(suspicious_doc_comments::SuspiciousDocComments));
-    let mem_unsafe_functions = conf.mem_unsafe_functions.clone();
-    let io_functions = conf.io_functions.clone();
+    let mem_unsafe_fns = conf.mem_unsafe_functions.clone();
+    let input_fns = conf.input_functions.clone();
     let lib_loading_fns = conf.lib_loading_functions.clone();
     let allow_io_blocking_ops = conf.allow_io_blocking_ops;
-    let alloc_size_check_fns = conf.alloc_size_check_functions.clone();
+    let size_checking_fn_keywords = conf.size_checking_function_keywords.clone();
     let mem_alloc_fns = conf.mem_alloc_functions.clone();
     let non_reentrant_fns = conf.non_reentrant_functions.clone();
     store.register_late_pass(move |_| {
         Box::new(guidelines::LintGroup::new(
-            mem_unsafe_functions.clone(),
-            io_functions.clone(),
+            mem_unsafe_fns.clone(),
+            input_fns.clone(),
             lib_loading_fns.clone(),
             allow_io_blocking_ops,
-            alloc_size_check_fns.clone(),
+            size_checking_fn_keywords.clone(),
             mem_alloc_fns.clone(),
             non_reentrant_fns.clone(),
         ))

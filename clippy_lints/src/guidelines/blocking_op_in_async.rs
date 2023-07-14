@@ -65,11 +65,9 @@ pub(super) fn check_fn(cx: &LateContext<'_>, kind: FnKind<'_>, body: &Body<'_>, 
     look_for_call(cx, body.value, blacklist_ids, decl_span);
 }
 
-pub(super) fn check_closure(cx: &LateContext<'_>, expr: &Expr<'_>, blacklist_ids: &DefIdSet) {
-    if let ExprKind::Closure(closure) = &expr.kind {
-        let Some(async_span) = get_async_span(cx, expr.span) else { return; };
-        look_for_call_in_closure(cx, closure, blacklist_ids, async_span);
-    }
+pub(super) fn check_closure(cx: &LateContext<'_>, closure: &Closure<'_>, outer_span: Span, blacklist_ids: &DefIdSet) {
+    let Some(async_span) = get_async_span(cx, outer_span) else { return };
+    look_for_call_in_closure(cx, closure, blacklist_ids, async_span);
 }
 
 /// Return the `async` keyword span for a closure if it starts with one.
