@@ -38,7 +38,7 @@ error: error reading Clippy's configuration file: unknown field `foobar`, expect
            excessive-nesting-threshold
            future-size-threshold
            ignore-interior-mutability
-           io-functions
+           input-functions
            large-error-threshold
            lib-loading-functions
            literal-representation-threshold
@@ -59,6 +59,7 @@ error: error reading Clippy's configuration file: unknown field `foobar`, expect
            semicolon-outside-block-ignore-multiline
            single-char-binding-names-threshold
            stack-size-threshold
+           size-checking-function-keywords
            standard-macro-braces
            suppress-restriction-lint-in-const
            third-party
