@@ -1,2 +1,0 @@
-lib-loading-functions = [ "untrusted_lib_loading::lib_loader::load", "untrusted_lib_loading::load_dylib" ]
-io-functions = [ "untrusted_lib_loading::untrusted_io" ]
