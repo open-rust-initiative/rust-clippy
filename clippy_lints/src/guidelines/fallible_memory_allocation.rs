@@ -84,9 +84,14 @@ pub(super) fn check_expr<'tcx>(
     let mut ptr_status = PtrStatus::Unverified;
     let mut maybe_size_param: Option<&Expr<'_>> = None;
 
-    // FIXME: check if the return type is pointer rather than doing this stupid check,
-    // I have to wrote this temporary stupid solution because I don't have enough time!!!
-    if !format!("{func_did:?}").contains("malloc") {
+    if !cx
+        .tcx
+        .fn_sig(func_did)
+        .subst_identity()
+        .skip_binder()
+        .output()
+        .is_unsafe_ptr()
+    {
         ptr_status = PtrStatus::NotPtr;
     }
 
