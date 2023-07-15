@@ -25,3 +25,11 @@ input-functions = [
     "scanf",
     "untrusted_lib_loading::untrusted_io",
 ]
+
+# fallible_memory_allocation
+mem-alloc-functions = [
+    "std::collections::HashSet::with_capacity",
+    "alloc_mem",
+    "my_malloc",
+]
+size-checking-function-keywords = ["is_ok", "exit_on_bad_size"]
