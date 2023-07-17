@@ -1,0 +1,35 @@
+# blocking_op_in_async
+allow-io-blocking-ops = false
+
+# mem_unsafe_functions
+mem-unsafe-functions = [ "not_safe", "dont_use", "del_mem", "libc::memcpy", "memcpy" ]
+
+# non_reentrant_functions
+non-reentrant-functions = [
+    "non_reentrant_functions::libc::strtok",
+    "non_reentrant_functions::libc::strerror",
+    "non_reentrant_functions::libc_ext::foo",
+    "non_reentrant_functions::libc_ext::bar",
+    "non_reentrant_functions::libc_ext::baz",
+]
+
+# untrusted_lib_loading
+lib-loading-functions = [
+    "untrusted_lib_loading::lib_loader::load",
+    "untrusted_lib_loading::load_dylib",
+    "libloading::Library::new",
+    "dlopen",
+]
+input-functions = [
+    "std::fs::read_to_string",
+    "scanf",
+    "untrusted_lib_loading::untrusted_io",
+]
+
+# fallible_memory_allocation
+mem-alloc-functions = [
+    "std::collections::HashSet::with_capacity",
+    "alloc_mem",
+    "my_malloc",
+]
+size-checking-function-keywords = ["is_ok", "exit_on_bad_size"]

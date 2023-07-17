@@ -1,18 +1,14 @@
 use super::FALLIBLE_MEMORY_ALLOCATION;
 use clippy_utils::diagnostics::{span_lint, span_lint_and_note};
-use clippy_utils::fn_def_id;
 use clippy_utils::source::snippet_opt;
 use rustc_hir::def::Res;
-use rustc_hir::def_id::DefIdSet;
+use rustc_hir::def_id::DefId;
 use rustc_hir::intravisit::Visitor;
 use rustc_hir::intravisit::{walk_expr, walk_stmt};
 use rustc_hir::{Expr, ExprKind, HirId, Local, Node, Path, PathSegment, QPath, Stmt, StmtKind};
 use rustc_lint::LateContext;
 use rustc_span::symbol::Ident;
 use rustc_span::Span;
-
-pub(super) const DEFAULT_ALLOC_SIZE_CHECK_FNS: &[&str] = &["max", "min", "clamp", "check", "verif", "ensure", "assert"];
-pub(super) const DEFAULT_MEM_ALLOC_FNS: &[&str] = &["malloc", "std::vec::Vec::with_capacity"];
 
 enum PtrStatus {
     Verified,
@@ -80,45 +76,43 @@ impl<'tcx, 'a> Visitor<'tcx> for VerifierFinder<'a> {
 pub(super) fn check_expr<'tcx>(
     cx: &LateContext<'tcx>,
     expr: &'tcx Expr<'tcx>,
+    params: &'tcx [Expr<'tcx>],
+    func_did: DefId,
     alloc_size_check_fns: &[String],
-    mem_alloc_fns: &DefIdSet,
 ) {
     let mut path_to_check: Option<(HirId, Span)> = None;
     let mut ptr_status = PtrStatus::Unverified;
+    let mut maybe_size_param: Option<&Expr<'_>> = None;
 
-    if let ExprKind::Call(_, params) = expr.kind {
-        let mut maybe_size_param: Option<&Expr<'_>> = None;
+    if !cx
+        .tcx
+        .fn_sig(func_did)
+        .subst_identity()
+        .skip_binder()
+        .output()
+        .is_unsafe_ptr()
+    {
+        ptr_status = PtrStatus::NotPtr;
+    }
 
-        let Some(func_did) = fn_def_id(cx, expr) else { return };
-        if mem_alloc_fns.contains(&func_did) {
-            // FIXME: check if the return type is pointer rather than doing this stupid check,
-            // I have to wrote this temporary stupid solution because I don't have enough time!!!
-            if !format!("{func_did:?}").contains("malloc") {
-                ptr_status = PtrStatus::NotPtr;
-            }
-        } else {
-            return;
-        }
-
-        if let [param] = params {
-            maybe_size_param = Some(param);
-        } else {
-            for param in params.iter() {
-                if matches!(snippet_opt(cx, param.span), Some(s) if s.contains("size")) {
-                    maybe_size_param = Some(param);
-                    break;
-                }
+    if let [param] = params {
+        maybe_size_param = Some(param);
+    } else {
+        for param in params {
+            if matches!(snippet_opt(cx, param.span), Some(s) if s.contains("size")) {
+                maybe_size_param = Some(param);
+                break;
             }
         }
+    }
 
-        let Some(size_param) = maybe_size_param else { return };
-        if let Some(id_and_span) = path_hir_id_and_span(size_param) {
-            path_to_check = Some(id_and_span);
-        } else if let Some(false) = expr_is_checker_call(size_param, alloc_size_check_fns) {
-            warn_unverified_size(cx, expr.span, size_param.span);
-        } else {
-            return;
-        }
+    let Some(size_param) = maybe_size_param else { return };
+    if let Some(id_and_span) = path_hir_id_and_span(size_param) {
+        path_to_check = Some(id_and_span);
+    } else if let Some(false) = expr_is_checker_call(size_param, alloc_size_check_fns) {
+        warn_unverified_size(cx, expr.span, size_param.span);
+    } else {
+        return;
     }
 
     if let Some((hid, span)) = path_to_check {

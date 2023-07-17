@@ -3,30 +3,11 @@ use clippy_utils::diagnostics::span_lint_and_note;
 use clippy_utils::visitors::for_each_expr;
 use clippy_utils::{fn_def_id, path_to_local};
 use core::ops::ControlFlow;
-use if_chain::if_chain;
 use rustc_hir::def_id::DefIdSet;
 use rustc_hir::intravisit::{walk_stmt, Visitor};
-use rustc_hir::{Expr, ExprKind, HirId, Local, Node, Stmt, StmtKind};
+use rustc_hir::{Expr, HirId, Local, Node, Stmt, StmtKind};
 use rustc_lint::LateContext;
 use rustc_span::Span;
-
-#[rustfmt::skip]
-pub(super) const IO_FUNCTIONS: &[&str] = &[
-    // Native io functions
-    "std::io::Read::read",
-    "std::io::Read::read_to_end",
-    "std::io::Read::read_to_string",
-    "std::io::Read::read_exact",
-    "std::io::Stdin::read_line",
-    "std::fs::read",
-    "std::fs::read_to_string",
-    // standard input
-    "gets", "getchar",
-    // formatted input functions
-    "scanf", "wscanf", "vscanf", "vwscanf", "fscanf", "fwscanf", "vfscanf", "vfwscanf",
-    "sscanf", "swscanf", "vsscanf", "vswscanf",
-];
-pub(super) const LOADING_FNS: &[&str] = &["libloading::Library::new", "dlopen"];
 
 struct IOFinder<'a, 'tcx> {
     io_functions: &'a DefIdSet,
@@ -94,41 +75,36 @@ fn get_resolved_path_id(expr: &Expr<'_>) -> ControlFlow<HirId, ()> {
     }
 }
 
-pub(crate) fn check<'tcx>(
+pub(crate) fn check_expr<'tcx>(
     cx: &LateContext<'tcx>,
     expr: &'tcx Expr<'tcx>,
+    params: &'tcx [Expr<'tcx>],
     io_functions: &DefIdSet,
-    loader_ids: &DefIdSet,
 ) {
-    if_chain! {
-        if let ExprKind::Call(_, [param, ..]) = &expr.kind;
-        if let Some(fn_did) = fn_def_id(cx, expr);
-        if loader_ids.contains(&fn_did);
-        if let Some(hid) = for_each_expr(param, get_resolved_path_id);
-        then {
-            for (_, node) in cx.tcx.hir().parent_iter(hid) {
-                if let Node::Block(block) = node {
-                    let mut finder = IOFinder {
-                        io_functions,
-                        stop_span: expr.span,
-                        call_span: None,
-                        in_io_fn: None,
-                        cx,
-                        hid,
-                    };
-                    finder.visit_block(block);
+    let Some(first_param) = params.get(0) else { return };
+    if let Some(hid) = for_each_expr(first_param, get_resolved_path_id) {
+        for (_, node) in cx.tcx.hir().parent_iter(hid) {
+            if let Node::Block(block) = node {
+                let mut finder = IOFinder {
+                    io_functions,
+                    stop_span: expr.span,
+                    call_span: None,
+                    in_io_fn: None,
+                    cx,
+                    hid,
+                };
+                finder.visit_block(block);
 
-                    if let Some(span) = finder.call_span {
-                        span_lint_and_note(
-                            cx,
-                            UNTRUSTED_LIB_LOADING,
-                            expr.span,
-                            "loading dynamic library from untrusted source",
-                            Some(span),
-                            "untrusted IO function called here",
-                        );
-                        break;
-                    }
+                if let Some(span) = finder.call_span {
+                    span_lint_and_note(
+                        cx,
+                        UNTRUSTED_LIB_LOADING,
+                        expr.span,
+                        "loading dynamic library from untrusted source",
+                        Some(span),
+                        "untrusted IO function called here",
+                    );
+                    break;
                 }
             }
         }

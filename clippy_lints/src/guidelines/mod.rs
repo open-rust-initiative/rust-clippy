@@ -1,13 +1,12 @@
 mod blocking_op_in_async;
 mod extern_without_repr;
 mod fallible_memory_allocation;
-mod mem_unsafe_functions;
-mod non_reentrant_functions;
 mod passing_string_to_c_functions;
 mod unsafe_block_in_proc_macro;
 mod untrusted_lib_loading;
 
-use clippy_utils::def_path_def_ids;
+use clippy_utils::diagnostics::span_lint_and_help;
+use clippy_utils::{def_path_def_ids, fn_def_id};
 use rustc_data_structures::fx::FxHashSet;
 use rustc_hir as hir;
 use rustc_hir::def_id::DefIdSet;
@@ -245,20 +244,13 @@ impl FnPathsAndIds {
 #[derive(Clone, Default)]
 pub struct LintGroup {
     mem_uns_fns: FnPathsAndIds,
-    /// additional external memory allocation function names
-    /// other than [`fallible_memory_allocation::DEFAULT_MEM_ALLOC_FNS`]
     mem_alloc_fns: FnPathsAndIds,
-    /// additional IO functions other than [`untrusted_lib_loading::IO_FUNCTIONS`]
     io_fns: FnPathsAndIds,
-    /// additional dynamic library loading functions
-    /// other than [`untrusted_lib_loading::LOADING_FNS`]
     lib_loading_fns: FnPathsAndIds,
     blocking_fns: FnPathsAndIds,
     non_reentrant_fns: FnPathsAndIds,
     allow_io_blocking_ops: bool,
     macro_call_sites: FxHashSet<Span>,
-    /// additional checker function names
-    /// other than [`fallible_memory_allocation::DEFAULT_ALLOC_SIZE_CHECK_FNS`]
     alloc_size_check_fns: Vec<String>,
 }
 
@@ -273,25 +265,15 @@ impl LintGroup {
         mem_alloc_fns: Vec<String>,
         non_reentrant_fns: Vec<String>,
     ) -> Self {
-        let mut all_checker_fns = str_slice_owned(fallible_memory_allocation::DEFAULT_ALLOC_SIZE_CHECK_FNS);
-        all_checker_fns.extend_from_slice(&alloc_size_check_fns);
-        let mut all_mem_alloc_fns = str_slice_owned(fallible_memory_allocation::DEFAULT_MEM_ALLOC_FNS);
-        all_mem_alloc_fns.extend_from_slice(&mem_alloc_fns);
-        let mut all_io_fns = str_slice_owned(untrusted_lib_loading::IO_FUNCTIONS);
-        all_io_fns.extend_from_slice(&io_fns);
-        let mut all_loaders = str_slice_owned(untrusted_lib_loading::LOADING_FNS);
-        all_loaders.extend_from_slice(&lib_loading_fns);
-
         Self {
             mem_uns_fns: FnPathsAndIds::with_paths(mem_uns_fns),
-            mem_alloc_fns: FnPathsAndIds::with_paths(all_mem_alloc_fns),
-            io_fns: FnPathsAndIds::with_paths(all_io_fns),
-            lib_loading_fns: FnPathsAndIds::with_paths(all_loaders),
-            blocking_fns: FnPathsAndIds::default(),
+            mem_alloc_fns: FnPathsAndIds::with_paths(mem_alloc_fns),
+            io_fns: FnPathsAndIds::with_paths(io_fns),
+            lib_loading_fns: FnPathsAndIds::with_paths(lib_loading_fns),
             non_reentrant_fns: FnPathsAndIds::with_paths(non_reentrant_fns),
             allow_io_blocking_ops,
-            macro_call_sites: FxHashSet::default(),
-            alloc_size_check_fns: all_checker_fns,
+            alloc_size_check_fns,
+            ..Default::default()
         }
     }
 }
@@ -344,19 +326,48 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
     }
 
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx hir::Expr<'_>) {
-        untrusted_lib_loading::check(cx, expr, &self.io_fns.ids, &self.lib_loading_fns.ids);
-        passing_string_to_c_functions::check_expr(cx, expr);
-        fallible_memory_allocation::check_expr(cx, expr, &self.alloc_size_check_fns, &self.mem_alloc_fns.ids);
-        mem_unsafe_functions::check(cx, expr, &self.mem_uns_fns.ids);
-        blocking_op_in_async::check_closure(cx, expr, &self.blocking_fns.ids);
-        unsafe_block_in_proc_macro::check(cx, expr, &mut self.macro_call_sites);
-        non_reentrant_functions::check(cx, expr, &self.non_reentrant_fns.ids);
+        match &expr.kind {
+            hir::ExprKind::Call(_func, params) => {
+                if let Some(fn_did) = fn_def_id(cx, expr) {
+                    if self.non_reentrant_fns.ids.contains(&fn_did) {
+                        span_lint_and_help(
+                            cx,
+                            NON_REENTRANT_FUNCTIONS,
+                            expr.span,
+                            "use of non-reentrant function",
+                            None,
+                            "consider using its reentrant counterpart",
+                        );
+                        return;
+                    }
+                    if self.mem_uns_fns.ids.contains(&fn_did) {
+                        span_lint_and_help(
+                            cx,
+                            MEM_UNSAFE_FUNCTIONS,
+                            expr.span,
+                            "use of potentially dangerous memory manipulation function",
+                            None,
+                            "consider using its safe version",
+                        );
+                        return;
+                    }
+                    if self.lib_loading_fns.ids.contains(&fn_did) {
+                        untrusted_lib_loading::check_expr(cx, expr, params, &self.io_fns.ids);
+                    }
+                    if self.mem_alloc_fns.ids.contains(&fn_did) {
+                        fallible_memory_allocation::check_expr(cx, expr, params, fn_did, &self.alloc_size_check_fns);
+                    }
+                    passing_string_to_c_functions::check_expr(cx, expr, fn_did, params);
+                }
+            },
+            hir::ExprKind::Closure(closure) => {
+                blocking_op_in_async::check_closure(cx, closure, expr.span, &self.blocking_fns.ids);
+            },
+            _ => {
+                unsafe_block_in_proc_macro::check(cx, expr, &mut self.macro_call_sites);
+            },
+        }
     }
-}
-
-/// Convert `&[&str]` to `Vec<String>`
-fn str_slice_owned(seq: &[&str]) -> Vec<String> {
-    seq.iter().map(ToString::to_string).collect()
 }
 
 /// Resolve and insert the `def_id` of user configure functions if:

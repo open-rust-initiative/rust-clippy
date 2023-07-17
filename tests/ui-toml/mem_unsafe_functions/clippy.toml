@@ -1,1 +1,0 @@
-mem-unsafe-functions = [ "not_safe", "dont_use", "del_mem", "libc::memcpy", "memcpy" ]

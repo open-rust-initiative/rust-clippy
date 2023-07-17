@@ -31,7 +31,6 @@ const DEFAULT_DOC_VALID_IDENTS: &[&str] = &[
     "CamelCase",
 ];
 const DEFAULT_DISALLOWED_NAMES: &[&str] = &["foo", "baz", "quux"];
-
 #[rustfmt::skip]
 const DEFAULT_MEM_UNSAFE_FUNCTIONS: &[&str] = &[
     "memcpy", "bcopy", "wmemcpy", "memmove", "wmemmove",
@@ -59,6 +58,25 @@ const DEFAULT_NON_REENTRANT_FNS: &[&str] = &[
     "syslog",
     "getlogin",
 ];
+const DEFAULT_SIZE_CHECK_FN_KEYWORDS: &[&str] = &["max", "min", "clamp", "check", "verif", "ensure", "assert"];
+const DEFAULT_MEM_ALLOC_FNS: &[&str] = &["malloc", "std::vec::Vec::with_capacity"];
+#[rustfmt::skip]
+pub(super) const DEFAULT_INPUT_FUNCTIONS: &[&str] = &[
+    // Native io functions
+    "std::io::Read::read",
+    "std::io::Read::read_to_end",
+    "std::io::Read::read_to_string",
+    "std::io::Read::read_exact",
+    "std::io::Stdin::read_line",
+    "std::fs::read",
+    "std::fs::read_to_string",
+    // standard input
+    "gets", "getchar",
+    // formatted input functions
+    "scanf", "wscanf", "vscanf", "vwscanf", "fscanf", "fwscanf", "vfscanf", "vfwscanf",
+    "sscanf", "swscanf", "vsscanf", "vswscanf",
+];
+pub(super) const DEFAULT_LIB_LOADING_FNS: &[&str] = &["libloading::Library::new", "dlopen"];
 
 /// Holds information used by `MISSING_ENFORCED_IMPORT_RENAMES` lint.
 #[derive(Clone, Debug, Deserialize)]
@@ -493,35 +511,71 @@ define_Conf! {
     (future_size_threshold: u64 = 16 * 1024),
     /// Lint: MEM_UNSAFE_FUNCTIONS.
     ///
-    /// The list of function names to lint about.
-    /// Providing empty list has the same effect as disabling this lint.
+    /// The list of potentially dangerous memory manipulating functions to lint about.
+    ///
+    /// This list will overrides the default configuration, meaning that providing empty list
+    /// has the same effect as disabling this whole lint.
+    ///
+    /// Functions can be specified using either its full path (e.g. `crate_a::mod_a::func_a`),
+    /// or a name only string (e.g. `func_a`). If it's a name only string, then it will be assumed
+    /// as external function or a function in `libc` crate.
     (mem_unsafe_functions: Vec<String> = super::DEFAULT_MEM_UNSAFE_FUNCTIONS.iter().map(ToString::to_string).collect()),
     /// Lint: UNTRUSTED_LIB_LOADING
     ///
-    /// The list of additional IO functions to detect, e.g. `crate_a::mod_a::read`,
-    /// or externally defined functions, e.g. `scanf`.
-    (io_functions: Vec<String> = Vec::new()),
+    /// The list of functions that manage input from user, e.g. `std::io::Read::read`.
+    ///
+    /// This list will overrides the default configuration, meaning that providing empty list
+    /// has the same effect as disabling this whole lint.
+    ///
+    /// Functions can be specified using either its full path (e.g. `crate_a::mod_a::func_a`),
+    /// or a name only string (e.g. `func_a`). If it's a name only string, then it will be assumed
+    /// as external function or a function in `libc` crate.
+    (input_functions: Vec<String> = super::DEFAULT_INPUT_FUNCTIONS.iter().map(ToString::to_string).collect()),
     /// Lint: UNTRUSTED_LIB_LOADING
     ///
-    /// The list of dynamic library loader functions to detect, e.g. `crate_a::mod_a::load_lib`,
+    /// The list of functions that are capable of loading dynamic libraries at runtime.
+    ///
+    /// This list will overrides the default configuration, meaning that providing empty list
+    /// has the same effect as disabling this whole lint.
+    ///
+    /// Functions can be specified using either its full path (e.g. `crate_a::mod_a::func_a`),
+    /// or a name only string (e.g. `func_a`). If it's a name only string, then it will be assumed
+    /// as external function or a function in `libc` crate.
     /// or externally defined functions, e.g. `dlopen`.
-    (lib_loading_functions: Vec<String> = Vec::new()),
+    (lib_loading_functions: Vec<String> = super::DEFAULT_LIB_LOADING_FNS.iter().map(ToString::to_string).collect()),
     /// Lint: BLOCKING_OP_IN_ASYNC.
     ///
     /// Whether to enable checks for non-async IO operations (typically file system IO) in async context.
     (allow_io_blocking_ops: bool = true),
     /// Lint: FALLIBLE_MEMORY_ALLOCATION.
     ///
-    /// A whitelist of additional function names that are used for size verification.
-    (alloc_size_check_functions: Vec<String> = Vec::new()),
+    /// The list of keywords in function name that are used for size verification.
+    ///
+    /// This list will overrides the default configuration, meaning that providing empty list
+    /// has the same effect as disabling this whole lint.
+    (size_checking_function_keywords: Vec<String> =
+        super::DEFAULT_SIZE_CHECK_FN_KEYWORDS.iter().map(ToString::to_string).collect()),
     /// Lint: FALLIBLE_MEMORY_ALLOCATION.
     ///
-    /// A list of additional memory allocation functions to check.
-    (mem_alloc_functions: Vec<String> = Vec::new()),
+    /// A list of memory allocation functions to lint about.
+    ///
+    /// This list will overrides the default configuration, meaning that providing empty list
+    /// has the same effect as disabling this whole lint.
+    ///
+    /// Functions can be specified using either its full path (e.g. `crate_a::mod_a::func_a`),
+    /// or a name only string (e.g. `func_a`). If it's a name only string, then it will be assumed
+    /// as external function or a function in `libc` crate.
+    (mem_alloc_functions: Vec<String> = super::DEFAULT_MEM_ALLOC_FNS.iter().map(ToString::to_string).collect()),
     /// Lint: NON_REENTRANT_FUNCTIONS.
     ///
-    /// The list of non-reentrant functions to warn.
-    /// Providing empty list has the same effect as disabling this lint.
+    /// The list of non-reentrant functions to lint about.
+    ///
+    /// This list will overrides the default configuration, meaning that providing empty list
+    /// has the same effect as disabling this whole lint.
+    ///
+    /// Functions can be specified using either its full path (e.g. `crate_a::mod_a::func_a`),
+    /// or a name only string (e.g. `func_a`). If it's a name only string, then it will be assumed
+    /// as external function or a function in `libc` crate.
     (non_reentrant_functions: Vec<String> = super::DEFAULT_NON_REENTRANT_FNS.iter().map(ToString::to_string).collect()),
 }
 

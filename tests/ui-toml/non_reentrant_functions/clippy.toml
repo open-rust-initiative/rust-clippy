@@ -1,7 +1,0 @@
-non-reentrant-functions = [
-    "non_reentrant_functions::libc::strtok",
-    "non_reentrant_functions::libc::strerror",
-    "non_reentrant_functions::libc_ext::foo",
-    "non_reentrant_functions::libc_ext::bar",
-    "non_reentrant_functions::libc_ext::baz",
-]
