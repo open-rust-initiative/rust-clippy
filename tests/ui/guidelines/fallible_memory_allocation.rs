@@ -114,6 +114,12 @@ fn safe() {
     let size = get_untrusted_size();
     let bad_size = does_nothing_to_size(size);
     let arr: Vec<u8> = Vec::with_capacity(bad_size); // lint
+
+    fn vec_with_same_cap_as_slice(slice: &[u8]) {
+        let a: Vec<u8> = Vec::with_capacity(slice.len()); // don't lint
+        let size = slice.len();
+        let b: Vec<u8> = Vec::with_capacity(size); // don't lint
+    }
 }
 
 fn main() {}
