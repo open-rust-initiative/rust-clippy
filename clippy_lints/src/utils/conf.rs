@@ -58,7 +58,7 @@ const DEFAULT_NON_REENTRANT_FNS: &[&str] = &[
     "syslog",
     "getlogin",
 ];
-const DEFAULT_SIZE_CHECK_FN_KEYWORDS: &[&str] = &["max", "min", "clamp", "check", "verif", "ensure", "assert"];
+const DEFAULT_SIZE_CHECK_FN_KEYWORDS: &[&str] = &["max", "min", "clamp", "check", "verif", "ensure", "assert", "len"];
 const DEFAULT_MEM_ALLOC_FNS: &[&str] = &["malloc", "std::vec::Vec::with_capacity"];
 #[rustfmt::skip]
 pub(super) const DEFAULT_INPUT_FUNCTIONS: &[&str] = &[

@@ -20,7 +20,7 @@ pub(super) fn check(cx: &EarlyContext<'_>, expr: &Expr) {
 
 fn check_block(block: &Block, label: &Option<Label>, outest: bool) -> bool {
     block.stmts.iter().any(|stmt| match &stmt.kind {
-        StmtKind::Semi(expr) | StmtKind::Expr(expr) => !expr.span.from_expansion() && check_expr(expr, label, outest),
+        StmtKind::Semi(expr) | StmtKind::Expr(expr) => check_expr(expr, label, outest),
         _ => false,
     })
 }
