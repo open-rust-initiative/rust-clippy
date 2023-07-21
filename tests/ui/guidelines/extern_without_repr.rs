@@ -5,7 +5,7 @@
 #![feature(repr_simd, simd_ffi)]
 extern crate libc;
 
-use std::ffi::c_int;
+use std::ffi::{c_int, c_void};
 
 #[repr(C)]
 struct ReprC {
@@ -45,12 +45,21 @@ pub enum NakedEnum {
     B,
 }
 
+#[repr(u8)]
+enum U8Enum {
+    A,
+    B,
+}
+
+enum EmptyEnum {}
+
 extern "C" fn c_abi_fn1(arg: c_int) {}
 extern "C" fn c_abi_fn2(arg_one: c_int, arg_two: ReprC) {}
 extern "C" fn c_abi_fn3(arg_one: c_int, arg_two: *const Packed) {}
 extern "C" fn c_abi_fn4(arg: Aligned) {}
 extern "C" fn c_abi_fn5(arg: ReprSimd) {}
 extern "C" fn c_abi_fn6(arg: Transparent) {}
+extern "C" fn c_abi_fn7(arg: *const EmptyEnum) {} // don't lint, repr for empty enum is not supported
 extern "C" fn bad1(arg_one: c_int, arg_two: *const NakedStruct) {}
 extern "C" fn bad2(arg: NakedStruct) {}
 extern "C" fn bad3(arg: NakedEnum) {}
@@ -62,9 +71,13 @@ extern "C" {
     fn c_abi_in_block3(arg_one: c_int, arg_two: Packed);
     fn c_abi_in_block4(arg: Aligned);
     fn c_abi_in_block5(arg: ReprSimd);
+    fn c_abi_in_block6(arg: *const U8Enum);
+    fn c_abi_in_block7(arg: EmptyEnum); // don't lint, repr for empty enum is not supported
+    fn c_abi_in_block8(arg: *mut c_void); // don't lint, outside crate
+    fn c_abi_in_block9(arg: *mut libc::c_void); // don't lint, outside crate
     fn bad_in_block1(arg_one: c_int, arg_two: NakedStruct);
     fn bad_in_block2(arg: *mut NakedEnum);
-    fn bad_in_block3(arg: *mut NakedEnum, arg2: NakedStruct, arg3: *const ReprSimd);
+    fn bad_in_block3(arg: *mut NakedEnum, arg2: NakedStruct, arg3: *const ReprSimd); // lint all three args
 }
 
 fn main() {}
