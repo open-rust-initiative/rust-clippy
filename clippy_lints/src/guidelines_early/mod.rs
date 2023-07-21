@@ -72,8 +72,6 @@ impl EarlyLintPass for LintGroup {
     }
 
     fn check_expr(&mut self, cx: &EarlyContext<'_>, expr: &ast::Expr) {
-        if !expr.span.from_expansion() {
-            loop_without_break_or_return::check(cx, expr);
-        }
+        loop_without_break_or_return::check(cx, expr);
     }
 }
