@@ -38,8 +38,11 @@ pub(super) fn check_item<'tcx>(cx: &LateContext<'tcx>, item: &'tcx Item<'tcx>) {
 fn non_ffi_safe_ty_span(cx: &LateContext<'_>, ty: &Ty<'_>) -> Option<Span> {
     let mid_ty = hir_ty_to_ty(cx.tcx, walk_ptrs_hir_ty(ty));
     let adt = mid_ty.ty_adt_def()?;
+    if !adt.did().is_local() || adt.variants().is_empty() {
+        return None;
+    }
     let repr = adt.repr();
-    if repr.c() || repr.transparent() || repr.packed() || repr.align.is_some() {
+    if repr.inhibit_enum_layout_opt() || repr.transparent() || repr.packed() || repr.align.is_some() {
         None
     } else {
         Some(cx.tcx.def_span(adt.did()))
