@@ -123,6 +123,33 @@ fn test_05() {
             }
         }
     }
+
+    fn match_ret() {
+        let a = Some(0_u8);
+        loop {
+            match a {
+                Some(v) => (),
+                None => return,
+            }
+        }
+    }
+}
+
+macro_rules! set_or_ret {
+    ($opt:expr, $a:expr) => {{
+        match $opt {
+            Some(val) => $a = val,
+            None => return,
+        }
+    }};
+}
+
+fn ret_in_macro(opt: Option<u8>) {
+    let opt: Option<u8> = Some(1);
+    let mut a: u8 = 0;
+    loop {
+        set_or_ret!(opt, a);
+    } // don't lint
 }
 
 fn main() {}
