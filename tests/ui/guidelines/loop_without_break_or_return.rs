@@ -4,19 +4,19 @@
 fn test_01() {
     loop {
         println!("Hello, Rust!");
-    }
+    } // lint
 
     loop {
         break;
-    }
+    } // don't lint
 
     'outer: loop {
         break 'outer;
-    }
+    } // don't lint
 
     'outer: loop {
         break;
-    }
+    } // don't lint
 }
 
 fn test_02() {
@@ -24,7 +24,7 @@ fn test_02() {
         if 2 < 3 {
             break;
         }
-    }
+    } // don't lint
 }
 
 fn test_03() {
@@ -34,14 +34,14 @@ fn test_03() {
                 break 'outer1;
             }
         }
-    }
+    } // don't lint
 
     'outer2: loop {
         for x in 0..5 {
             if x == 3 {
                 break;
             }
-        }
+        } // lint
     }
 
     'outer3: loop {
@@ -150,6 +150,48 @@ fn ret_in_macro(opt: Option<u8>) {
     loop {
         set_or_ret!(opt, a);
     } // don't lint
+}
+
+fn match_pat() {
+    let result: Result<u8, ()> = Ok(1);
+    loop {
+        let val = match result {
+            Ok(1) => 1 + 1,
+            Ok(v) => v / 2,
+            Err(_) => return,
+        };
+    } // don't lint
+
+    loop {
+        let Ok(val) = result else { return };
+    } // don't lint
+
+    loop {
+        let Ok(val) = result.map(|v| 10) else {
+            break
+        }; // don't lint
+    }
+}
+
+fn exhaustive_loop() {
+    for i in 0..5 {
+        println!("{i}");
+    } // don't lint
+
+    let mut x = 0;
+    while x < 5 {
+        println!("x");
+        x += 1;
+    } // don't lint
+}
+
+fn infinite_inner() {
+    loop {
+        loop {
+            println!("x");
+        } // lint
+        break;
+    }
 }
 
 fn main() {}
