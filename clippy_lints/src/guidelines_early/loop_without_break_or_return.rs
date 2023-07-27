@@ -1,6 +1,6 @@
 use super::LOOP_WITHOUT_BREAK_OR_RETURN;
 use clippy_utils::diagnostics::span_lint_and_help;
-use rustc_ast::ast::{Block, Expr, ExprKind, Label, StmtKind};
+use rustc_ast::ast::{Block, Expr, ExprKind, Label, LocalKind, StmtKind};
 use rustc_lint::EarlyContext;
 
 pub(super) fn check(cx: &EarlyContext<'_>, expr: &Expr) {
@@ -21,6 +21,13 @@ pub(super) fn check(cx: &EarlyContext<'_>, expr: &Expr) {
 fn check_block(block: &Block, label: &Option<Label>, outest: bool) -> bool {
     block.stmts.iter().any(|stmt| match &stmt.kind {
         StmtKind::Semi(expr) | StmtKind::Expr(expr) => check_expr(expr, label, outest),
+        StmtKind::Local(local) => match &local.kind {
+            LocalKind::Init(expr) => check_expr(expr, label, outest),
+            LocalKind::InitElse(expr, else_blk) => {
+                check_expr(expr, label, outest) || check_block(else_blk, label, outest)
+            },
+            LocalKind::Decl => false,
+        },
         _ => false,
     })
 }
