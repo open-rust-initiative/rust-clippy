@@ -3,7 +3,7 @@ error: loop without break condition
    |
 LL | /     loop {
 LL | |         println!("Hello, Rust!");
-LL | |     }
+LL | |     } // lint
    | |_____^
    |
    = help: consider adding `break` or `return` statement in the loop block
@@ -17,7 +17,7 @@ LL | |         for x in 0..5 {
 LL | |             if x == 3 {
 LL | |                 break;
 LL | |             }
-LL | |         }
+LL | |         } // lint
 LL | |     }
    | |_____^
    |
@@ -73,5 +73,15 @@ LL | |         }
    |
    = help: consider adding `break` or `return` statement in the loop block
 
-error: aborting due to 6 previous errors
+error: loop without break condition
+  --> $DIR/loop_without_break_or_return.rs:190:9
+   |
+LL | /         loop {
+LL | |             println!("x");
+LL | |         } // lint
+   | |_________^
+   |
+   = help: consider adding `break` or `return` statement in the loop block
+
+error: aborting due to 7 previous errors
 
