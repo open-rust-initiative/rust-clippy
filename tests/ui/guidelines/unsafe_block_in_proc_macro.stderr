@@ -1,0 +1,141 @@
+error: function-like procedural macro `unsafe_print_foo` could masking unsafe operations
+  --> $DIR/unsafe_block_in_proc_macro.rs:17:5
+   |
+LL | /     quote!({
+LL | |         unsafe {
+LL | |             println!("foo");
+LL | |         }
+LL | |     })
+   | |______^
+   |
+   = help: consider removing unsafe block from the above `quote!` call,
+           and add unsafe block when calling the macro instead: `unsafe { unsafe_print_foo!{...} }`
+   = note: `-D clippy::unsafe-block-in-proc-macro` implied by `-D warnings`
+
+error: function-like procedural macro `unsafe_print_bar_unformatted` could masking unsafe operations
+  --> $DIR/unsafe_block_in_proc_macro.rs:28:5
+   |
+LL | /     quote!({
+LL | |         unsafe
+LL | |         
+LL | |         
+LL | |         { println!("bar"); }
+LL | |     }).into()
+   | |______^
+   |
+   = help: consider removing unsafe block from the above `quote!` call,
+           and add unsafe block when calling the macro instead: `unsafe { unsafe_print_bar_unformatted!{...} }`
+
+error: function-like procedural macro `unsafe_print_bar_unformatted_1` could masking unsafe operations
+  --> $DIR/unsafe_block_in_proc_macro.rs:39:5
+   |
+LL | /     quote!({
+LL | |         unsafe{println!("bar");}
+LL | |     }).into()
+   | |______^
+   |
+   = help: consider removing unsafe block from the above `quote!` call,
+           and add unsafe block when calling the macro instead: `unsafe { unsafe_print_bar_unformatted_1!{...} }`
+
+error: function-like procedural macro `unsafe_print_baz` could masking unsafe operations
+  --> $DIR/unsafe_block_in_proc_macro.rs:48:5
+   |
+LL | /     quote!({
+LL | |         let _ = 0_u8;
+LL | |         do_something();
+LL | |         unsafe {
+...  |
+LL | |         do_something();
+LL | |     })
+   | |______^
+   |
+   = help: consider removing unsafe block from the above `quote!` call,
+           and add unsafe block when calling the macro instead: `unsafe { unsafe_print_baz!{...} }`
+
+error: function-like procedural macro `maybe_unsafe_print` could masking unsafe operations
+  --> $DIR/unsafe_block_in_proc_macro.rs:65:16
+   |
+LL |           return quote!({
+   |  ________________^
+LL | |             unsafe {
+LL | |                 println!("unsafe");
+LL | |             }
+LL | |         })
+   | |__________^
+   |
+   = help: consider removing unsafe block from the above `quote!` call,
+           and add unsafe block when calling the macro instead: `unsafe { maybe_unsafe_print!{...} }`
+
+error: function-like procedural macro `maybe_unsafe_print_1` could masking unsafe operations
+  --> $DIR/unsafe_block_in_proc_macro.rs:89:5
+   |
+LL | /     quote!({
+LL | |         unsafe {
+LL | |             println!("unsafe");
+LL | |         }
+LL | |     })
+   | |______^
+   |
+   = help: consider removing unsafe block from the above `quote!` call,
+           and add unsafe block when calling the macro instead: `unsafe { maybe_unsafe_print_1!{...} }`
+
+error: function-like procedural macro `maybe_unsafe_print_2` could masking unsafe operations
+  --> $DIR/unsafe_block_in_proc_macro.rs:103:16
+   |
+LL |         return quote!(unsafe {}).into();
+   |                ^^^^^^^^^^^^^^^^^
+   |
+   = help: consider removing unsafe block from the above `quote!` call,
+           and add unsafe block when calling the macro instead: `unsafe { maybe_unsafe_print_2!{...} }`
+
+error: function-like procedural macro `multiple_unsafe` could masking unsafe operations
+  --> $DIR/unsafe_block_in_proc_macro.rs:115:14
+   |
+LL |           1 => quote!(unsafe {
+   |  ______________^
+LL | |             println!("1");
+LL | |         }),
+   | |__________^
+   |
+   = help: consider removing unsafe block from the above `quote!` call,
+           and add unsafe block when calling the macro instead: `unsafe { multiple_unsafe!{...} }`
+
+error: function-like procedural macro `multiple_unsafe` could masking unsafe operations
+  --> $DIR/unsafe_block_in_proc_macro.rs:118:14
+   |
+LL |           2 => quote!(unsafe {
+   |  ______________^
+LL | |             println!("2");
+LL | |         }),
+   | |__________^
+   |
+   = help: consider removing unsafe block from the above `quote!` call,
+           and add unsafe block when calling the macro instead: `unsafe { multiple_unsafe!{...} }`
+
+error: function-like procedural macro `multiple_unsafe` could masking unsafe operations
+  --> $DIR/unsafe_block_in_proc_macro.rs:121:14
+   |
+LL |         _ => quote!(unsafe {}),
+   |              ^^^^^^^^^^^^^^^^^
+   |
+   = help: consider removing unsafe block from the above `quote!` call,
+           and add unsafe block when calling the macro instead: `unsafe { multiple_unsafe!{...} }`
+
+error: function-like procedural macro `unsafe_block_in_function` could masking unsafe operations
+  --> $DIR/unsafe_block_in_proc_macro.rs:128:5
+   |
+LL | /     quote!({
+LL | |         fn print_foo() {
+LL | |             unsafe {
+LL | |                 println!("foo");
+LL | |             }
+LL | |         }
+LL | |     })
+   | |______^
+   |
+   = help: consider removing unsafe block from the above `quote!` call,
+           if the block was in a function, put an `unsafe` keyword on its definition: `unsafe fn ...`, 
+           otherwise add unsafe block when calling the macro instead: `unsafe { unsafe_block_in_function!{...} }`
+
+error: aborting due to 11 previous errors
+

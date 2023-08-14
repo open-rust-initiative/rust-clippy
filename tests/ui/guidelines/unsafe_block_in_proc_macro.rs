@@ -1,3 +1,4 @@
+#![crate_type = "proc-macro"]
 #![warn(clippy::unsafe_block_in_proc_macro)]
 #![allow(clippy::needless_return)]
 
@@ -10,10 +11,7 @@ use quote::quote;
 fn do_something() {}
 fn main() {}
 
-// Ideally we can add `#[proc_macro]` attr on these following functions,
-// and check only such functions instead, but I don't know how to write such test
-// without putting `proc_macro = true` in Cargo.toml, maybe someone else can fix it.
-
+#[proc_macro]
 pub fn unsafe_print_foo(_: TokenStream) -> TokenStream {
     quote!({
         unsafe {
@@ -24,6 +22,7 @@ pub fn unsafe_print_foo(_: TokenStream) -> TokenStream {
 }
 
 #[rustfmt::skip]
+#[proc_macro]
 pub fn unsafe_print_bar_unformatted(_: TokenStream) -> TokenStream {
     quote!({
         unsafe
@@ -34,12 +33,14 @@ pub fn unsafe_print_bar_unformatted(_: TokenStream) -> TokenStream {
 }
 
 #[rustfmt::skip]
+#[proc_macro]
 pub fn unsafe_print_bar_unformatted_1(_: TokenStream) -> TokenStream {
     quote!({
         unsafe{println!("bar");}
     }).into()
 }
 
+#[proc_macro]
 pub fn unsafe_print_baz(_: TokenStream) -> TokenStream {
     do_something();
 
@@ -55,6 +56,7 @@ pub fn unsafe_print_baz(_: TokenStream) -> TokenStream {
     .into()
 }
 
+#[proc_macro]
 pub fn maybe_unsafe_print(_: TokenStream) -> TokenStream {
     do_something();
 
@@ -73,6 +75,7 @@ pub fn maybe_unsafe_print(_: TokenStream) -> TokenStream {
     .into()
 }
 
+#[proc_macro]
 pub fn maybe_unsafe_print_1(_: TokenStream) -> TokenStream {
     let condition = 1;
     if condition > 0 {
@@ -90,6 +93,7 @@ pub fn maybe_unsafe_print_1(_: TokenStream) -> TokenStream {
     .into()
 }
 
+#[proc_macro]
 pub fn maybe_unsafe_print_2(_: TokenStream) -> TokenStream {
     let condition = 1;
     if condition == 0 {
@@ -103,6 +107,7 @@ pub fn maybe_unsafe_print_2(_: TokenStream) -> TokenStream {
     quote!({}).into()
 }
 
+#[proc_macro]
 pub fn multiple_unsafe(_: TokenStream) -> TokenStream {
     let condition = 1;
     match condition {
@@ -117,6 +122,7 @@ pub fn multiple_unsafe(_: TokenStream) -> TokenStream {
     .into()
 }
 
+#[proc_macro]
 pub fn unsafe_block_in_function(_: TokenStream) -> TokenStream {
     quote!({
         fn print_foo() {
@@ -128,6 +134,7 @@ pub fn unsafe_block_in_function(_: TokenStream) -> TokenStream {
     .into()
 }
 
+#[proc_macro]
 // Don't lint
 pub fn print_foo(_: TokenStream) -> TokenStream {
     quote!({
@@ -136,6 +143,7 @@ pub fn print_foo(_: TokenStream) -> TokenStream {
     .into()
 }
 
+#[proc_macro]
 // Don't lint
 pub fn unsafe_trait(_: TokenStream) -> TokenStream {
     quote!({
@@ -147,6 +155,7 @@ pub fn unsafe_trait(_: TokenStream) -> TokenStream {
     .into()
 }
 
+#[proc_macro]
 // Don't lint
 pub fn unsafe_fn(_: TokenStream) -> TokenStream {
     quote!({
@@ -155,6 +164,7 @@ pub fn unsafe_fn(_: TokenStream) -> TokenStream {
     .into()
 }
 
+#[proc_macro]
 // Don't lint
 pub fn unsafe_impl_fn(_: TokenStream) -> TokenStream {
     quote!({
