@@ -1,5 +1,5 @@
 mod implicit_abi;
-mod loop_without_break_or_return;
+mod infinite_loop;
 
 use rustc_ast::ast;
 use rustc_lint::{EarlyContext, EarlyLintPass};
@@ -32,10 +32,16 @@ declare_clippy_lint! {
 
 declare_clippy_lint! {
     /// ### What it does
-    /// Checks for loop-without-exit-mechanism.
+    /// Checks for the existance of infinite loop.
     ///
     /// ### Why is this bad?
-    /// This makes code bug-prone.
+    /// This could be an error where the programmer forgets to add an exit mechanism,
+    /// thus have the risk of draining resources during runtime.
+    ///
+    /// ### Known problems
+    ///
+    /// In some cases, such as during server communication or signal handling, where
+    /// using infinite loops could be as intended.
     ///
     /// ### Example
     /// ```rust
@@ -53,7 +59,7 @@ declare_clippy_lint! {
     /// }
     /// ```
     #[clippy::version = "1.70.0"]
-    pub LOOP_WITHOUT_BREAK_OR_RETURN,
+    pub INFINITE_LOOP,
     nursery,
     "loop block without `break` or `return` statement"
 }
@@ -63,7 +69,7 @@ pub struct LintGroup;
 
 impl_lint_pass!(LintGroup => [
     IMPLICIT_ABI,
-    LOOP_WITHOUT_BREAK_OR_RETURN,
+    INFINITE_LOOP,
 ]);
 
 impl EarlyLintPass for LintGroup {
@@ -72,6 +78,6 @@ impl EarlyLintPass for LintGroup {
     }
 
     fn check_expr(&mut self, cx: &EarlyContext<'_>, expr: &ast::Expr) {
-        loop_without_break_or_return::check(cx, expr);
+        infinite_loop::check(cx, expr);
     }
 }

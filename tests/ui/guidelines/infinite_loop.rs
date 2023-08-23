@@ -1,5 +1,8 @@
-#![allow(unused, clippy::never_loop)]
-#![warn(clippy::loop_without_break_or_return)]
+#![allow(unused)]
+#![allow(clippy::never_loop)]
+#![allow(clippy::empty_loop)]
+#![allow(clippy::disallowed_names)]
+#![warn(clippy::infinite_loop)]
 
 fn test_01() {
     loop {
@@ -59,7 +62,7 @@ fn test_04() {
     'outer1: loop {
         loop {
             println!("Hello, Rust!");
-        }
+        } // lint
         break;
     }
 
@@ -67,7 +70,7 @@ fn test_04() {
         loop {
             break;
         }
-    }
+    } // lint
 
     'outer3: loop {
         loop {
@@ -81,7 +84,7 @@ fn test_04() {
                 break 'inner;
             }
         }
-    }
+    } // lint
 
     'outer5: loop {
         loop {
@@ -93,7 +96,7 @@ fn test_04() {
                     break 'outer5;
                 }
             }
-        }
+        } // lint, 'inner was breaked early, thus 'outer5 never breaks
     }
 }
 
@@ -111,12 +114,28 @@ fn test_05() {
                 return;
             }
         }
+
+        loop {
+            // don't lint
+            loop {
+                return;
+            }
+        }
     }
 
     fn cond_ret_in_inner(flag: bool) {
         'outer: loop {
             // don't lint
             'inner: loop {
+                if flag {
+                    return;
+                }
+            }
+        }
+
+        loop {
+            // don't lint
+            loop {
                 if flag {
                     return;
                 }
@@ -192,6 +211,38 @@ fn infinite_inner() {
         } // lint
         break;
     }
+}
+
+fn match_assign() {
+    enum Foo {
+        A,
+        B,
+        C,
+    }
+
+    let mut val = 0;
+    let mut foo = Foo::C;
+
+    loop {
+        val = match foo {
+            Foo::A => 0,
+            Foo::B => {
+                foo = Foo::C;
+                1
+            },
+            Foo::C => break,
+        };
+    } // don't lint
+
+    loop {
+        val = match foo {
+            Foo::A => 0,
+            Foo::B => 1,
+            Foo::C => {
+                break;
+            },
+        };
+    } // don't lint
 }
 
 fn main() {}
