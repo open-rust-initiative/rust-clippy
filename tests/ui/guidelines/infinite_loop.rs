@@ -114,12 +114,28 @@ fn test_05() {
                 return;
             }
         }
+
+        loop {
+            // don't lint
+            loop {
+                return;
+            }
+        }
     }
 
     fn cond_ret_in_inner(flag: bool) {
         'outer: loop {
             // don't lint
             'inner: loop {
+                if flag {
+                    return;
+                }
+            }
+        }
+
+        loop {
+            // don't lint
+            loop {
                 if flag {
                     return;
                 }

@@ -74,7 +74,7 @@ LL | |         } // lint, 'inner was breaked early, thus 'outer5 never breaks
    = help: consider adding `break` or `return` statement in the loop block
 
 error: loop without break condition
-  --> $DIR/infinite_loop.rs:193:9
+  --> $DIR/infinite_loop.rs:209:9
    |
 LL | /         loop {
 LL | |             println!("x");

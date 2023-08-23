@@ -14,12 +14,10 @@ pub(super) fn check(cx: &EarlyContext<'_>, expr: &Expr) {
 
         let is_finite_loop = if direct_br_or_ret_finder.found {
             true
-        } else if let Some(lbl) = label {
-            let mut inner_br_or_ret_finder = InnerBreakOrRetFinder::with_label(*lbl);
+        } else {
+            let mut inner_br_or_ret_finder = InnerBreakOrRetFinder::with_label(*label);
             inner_br_or_ret_finder.visit_block(block);
             inner_br_or_ret_finder.found
-        } else {
-            false
         };
 
         if !is_finite_loop {
@@ -53,12 +51,12 @@ impl<'ast> Visitor<'ast> for DirectBreakOrRetFinder {
 
 /// Find `break` or `return` with entering inner loops, and find a break with corresponding label
 struct InnerBreakOrRetFinder {
-    label: Label,
+    label: Option<Label>,
     found: bool,
 }
 
 impl InnerBreakOrRetFinder {
-    fn with_label(label: Label) -> Self {
+    fn with_label(label: Option<Label>) -> Self {
         Self { label, found: false }
     }
 }
@@ -67,10 +65,8 @@ impl<'ast> Visitor<'ast> for InnerBreakOrRetFinder {
     fn visit_expr(&mut self, ex: &'ast Expr) {
         match &ex.kind {
             ExprKind::Break(maybe_label, ..) => {
-                if let Some(break_label) = maybe_label {
-                    if self.label == *break_label {
-                        self.found = true;
-                    }
+                if maybe_label.is_some() && maybe_label == &self.label {
+                    self.found = true;
                 }
             },
             ExprKind::Ret(..) => self.found = true,
