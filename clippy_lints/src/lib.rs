@@ -928,7 +928,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
             non_reentrant_fns.clone(),
         ))
     });
-    store.register_early_pass(|| Box::new(guidelines_early::LintGroup::new()));
+    store.register_early_pass(|| Box::new(guidelines_early::LintGroup));
     // add lints here, do not remove this comment, it's used in `new_lint`
 }
 
