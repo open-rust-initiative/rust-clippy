@@ -1,4 +1,4 @@
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:13:13
    |
 LL |     let _ = read("non_exist.txt");
@@ -11,7 +11,7 @@ LL | pub async fn async_std_read() {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: `-D clippy::blocking-op-in-async` implied by `-D warnings`
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:17:5
    |
 LL |     std::fs::remove_dir("non_exist_dir")?;
@@ -23,7 +23,7 @@ note: asyncness was determined here
 LL | pub async fn async_std_fn_paths() -> std::io::Result<()> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:18:5
    |
 LL |     std::fs::write("non_exist.txt", b"Lorem ipsum")?;
@@ -35,7 +35,7 @@ note: asyncness was determined here
 LL | pub async fn async_std_fn_paths() -> std::io::Result<()> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:19:5
    |
 LL |     fs::copy("non_exist.txt", "non_exist_1.txt")?;
@@ -47,7 +47,7 @@ note: asyncness was determined here
 LL | pub async fn async_std_fn_paths() -> std::io::Result<()> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:20:13
    |
 LL |     let _ = fs::canonicalize("./non/exist/dir/");
@@ -59,7 +59,7 @@ note: asyncness was determined here
 LL | pub async fn async_std_fn_paths() -> std::io::Result<()> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:50:9
    |
 LL |         create_dir("foo");
@@ -71,7 +71,7 @@ note: asyncness was determined here
 LL |     pub async fn conflicted_name_fns() {
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:55:22
    |
 LL |     let _ = async || read("non_exist.txt");
@@ -83,7 +83,7 @@ note: asyncness was determined here
 LL |     let _ = async || read("non_exist.txt");
    |             ^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:57:9
    |
 LL |         read("non_exist.txt");
@@ -95,7 +95,7 @@ note: asyncness was determined here
 LL |     let _ = async || {
    |             ^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:58:9
    |
 LL |         std::fs::create_dir("foo");
@@ -107,7 +107,7 @@ note: asyncness was determined here
 LL |     let _ = async || {
    |             ^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:63:9
    |
 LL |         fs::create_dir("foo");
@@ -119,7 +119,7 @@ note: asyncness was determined here
 LL |     let async_closure = async move |_a: i32| {
    |                         ^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:64:9
    |
 LL |         sleep(Duration::from_secs(1));
@@ -131,7 +131,7 @@ note: asyncness was determined here
 LL |     let async_closure = async move |_a: i32| {
    |                         ^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:65:20
    |
 LL |         let _res = fs::copy("a", "b");
@@ -143,7 +143,7 @@ note: asyncness was determined here
 LL |     let async_closure = async move |_a: i32| {
    |                         ^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:75:8
    |
 LL |     if read("foo").is_ok() {
@@ -155,7 +155,7 @@ note: asyncness was determined here
 LL | pub async fn if_and_matches() -> Result<(), ()> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:78:20
    |
 LL |     if let Ok(f) = read("foo") {
@@ -167,7 +167,7 @@ note: asyncness was determined here
 LL | pub async fn if_and_matches() -> Result<(), ()> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:81:11
    |
 LL |     match read("foo") {
@@ -179,7 +179,7 @@ note: asyncness was determined here
 LL | pub async fn if_and_matches() -> Result<(), ()> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:85:11
    |
 LL |     match read("foo") {
@@ -191,7 +191,7 @@ note: asyncness was determined here
 LL | pub async fn if_and_matches() -> Result<(), ()> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:87:13
    |
 LL |             fs::copy("foo", "foo_1").unwrap();
@@ -203,7 +203,7 @@ note: asyncness was determined here
 LL | pub async fn if_and_matches() -> Result<(), ()> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:90:13
    |
 LL |             fs::write("foo", b"bar").unwrap();
@@ -215,7 +215,7 @@ note: asyncness was determined here
 LL | pub async fn if_and_matches() -> Result<(), ()> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:103:9
    |
 LL |         fs::copy("foo", "bar").unwrap();
@@ -227,7 +227,7 @@ note: asyncness was determined here
 LL | pub async fn if_and_matches() -> Result<(), ()> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:105:5
    |
 LL |     read("non_exist.txt").map_err(|_| ())?;
@@ -239,7 +239,7 @@ note: asyncness was determined here
 LL | pub async fn if_and_matches() -> Result<(), ()> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: this function call might blocks the thread in async context
+error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:106:5
    |
 LL |     read("foo").map(|_| ()).map_err(|_| ())?;

@@ -326,46 +326,41 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
     }
 
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx hir::Expr<'_>) {
-        match &expr.kind {
-            hir::ExprKind::Call(_func, params) => {
-                if let Some(fn_did) = fn_def_id(cx, expr) {
-                    if self.non_reentrant_fns.ids.contains(&fn_did) {
-                        span_lint_and_help(
-                            cx,
-                            NON_REENTRANT_FUNCTIONS,
-                            expr.span,
-                            "use of non-reentrant function",
-                            None,
-                            "consider using its reentrant counterpart",
-                        );
-                        return;
-                    }
-                    if self.mem_uns_fns.ids.contains(&fn_did) {
-                        span_lint_and_help(
-                            cx,
-                            MEM_UNSAFE_FUNCTIONS,
-                            expr.span,
-                            "use of potentially dangerous memory manipulation function",
-                            None,
-                            "consider using its safe version",
-                        );
-                        return;
-                    }
-                    if self.lib_loading_fns.ids.contains(&fn_did) {
-                        untrusted_lib_loading::check_expr(cx, expr, params, &self.io_fns.ids);
-                    }
-                    if self.mem_alloc_fns.ids.contains(&fn_did) {
-                        fallible_memory_allocation::check_expr(cx, expr, params, fn_did, &self.alloc_size_check_fns);
-                    }
-                    passing_string_to_c_functions::check_expr(cx, expr, fn_did, params);
+        if let hir::ExprKind::Call(_func, params) = &expr.kind {
+            if let Some(fn_did) = fn_def_id(cx, expr) {
+                if self.non_reentrant_fns.ids.contains(&fn_did) {
+                    span_lint_and_help(
+                        cx,
+                        NON_REENTRANT_FUNCTIONS,
+                        expr.span,
+                        "use of non-reentrant function",
+                        None,
+                        "consider using its reentrant counterpart",
+                    );
+                    return;
                 }
-            },
-            hir::ExprKind::Closure(closure) => {
-                blocking_op_in_async::check_closure(cx, closure, expr.span, &self.blocking_fns.ids);
-            },
-            _ => {
-                unsafe_block_in_proc_macro::check(cx, expr, &mut self.macro_call_sites);
-            },
+                if self.mem_uns_fns.ids.contains(&fn_did) {
+                    span_lint_and_help(
+                        cx,
+                        MEM_UNSAFE_FUNCTIONS,
+                        expr.span,
+                        "use of potentially dangerous memory manipulation function",
+                        None,
+                        "consider using its safe version",
+                    );
+                    return;
+                }
+                if self.lib_loading_fns.ids.contains(&fn_did) {
+                    untrusted_lib_loading::check_expr(cx, expr, params, &self.io_fns.ids);
+                }
+                if self.mem_alloc_fns.ids.contains(&fn_did) {
+                    fallible_memory_allocation::check_expr(cx, expr, params, fn_did, &self.alloc_size_check_fns);
+                }
+                passing_string_to_c_functions::check_expr(cx, expr, fn_did, params);
+            }
+        } else {
+            blocking_op_in_async::check_expr(cx, expr, &self.blocking_fns.ids);
+            unsafe_block_in_proc_macro::check(cx, expr, &mut self.macro_call_sites);
         }
     }
 }
