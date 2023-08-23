@@ -1,16 +1,11 @@
 use super::INFINITE_LOOP;
 use clippy_utils::diagnostics::span_lint_and_help;
 use rustc_ast::ast::{Expr, ExprKind, Label};
-use rustc_ast::node_id::NodeId;
 use rustc_ast::visit::{walk_expr, Visitor};
-use rustc_data_structures::fx::FxHashSet;
 use rustc_lint::EarlyContext;
 
-pub(super) fn check(cx: &EarlyContext<'_>, expr: &Expr, close_loops: &mut FxHashSet<NodeId>) {
+pub(super) fn check(cx: &EarlyContext<'_>, expr: &Expr) {
     if let ExprKind::Loop(block, label, _) = &expr.kind {
-        if close_loops.contains(&expr.id) {
-            return;
-        }
         // First, find any `break` or `return` without entering any inner loop,
         // then, find `return` or labeled `break` which breaks this loop with entering inner loop,
         // otherwise this loop is a infinite loop.
