@@ -211,7 +211,7 @@ pub(crate) static LINTS: &[&crate::LintInfo] = &[
     crate::guidelines::UNTRUSTED_LIB_LOADING_INFO,
     crate::guidelines::UNSAFE_BLOCK_IN_PROC_MACRO_INFO,
     crate::guidelines_early::IMPLICIT_ABI_INFO,
-    crate::guidelines_early::LOOP_WITHOUT_BREAK_OR_RETURN_INFO,
+    crate::guidelines_early::INFINITE_LOOP_INFO,
     crate::if_let_mutex::IF_LET_MUTEX_INFO,
     crate::if_not_else::IF_NOT_ELSE_INFO,
     crate::if_then_some_else_none::IF_THEN_SOME_ELSE_NONE_INFO,

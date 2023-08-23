@@ -1,5 +1,5 @@
 error: function-like procedural macro `unsafe_print_foo` could masking unsafe operations
-  --> $DIR/unsafe_block_in_proc_macro.rs:17:5
+  --> $DIR/unsafe_block_in_proc_macro.rs:16:5
    |
 LL | /     quote!({
 LL | |         unsafe {
@@ -13,7 +13,7 @@ LL | |     })
    = note: `-D clippy::unsafe-block-in-proc-macro` implied by `-D warnings`
 
 error: function-like procedural macro `unsafe_print_bar_unformatted` could masking unsafe operations
-  --> $DIR/unsafe_block_in_proc_macro.rs:28:5
+  --> $DIR/unsafe_block_in_proc_macro.rs:27:5
    |
 LL | /     quote!({
 LL | |         unsafe
@@ -27,7 +27,7 @@ LL | |     }).into()
            and add unsafe block when calling the macro instead: `unsafe { unsafe_print_bar_unformatted!{...} }`
 
 error: function-like procedural macro `unsafe_print_bar_unformatted_1` could masking unsafe operations
-  --> $DIR/unsafe_block_in_proc_macro.rs:39:5
+  --> $DIR/unsafe_block_in_proc_macro.rs:38:5
    |
 LL | /     quote!({
 LL | |         unsafe{println!("bar");}
@@ -38,7 +38,7 @@ LL | |     }).into()
            and add unsafe block when calling the macro instead: `unsafe { unsafe_print_bar_unformatted_1!{...} }`
 
 error: function-like procedural macro `unsafe_print_baz` could masking unsafe operations
-  --> $DIR/unsafe_block_in_proc_macro.rs:48:5
+  --> $DIR/unsafe_block_in_proc_macro.rs:47:5
    |
 LL | /     quote!({
 LL | |         let _ = 0_u8;
@@ -53,7 +53,7 @@ LL | |     })
            and add unsafe block when calling the macro instead: `unsafe { unsafe_print_baz!{...} }`
 
 error: function-like procedural macro `maybe_unsafe_print` could masking unsafe operations
-  --> $DIR/unsafe_block_in_proc_macro.rs:65:16
+  --> $DIR/unsafe_block_in_proc_macro.rs:64:16
    |
 LL |           return quote!({
    |  ________________^
@@ -67,7 +67,7 @@ LL | |         })
            and add unsafe block when calling the macro instead: `unsafe { maybe_unsafe_print!{...} }`
 
 error: function-like procedural macro `maybe_unsafe_print_1` could masking unsafe operations
-  --> $DIR/unsafe_block_in_proc_macro.rs:89:5
+  --> $DIR/unsafe_block_in_proc_macro.rs:88:5
    |
 LL | /     quote!({
 LL | |         unsafe {
@@ -80,7 +80,7 @@ LL | |     })
            and add unsafe block when calling the macro instead: `unsafe { maybe_unsafe_print_1!{...} }`
 
 error: function-like procedural macro `maybe_unsafe_print_2` could masking unsafe operations
-  --> $DIR/unsafe_block_in_proc_macro.rs:103:16
+  --> $DIR/unsafe_block_in_proc_macro.rs:102:16
    |
 LL |         return quote!(unsafe {}).into();
    |                ^^^^^^^^^^^^^^^^^
@@ -89,7 +89,7 @@ LL |         return quote!(unsafe {}).into();
            and add unsafe block when calling the macro instead: `unsafe { maybe_unsafe_print_2!{...} }`
 
 error: function-like procedural macro `multiple_unsafe` could masking unsafe operations
-  --> $DIR/unsafe_block_in_proc_macro.rs:115:14
+  --> $DIR/unsafe_block_in_proc_macro.rs:114:14
    |
 LL |           1 => quote!(unsafe {
    |  ______________^
@@ -101,7 +101,7 @@ LL | |         }),
            and add unsafe block when calling the macro instead: `unsafe { multiple_unsafe!{...} }`
 
 error: function-like procedural macro `multiple_unsafe` could masking unsafe operations
-  --> $DIR/unsafe_block_in_proc_macro.rs:118:14
+  --> $DIR/unsafe_block_in_proc_macro.rs:117:14
    |
 LL |           2 => quote!(unsafe {
    |  ______________^
@@ -113,7 +113,7 @@ LL | |         }),
            and add unsafe block when calling the macro instead: `unsafe { multiple_unsafe!{...} }`
 
 error: function-like procedural macro `multiple_unsafe` could masking unsafe operations
-  --> $DIR/unsafe_block_in_proc_macro.rs:121:14
+  --> $DIR/unsafe_block_in_proc_macro.rs:120:14
    |
 LL |         _ => quote!(unsafe {}),
    |              ^^^^^^^^^^^^^^^^^
@@ -122,7 +122,7 @@ LL |         _ => quote!(unsafe {}),
            and add unsafe block when calling the macro instead: `unsafe { multiple_unsafe!{...} }`
 
 error: function-like procedural macro `unsafe_block_in_function` could masking unsafe operations
-  --> $DIR/unsafe_block_in_proc_macro.rs:128:5
+  --> $DIR/unsafe_block_in_proc_macro.rs:127:5
    |
 LL | /     quote!({
 LL | |         fn print_foo() {
