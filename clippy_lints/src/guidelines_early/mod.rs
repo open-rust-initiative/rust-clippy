@@ -2,8 +2,6 @@ mod implicit_abi;
 mod infinite_loop;
 
 use rustc_ast::ast;
-use rustc_ast::node_id::NodeId;
-use rustc_data_structures::fx::FxHashSet;
 use rustc_lint::{EarlyContext, EarlyLintPass};
 use rustc_session::{declare_tool_lint, impl_lint_pass};
 
@@ -67,17 +65,7 @@ declare_clippy_lint! {
 }
 
 #[derive(Clone, Default)]
-pub struct LintGroup {
-    /// Mainly used for optimizion, skip checking loops that are already confirmed closed,
-    /// meaning that they have `break` or `return`.
-    close_loops: FxHashSet<NodeId>,
-}
-
-impl LintGroup {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
+pub struct LintGroup;
 
 impl_lint_pass!(LintGroup => [
     IMPLICIT_ABI,
@@ -90,10 +78,6 @@ impl EarlyLintPass for LintGroup {
     }
 
     fn check_expr(&mut self, cx: &EarlyContext<'_>, expr: &ast::Expr) {
-        infinite_loop::check(cx, expr, &mut self.close_loops);
-    }
-
-    fn check_crate(&mut self, _cx: &EarlyContext<'_>, _krate: &ast::Crate) {
-        self.close_loops = FxHashSet::default();
+        infinite_loop::check(cx, expr);
     }
 }
