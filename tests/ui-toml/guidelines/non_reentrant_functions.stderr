@@ -1,0 +1,43 @@
+error: use of non-reentrant function
+  --> $DIR/non_reentrant_functions.rs:32:17
+   |
+LL |         let _ = libc::strtok(null_mut(), null()); // lint
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: consider using its reentrant counterpart
+   = note: `-D clippy::non-reentrant-functions` implied by `-D warnings`
+
+error: use of non-reentrant function
+  --> $DIR/non_reentrant_functions.rs:33:9
+   |
+LL |         libc::strtok(null_mut(), null()); // lint
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: consider using its reentrant counterpart
+
+error: use of non-reentrant function
+  --> $DIR/non_reentrant_functions.rs:34:9
+   |
+LL |         libc::strerror(0); // lint
+   |         ^^^^^^^^^^^^^^^^^
+   |
+   = help: consider using its reentrant counterpart
+
+error: use of non-reentrant function
+  --> $DIR/non_reentrant_functions.rs:42:5
+   |
+LL |     libc_ext::foo(); // lint
+   |     ^^^^^^^^^^^^^^^
+   |
+   = help: consider using its reentrant counterpart
+
+error: use of non-reentrant function
+  --> $DIR/non_reentrant_functions.rs:43:5
+   |
+LL |     bar(1); // lint
+   |     ^^^^^^
+   |
+   = help: consider using its reentrant counterpart
+
+error: aborting due to 5 previous errors
+

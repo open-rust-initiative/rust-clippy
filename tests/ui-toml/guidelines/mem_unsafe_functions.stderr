@@ -1,0 +1,35 @@
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:29:9
+   |
+LL |         not_safe();
+   |         ^^^^^^^^^^
+   |
+   = help: consider using its safe version
+   = note: `-D clippy::mem-unsafe-functions` implied by `-D warnings`
+
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:30:9
+   |
+LL |         dont_use();
+   |         ^^^^^^^^^^
+   |
+   = help: consider using its safe version
+
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:31:9
+   |
+LL |         del_mem();
+   |         ^^^^^^^^^
+   |
+   = help: consider using its safe version
+
+error: use of potentially dangerous memory manipulation function
+  --> $DIR/mem_unsafe_functions.rs:32:9
+   |
+LL |         memcpy();
+   |         ^^^^^^^^
+   |
+   = help: consider using its safe version
+
+error: aborting due to 4 previous errors
+

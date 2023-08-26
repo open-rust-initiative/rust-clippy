@@ -1,0 +1,87 @@
+error: loop without break condition
+  --> $DIR/infinite_loop.rs:8:5
+   |
+LL | /     loop {
+LL | |         println!("Hello, Rust!");
+LL | |     } // lint
+   | |_____^
+   |
+   = help: consider adding `break` or `return` statement in the loop block
+   = note: `-D clippy::infinite-loop` implied by `-D warnings`
+
+error: loop without break condition
+  --> $DIR/infinite_loop.rs:42:5
+   |
+LL | /     'outer2: loop {
+LL | |         for x in 0..5 {
+LL | |             if x == 3 {
+LL | |                 break;
+LL | |             }
+LL | |         } // lint
+LL | |     }
+   | |_____^
+   |
+   = help: consider adding `break` or `return` statement in the loop block
+
+error: loop without break condition
+  --> $DIR/infinite_loop.rs:63:9
+   |
+LL | /         loop {
+LL | |             println!("Hello, Rust!");
+LL | |         } // lint
+   | |_________^
+   |
+   = help: consider adding `break` or `return` statement in the loop block
+
+error: loop without break condition
+  --> $DIR/infinite_loop.rs:69:5
+   |
+LL | /     'outer2: loop {
+LL | |         loop {
+LL | |             break;
+LL | |         }
+LL | |     } // lint
+   | |_____^
+   |
+   = help: consider adding `break` or `return` statement in the loop block
+
+error: loop without break condition
+  --> $DIR/infinite_loop.rs:81:5
+   |
+LL | /     'outer4: loop {
+LL | |         'inner: loop {
+LL | |             loop {
+LL | |                 break 'inner;
+LL | |             }
+LL | |         }
+LL | |     } // lint
+   | |_____^
+   |
+   = help: consider adding `break` or `return` statement in the loop block
+
+error: loop without break condition
+  --> $DIR/infinite_loop.rs:90:9
+   |
+LL | /         loop {
+LL | |             'inner: loop {
+LL | |                 loop {
+LL | |                     loop {
+...  |
+LL | |             }
+LL | |         } // lint, 'inner was breaked early, thus 'outer5 never breaks
+   | |_________^
+   |
+   = help: consider adding `break` or `return` statement in the loop block
+
+error: loop without break condition
+  --> $DIR/infinite_loop.rs:209:9
+   |
+LL | /         loop {
+LL | |             println!("x");
+LL | |         } // lint
+   | |_________^
+   |
+   = help: consider adding `break` or `return` statement in the loop block
+
+error: aborting due to 7 previous errors
+
