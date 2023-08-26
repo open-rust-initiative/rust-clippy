@@ -84,14 +84,7 @@ pub(super) fn check_expr<'tcx>(
     let mut ptr_status = PtrStatus::Unverified;
     let mut maybe_size_param: Option<&Expr<'_>> = None;
 
-    if !cx
-        .tcx
-        .fn_sig(func_did)
-        .subst_identity()
-        .skip_binder()
-        .output()
-        .is_unsafe_ptr()
-    {
+    if !cx.tcx.fn_sig(func_did).skip_binder().output().is_unsafe_ptr() {
         ptr_status = PtrStatus::NotPtr;
     }
 
