@@ -337,9 +337,7 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
                         None,
                         "consider using its reentrant counterpart",
                     );
-                    return;
-                }
-                if self.mem_uns_fns.ids.contains(&fn_did) {
+                } else if self.mem_uns_fns.ids.contains(&fn_did) {
                     span_lint_and_help(
                         cx,
                         MEM_UNSAFE_FUNCTIONS,
@@ -348,12 +346,9 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
                         None,
                         "consider using its safe version",
                     );
-                    return;
-                }
-                if self.lib_loading_fns.ids.contains(&fn_did) {
+                } else if self.lib_loading_fns.ids.contains(&fn_did) {
                     untrusted_lib_loading::check_expr(cx, expr, params, &self.io_fns.ids);
-                }
-                if self.mem_alloc_fns.ids.contains(&fn_did) {
+                } else if self.mem_alloc_fns.ids.contains(&fn_did) {
                     fallible_memory_allocation::check_expr(cx, expr, params, fn_did, &self.alloc_size_check_fns);
                 }
                 passing_string_to_c_functions::check_expr(cx, expr, fn_did, params);
@@ -380,8 +375,10 @@ fn add_configured_fn_ids(cx: &LateContext<'_>, fns: &mut FnPathsAndIds) {
             }
         }
         // Plain function names, then we should take its libc variant into account
-        else if let Some(did) = def_path_def_ids(cx, &["libc", fn_name]).next() {
-            fns.ids.insert(did);
+        else {
+            for did in def_path_def_ids(cx, &["libc", fn_name]) {
+                fns.ids.insert(did);
+            }
         }
     }
 }
