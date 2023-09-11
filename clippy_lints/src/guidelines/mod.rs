@@ -1,3 +1,4 @@
+mod null_ptr_dereference;
 mod blocking_op_in_async;
 mod extern_without_repr;
 mod fallible_memory_allocation;
@@ -222,6 +223,25 @@ declare_clippy_lint! {
     "this function is a non-reentrant-function"
 }
 
+declare_clippy_lint! {
+    /// ### What it does
+    ///
+    /// ### Why is this bad?
+    ///
+    /// ### Example
+    /// ```rust
+    /// // example code where clippy issues a warning
+    /// ```
+    /// Use instead:
+    /// ```rust
+    /// // example code which does not raise clippy warning
+    /// ```
+    #[clippy::version = "1.68.0"]
+    pub NULL_PTR_DEREFERENCE,
+    nursery,
+    "default lint description"
+}
+
 /// Helper struct with user configured path-like functions, such as `std::fs::read`,
 /// and a set for `def_id`s which should be filled during checks.
 ///
@@ -287,6 +307,7 @@ impl_lint_pass!(LintGroup => [
     UNSAFE_BLOCK_IN_PROC_MACRO,
     EXTERN_WITHOUT_REPR,
     NON_REENTRANT_FUNCTIONS,
+    NULL_PTR_DEREFERENCE,
 ]);
 
 impl<'tcx> LateLintPass<'tcx> for LintGroup {
