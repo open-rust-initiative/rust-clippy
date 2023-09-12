@@ -37,6 +37,7 @@ error: error reading Clippy's configuration file `$DIR/clippy.toml`: unknown fie
            max-suggested-slice-pattern-length
            max-trait-bounds
            mem-alloc-functions
+           mem-free-functions
            mem-unsafe-functions
            msrv
            non-reentrant-functions

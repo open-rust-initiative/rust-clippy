@@ -60,6 +60,7 @@ const DEFAULT_NON_REENTRANT_FNS: &[&str] = &[
 ];
 const DEFAULT_SIZE_CHECK_FN_KEYWORDS: &[&str] = &["max", "min", "clamp", "check", "verif", "ensure", "assert", "len"];
 const DEFAULT_MEM_ALLOC_FNS: &[&str] = &["malloc", "std::vec::Vec::with_capacity"];
+const DEFAULT_MEM_FREE_FNS: &[&str] = &["free"];
 #[rustfmt::skip]
 pub(super) const DEFAULT_INPUT_FUNCTIONS: &[&str] = &[
     // Native io functions
@@ -567,6 +568,17 @@ define_Conf! {
     /// or a name only string (e.g. `func_a`). If it's a name only string, then it will be assumed
     /// as external function or a function in `libc` crate.
     (non_reentrant_functions: Vec<String> = super::DEFAULT_NON_REENTRANT_FNS.iter().map(ToString::to_string).collect()),
+    /// Lint: UNSOUND_MEMORY_DEALLOCATION.
+    ///
+    /// The list of memory deallocating functions, such as `free`.
+    ///
+    /// This list will overrides the default configuration, meaning that providing empty list
+    /// has the same effect as disabling this whole lint.
+    ///
+    /// Functions can be specified using either its full path (e.g. `crate_a::mod_a::func_a`),
+    /// or a name only string (e.g. `func_a`). If it's a name only string, then it will be assumed
+    /// as external function or a function in `libc` crate.
+    (mem_free_functions: Vec<String> = super::DEFAULT_MEM_FREE_FNS.iter().map(ToString::to_string).collect()),
 }
 
 /// Search for the configuration file.
