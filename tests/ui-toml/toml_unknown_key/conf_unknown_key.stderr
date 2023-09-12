@@ -51,6 +51,7 @@ error: error reading Clippy's configuration file: unknown field `foobar`, expect
            min-ident-chars-threshold
            missing-docs-in-crate-items
            mem-alloc-functions
+           mem-free-functions
            mem-unsafe-functions
            msrv
            non-reentrant-functions

@@ -210,6 +210,7 @@ pub(crate) static LINTS: &[&crate::LintInfo] = &[
     crate::guidelines::NULL_PTR_DEREFERENCE_INFO,
     crate::guidelines::PASSING_STRING_TO_C_FUNCTIONS_INFO,
     crate::guidelines::UNSAFE_BLOCK_IN_PROC_MACRO_INFO,
+    crate::guidelines::UNSOUND_MEMORY_DEALLOCATION_INFO,
     crate::guidelines::UNTRUSTED_LIB_LOADING_INFO,
     crate::guidelines_early::IMPLICIT_ABI_INFO,
     crate::guidelines_early::INFINITE_LOOP_INFO,
