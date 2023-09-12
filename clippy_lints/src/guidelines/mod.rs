@@ -1,7 +1,7 @@
-mod null_ptr_dereference;
 mod blocking_op_in_async;
 mod extern_without_repr;
 mod fallible_memory_allocation;
+mod null_ptr_dereference;
 mod passing_string_to_c_functions;
 mod unsafe_block_in_proc_macro;
 mod untrusted_lib_loading;
@@ -225,21 +225,35 @@ declare_clippy_lint! {
 
 declare_clippy_lint! {
     /// ### What it does
+    /// Checks for raw pointers that are initialized or assigned as null pointers,
+    /// but immediately dereferenced without any pre-caution.
     ///
     /// ### Why is this bad?
+    /// Dereferencing null pointer is an undefined behavior.
+    ///
+    /// ### Known problems
+    /// This lint only checks direct reference of null pointer, which means if the null pointer
+    /// was referenced somewhere before de dereference, this lint would skip it entirely.
+    /// For example, if a null pointer was passed to
+    /// a function, but that function still does not assign value to its address, then it
+    /// would be assumed non-null even though it wasn't.
     ///
     /// ### Example
     /// ```rust
-    /// // example code where clippy issues a warning
+    /// let a: *const i8 = std::ptr::null();
+    /// let _ = unsafe { *a };
     /// ```
+    ///
     /// Use instead:
     /// ```rust
-    /// // example code which does not raise clippy warning
+    /// let a: *const i8 = std::ptr::null();
+    /// *a = &10_i8;
+    /// let _ = unsafe { *a };
     /// ```
     #[clippy::version = "1.68.0"]
     pub NULL_PTR_DEREFERENCE,
     nursery,
-    "default lint description"
+    "Dereferencing null pointers"
 }
 
 /// Helper struct with user configured path-like functions, such as `std::fs::read`,
@@ -377,7 +391,12 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
         } else {
             blocking_op_in_async::check_expr(cx, expr, &self.blocking_fns.ids);
             unsafe_block_in_proc_macro::check(cx, expr, &mut self.macro_call_sites);
+            null_ptr_dereference::check_assign(cx, expr);
         }
+    }
+
+    fn check_local(&mut self, cx: &LateContext<'tcx>, local: &'tcx hir::Local<'tcx>) {
+        null_ptr_dereference::check_local(cx, local);
     }
 }
 
