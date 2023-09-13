@@ -568,7 +568,7 @@ define_Conf! {
     /// or a name only string (e.g. `func_a`). If it's a name only string, then it will be assumed
     /// as external function or a function in `libc` crate.
     (non_reentrant_functions: Vec<String> = super::DEFAULT_NON_REENTRANT_FNS.iter().map(ToString::to_string).collect()),
-    /// Lint: UNSOUND_MEMORY_DEALLOCATION.
+    /// Lint: PTR_DOUBLE_FREE, DANGLING_PTR_DEREFERENCE.
     ///
     /// The list of memory deallocating functions, such as `free`.
     ///

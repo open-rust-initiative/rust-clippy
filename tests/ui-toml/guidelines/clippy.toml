@@ -33,3 +33,9 @@ mem-alloc-functions = [
     "my_malloc",
 ]
 size-checking-function-keywords = ["is_ok", "exit_on_bad_size"]
+
+# ptr_double_free, dangling_ptr_dereference
+mem-free-functions = [
+    "ptr_double_free::my_free",
+    "dangling_ptr_dereference::my_free",
+]
