@@ -1,0 +1,27 @@
+error: pointer was freed multiple times
+  --> $DIR/ptr_double_free.rs:9:5
+   |
+LL |     my_free(ptr);
+   |     ^^^^^^^^^^^^
+   |
+note: second free occurred here
+  --> $DIR/ptr_double_free.rs:10:5
+   |
+LL |     my_free(ptr); // lint
+   |     ^^^^^^^^^^^^
+   = note: `-D clippy::ptr-double-free` implied by `-D warnings`
+
+error: pointer was freed multiple times
+  --> $DIR/ptr_double_free.rs:15:5
+   |
+LL |     my_free(ptr1);
+   |     ^^^^^^^^^^^^^
+   |
+note: second free occurred here
+  --> $DIR/ptr_double_free.rs:17:5
+   |
+LL |     my_free(ptr1); // lint
+   |     ^^^^^^^^^^^^^
+
+error: aborting due to 2 previous errors
+

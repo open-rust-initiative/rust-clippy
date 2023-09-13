@@ -1,0 +1,55 @@
+error: pointer was freed multiple times
+  --> $DIR/ptr_double_free.rs:28:5
+   |
+LL |     free(ptr);
+   |     ^^^^^^^^^
+   |
+note: second free occurred here
+  --> $DIR/ptr_double_free.rs:29:5
+   |
+LL |     free(ptr); // lint
+   |     ^^^^^^^^^
+   = note: `-D clippy::ptr-double-free` implied by `-D warnings`
+
+error: pointer was freed multiple times
+  --> $DIR/ptr_double_free.rs:32:5
+   |
+LL |     libc::free(libc_ptr);
+   |     ^^^^^^^^^^^^^^^^^^^^
+   |
+note: second free occurred here
+  --> $DIR/ptr_double_free.rs:33:5
+   |
+LL |     libc::free(libc_ptr); // lint
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+error: pointer was freed multiple times
+  --> $DIR/ptr_double_free.rs:36:5
+   |
+LL |     free(libc_ptr_1);
+   |     ^^^^^^^^^^^^^^^^
+   |
+note: second free occurred here
+  --> $DIR/ptr_double_free.rs:38:5
+   |
+LL |     libc::free(libc_ptr_1); // lint
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+error: pointer was freed multiple times
+  --> $DIR/ptr_double_free.rs:21:9
+   |
+LL |         libc::free($ptr);
+   |         ^^^^^^^^^^^^^^^^
+...
+LL |     free!(libc_ptr_2);
+   |     ----------------- in this macro invocation
+   |
+note: second free occurred here
+  --> $DIR/ptr_double_free.rs:43:5
+   |
+LL |     free(libc_ptr_2); // lint
+   |     ^^^^^^^^^^^^^^^^
+   = note: this error originates in the macro `free` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: aborting due to 4 previous errors
+

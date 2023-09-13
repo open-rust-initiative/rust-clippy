@@ -1,0 +1,39 @@
+error: dereferencing a raw pointer that was already freed
+  --> $DIR/dangling_ptr_dereference.rs:20:13
+   |
+LL |     let _ = *ptr;
+   |             ^^^^
+   |
+note: the pointer was freed here
+  --> $DIR/dangling_ptr_dereference.rs:19:5
+   |
+LL |     free(ptr);
+   |     ^^^^^^^^^
+   = note: `-D clippy::dangling-ptr-dereference` implied by `-D warnings`
+
+error: dereferencing a raw pointer that was already freed
+  --> $DIR/dangling_ptr_dereference.rs:24:22
+   |
+LL |     println!("{:?}", *ptr_libc);
+   |                      ^^^^^^^^^
+   |
+note: the pointer was freed here
+  --> $DIR/dangling_ptr_dereference.rs:23:5
+   |
+LL |     libc::free(ptr_libc);
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+error: dereferencing a raw pointer that was already freed
+  --> $DIR/dangling_ptr_dereference.rs:29:26
+   |
+LL |         println!("{:?}", *ptr_1);
+   |                          ^^^^^^
+   |
+note: the pointer was freed here
+  --> $DIR/dangling_ptr_dereference.rs:27:5
+   |
+LL |     free(ptr_1);
+   |     ^^^^^^^^^^^
+
+error: aborting due to 3 previous errors
+
