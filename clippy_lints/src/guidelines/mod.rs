@@ -3,6 +3,7 @@ mod extern_without_repr;
 mod fallible_memory_allocation;
 mod passing_string_to_c_functions;
 mod ptr;
+mod return_stack_address;
 mod unsafe_block_in_proc_macro;
 mod untrusted_lib_loading;
 
@@ -11,7 +12,7 @@ use clippy_utils::{def_path_def_ids, fn_def_id};
 use rustc_data_structures::fx::FxHashSet;
 use rustc_hir as hir;
 use rustc_hir::def_id::DefIdSet;
-use rustc_hir::hir_id::HirId;
+use rustc_hir::hir_id::{HirId, HirIdSet};
 use rustc_hir::intravisit;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{declare_tool_lint, impl_lint_pass};
@@ -312,6 +313,26 @@ declare_clippy_lint! {
     "dereferencing dangling pointers"
 }
 
+declare_clippy_lint! {
+    /// ### What it does
+    /// Detects block returning a memory address to a locally defined variable that stores in stack.
+    ///
+    /// ### Why is this bad?
+    /// Accessing such memory address is guaranteed to be undefined behavior.
+    ///
+    /// ### Example
+    /// ```rust
+    /// fn foo() -> *const i32 {
+    ///     let val: i32 = 100;
+    ///     &val as *const _
+    /// }
+    /// ```
+    #[clippy::version = "1.68.0"]
+    pub RETURN_STACK_ADDRESS,
+    nursery,
+    "returning pointer that points to stack address"
+}
+
 /// Helper struct with user configured path-like functions, such as `std::fs::read`,
 /// and a set for `def_id`s which should be filled during checks.
 ///
@@ -343,6 +364,9 @@ pub struct LintGroup {
     macro_call_sites: FxHashSet<Span>,
     alloc_size_check_fns: Vec<String>,
     mem_free_fns: FnPathsAndIds,
+    /// (For [`return_stack_address`]) Stores block's hir_id after visit them,
+    /// so the the same block can be skipped in the next iteration of `check_block`.
+    visited_blocks: HirIdSet,
 }
 
 impl LintGroup {
@@ -383,6 +407,7 @@ impl_lint_pass!(LintGroup => [
     NULL_PTR_DEREFERENCE,
     PTR_DOUBLE_FREE,
     DANGLING_PTR_DEREFERENCE,
+    RETURN_STACK_ADDRESS,
 ]);
 
 impl<'tcx> LateLintPass<'tcx> for LintGroup {
@@ -463,6 +488,10 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
     fn check_local(&mut self, cx: &LateContext<'tcx>, local: &'tcx hir::Local<'tcx>) {
         ptr::check_local(cx, local);
     }
+
+    fn check_block(&mut self, cx: &LateContext<'tcx>, block: &'tcx hir::Block<'tcx>) {
+        return_stack_address::check(cx, block, &mut self.visited_blocks);
+    }
 }
 
 /// Resolve and insert the `def_id` of user configure functions if:
@@ -495,5 +524,22 @@ fn add_extern_fn_ids(items: &[hir::ForeignItemRef], fns: &mut FnPathsAndIds) {
             let f_did = f_item.id.hir_id().owner.def_id.to_def_id();
             fns.ids.insert(f_did);
         }
+    }
+}
+
+/// Peels all casts and return the inner most (non-cast) expression.
+///
+/// i.e.
+///
+/// ```
+/// some_expr as *mut i8 as *mut i16 as *mut i32 as *mut i64
+/// ```
+///
+/// Will return expression for `some_expr`.
+pub fn peel_casts<'a, 'tcx>(maybe_cast_expr: &'a hir::Expr<'tcx>) -> &'a hir::Expr<'tcx> {
+    if let hir::ExprKind::Cast(expr, _) = maybe_cast_expr.kind {
+        peel_casts(expr)
+    } else {
+        maybe_cast_expr
     }
 }

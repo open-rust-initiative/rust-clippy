@@ -1,0 +1,146 @@
+error: returning a pointer to stack address
+  --> $DIR/return_stack_address.rs:9:9
+   |
+LL |         &val as *const _ // lint
+   |         ^^^^^^^^^^^^^^^^
+   |
+note: local variable declared here
+  --> $DIR/return_stack_address.rs:8:9
+   |
+LL |         let val: i32 = 100;
+   |         ^^^^^^^^^^^^^^^^^^^
+   = help: consider declaring it as const or static variable
+   = note: `-D clippy::return-stack-address` implied by `-D warnings`
+
+error: returning a pointer to stack address
+  --> $DIR/return_stack_address.rs:14:16
+   |
+LL |         return &val as *const _; // lint
+   |                ^^^^^^^^^^^^^^^^
+   |
+note: local variable declared here
+  --> $DIR/return_stack_address.rs:13:9
+   |
+LL |         let val: i32 = 100;
+   |         ^^^^^^^^^^^^^^^^^^^
+   = help: consider declaring it as const or static variable
+
+error: returning a pointer to stack address
+  --> $DIR/return_stack_address.rs:23:9
+   |
+LL |         &val as *const _ // lint
+   |         ^^^^^^^^^^^^^^^^
+   |
+note: local variable declared here
+  --> $DIR/return_stack_address.rs:18:9
+   |
+LL |         let val: i32 = 100;
+   |         ^^^^^^^^^^^^^^^^^^^
+   = help: consider declaring it as const or static variable
+
+error: returning a pointer to stack address
+  --> $DIR/return_stack_address.rs:21:20
+   |
+LL |             return &val_2 as *const _; // lint
+   |                    ^^^^^^^^^^^^^^^^^^
+   |
+note: local variable declared here
+  --> $DIR/return_stack_address.rs:19:9
+   |
+LL |         let val_2: i32 = 200;
+   |         ^^^^^^^^^^^^^^^^^^^^^
+   = help: consider declaring it as const or static variable
+
+error: returning a pointer to stack address
+  --> $DIR/return_stack_address.rs:28:9
+   |
+LL |         val.as_ptr() // lint
+   |         ^^^^^^^^^^^^
+   |
+note: local variable declared here
+  --> $DIR/return_stack_address.rs:27:9
+   |
+LL |         let val = "123";
+   |         ^^^^^^^^^^^^^^^^
+   = help: consider declaring it as const or static variable
+
+error: returning a pointer to stack address
+  --> $DIR/return_stack_address.rs:33:9
+   |
+LL |         val.as_ptr() as *const _ // lint
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: local variable declared here
+  --> $DIR/return_stack_address.rs:32:9
+   |
+LL |         let val = "123";
+   |         ^^^^^^^^^^^^^^^^
+   = help: consider declaring it as const or static variable
+
+error: returning a pointer to stack address
+  --> $DIR/return_stack_address.rs:38:9
+   |
+LL |         val.to_string().as_ptr() // lint
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: local variable declared here
+  --> $DIR/return_stack_address.rs:37:9
+   |
+LL |         let val = "123";
+   |         ^^^^^^^^^^^^^^^^
+   = help: consider declaring it as const or static variable
+
+error: returning a pointer to stack address
+  --> $DIR/return_stack_address.rs:43:9
+   |
+LL |         &val as *const u8 as *const i8 as *const i16 as *const i32 // lint
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: local variable declared here
+  --> $DIR/return_stack_address.rs:42:9
+   |
+LL |         let val: u8 = 1;
+   |         ^^^^^^^^^^^^^^^^
+   = help: consider declaring it as const or static variable
+
+error: returning a pointer to stack address
+  --> $DIR/return_stack_address.rs:48:9
+   |
+LL |         val.to_string().clone().as_ptr() as *const i8 as *const i32 as *const _ // lint
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: local variable declared here
+  --> $DIR/return_stack_address.rs:47:9
+   |
+LL |         let val = "123";
+   |         ^^^^^^^^^^^^^^^^
+   = help: consider declaring it as const or static variable
+
+error: returning a pointer to stack address
+  --> $DIR/return_stack_address.rs:55:9
+   |
+LL |         &val as *const i32 // lint
+   |         ^^^^^^^^^^^^^^^^^^
+   |
+note: local variable declared here
+  --> $DIR/return_stack_address.rs:54:9
+   |
+LL |         let val: i32 = 100;
+   |         ^^^^^^^^^^^^^^^^^^^
+   = help: consider declaring it as const or static variable
+
+error: returning a pointer to stack address
+  --> $DIR/return_stack_address.rs:61:13
+   |
+LL |             &val as *const i32 // lint
+   |             ^^^^^^^^^^^^^^^^^^
+   |
+note: local variable declared here
+  --> $DIR/return_stack_address.rs:60:13
+   |
+LL |             let val = n + 1;
+   |             ^^^^^^^^^^^^^^^^
+   = help: consider declaring it as const or static variable
+
+error: aborting due to 11 previous errors
+
