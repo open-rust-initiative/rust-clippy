@@ -917,6 +917,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     let size_checking_fn_keywords = conf.size_checking_function_keywords.clone();
     let mem_alloc_fns = conf.mem_alloc_functions.clone();
     let non_reentrant_fns = conf.non_reentrant_functions.clone();
+    let mem_free_fns = conf.mem_free_functions.clone();
     store.register_late_pass(move |_| {
         Box::new(guidelines::LintGroup::new(
             mem_unsafe_fns.clone(),
@@ -926,6 +927,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
             size_checking_fn_keywords.clone(),
             mem_alloc_fns.clone(),
             non_reentrant_fns.clone(),
+            mem_free_fns.clone(),
         ))
     });
     store.register_early_pass(|| Box::new(guidelines_early::LintGroup));

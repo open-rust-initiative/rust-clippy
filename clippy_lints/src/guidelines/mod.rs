@@ -1,8 +1,8 @@
 mod blocking_op_in_async;
 mod extern_without_repr;
 mod fallible_memory_allocation;
-mod null_ptr_dereference;
 mod passing_string_to_c_functions;
+mod ptr;
 mod unsafe_block_in_proc_macro;
 mod untrusted_lib_loading;
 
@@ -253,7 +253,63 @@ declare_clippy_lint! {
     #[clippy::version = "1.68.0"]
     pub NULL_PTR_DEREFERENCE,
     nursery,
-    "Dereferencing null pointers"
+    "dereferencing null pointers"
+}
+
+declare_clippy_lint! {
+    /// ### What it does
+    /// Checks for freeing a pointer after which already got freed.
+    ///
+    /// ### Why is this bad?
+    /// Pointer double free is a common weakness in terms of memory security,
+    /// it leads program crash or give access to attackers.
+    ///
+    /// ### Example
+    /// ```rust
+    /// let ptr: *const u8 = std::ptr::null();
+    /// unsafe {
+    ///     free(ptr);
+    ///     free(ptr);
+    /// }
+    /// ```
+    /// Use instead:
+    /// ```rust
+    /// let mut ptr: *const u8 = std::ptr::null();
+    /// unsafe {
+    ///     free(ptr);
+    ///     ptr = std::ptr::null();
+    ///
+    ///     if !ptr.is_null() {
+    ///         free(ptr);
+    ///     }
+    /// }
+    /// ```
+    #[clippy::version = "1.68.0"]
+    pub PTR_DOUBLE_FREE,
+    nursery,
+    "pointer double free"
+}
+
+declare_clippy_lint! {
+    /// ### What it does
+    /// Detects pointer dereferencing after it got freed/deallocated.
+    ///
+    /// ### Why is this bad?
+    /// After freeing a pointer, the address it previously points to might no longer
+    /// being held by the program. But the pointer is still valid, reading or writing
+    /// the pointer is a undefined behavior.
+    ///
+    /// ### Example
+    /// ```rust
+    /// unsafe {
+    ///     free(ptr);
+    ///     let val = *ptr;
+    /// }
+    /// ```
+    #[clippy::version = "1.68.0"]
+    pub DANGLING_PTR_DEREFERENCE,
+    nursery,
+    "dereferencing dangling pointers"
 }
 
 /// Helper struct with user configured path-like functions, such as `std::fs::read`,
@@ -286,10 +342,11 @@ pub struct LintGroup {
     allow_io_blocking_ops: bool,
     macro_call_sites: FxHashSet<Span>,
     alloc_size_check_fns: Vec<String>,
+    mem_free_fns: FnPathsAndIds,
 }
 
 impl LintGroup {
-    #[allow(clippy::needless_pass_by_value)]
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         mem_uns_fns: Vec<String>,
         io_fns: Vec<String>,
@@ -298,6 +355,7 @@ impl LintGroup {
         alloc_size_check_fns: Vec<String>,
         mem_alloc_fns: Vec<String>,
         non_reentrant_fns: Vec<String>,
+        mem_free_fns: Vec<String>,
     ) -> Self {
         Self {
             mem_uns_fns: FnPathsAndIds::with_paths(mem_uns_fns),
@@ -307,6 +365,7 @@ impl LintGroup {
             non_reentrant_fns: FnPathsAndIds::with_paths(non_reentrant_fns),
             allow_io_blocking_ops,
             alloc_size_check_fns,
+            mem_free_fns: FnPathsAndIds::with_paths(mem_free_fns),
             ..Default::default()
         }
     }
@@ -322,6 +381,8 @@ impl_lint_pass!(LintGroup => [
     EXTERN_WITHOUT_REPR,
     NON_REENTRANT_FUNCTIONS,
     NULL_PTR_DEREFERENCE,
+    PTR_DOUBLE_FREE,
+    DANGLING_PTR_DEREFERENCE,
 ]);
 
 impl<'tcx> LateLintPass<'tcx> for LintGroup {
@@ -345,6 +406,7 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
         add_configured_fn_ids(cx, &mut self.io_fns);
         add_configured_fn_ids(cx, &mut self.lib_loading_fns);
         add_configured_fn_ids(cx, &mut self.non_reentrant_fns);
+        add_configured_fn_ids(cx, &mut self.mem_free_fns);
 
         blocking_op_in_async::init_blacklist_ids(cx, self.allow_io_blocking_ops, &mut self.blocking_fns.ids);
     }
@@ -356,6 +418,7 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
             add_extern_fn_ids(items, &mut self.io_fns);
             add_extern_fn_ids(items, &mut self.lib_loading_fns);
             add_extern_fn_ids(items, &mut self.non_reentrant_fns);
+            add_extern_fn_ids(items, &mut self.mem_free_fns);
         }
         extern_without_repr::check_item(cx, item);
     }
@@ -385,18 +448,20 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
                     untrusted_lib_loading::check_expr(cx, expr, params, &self.io_fns.ids);
                 } else if self.mem_alloc_fns.ids.contains(&fn_did) {
                     fallible_memory_allocation::check_expr(cx, expr, params, fn_did, &self.alloc_size_check_fns);
+                } else if self.mem_free_fns.ids.contains(&fn_did) {
+                    ptr::check_call(cx, expr, &self.mem_free_fns.ids);
                 }
                 passing_string_to_c_functions::check_expr(cx, expr, fn_did, params);
             }
         } else {
             blocking_op_in_async::check_expr(cx, expr, &self.blocking_fns.ids);
             unsafe_block_in_proc_macro::check(cx, expr, &mut self.macro_call_sites);
-            null_ptr_dereference::check_assign(cx, expr);
+            ptr::check_assign(cx, expr);
         }
     }
 
     fn check_local(&mut self, cx: &LateContext<'tcx>, local: &'tcx hir::Local<'tcx>) {
-        null_ptr_dereference::check_local(cx, local);
+        ptr::check_local(cx, local);
     }
 }
 
