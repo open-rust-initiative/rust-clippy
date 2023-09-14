@@ -15,6 +15,7 @@ use rustc_span::Span;
 
 use if_chain::if_chain;
 
+use super::peel_casts;
 use super::DANGLING_PTR_DEREFERENCE;
 use super::NULL_PTR_DEREFERENCE;
 use super::PTR_DOUBLE_FREE;
@@ -240,23 +241,6 @@ fn expr_is_creating_null_ptr(cx: &LateContext<'_>, expr: &Expr<'_>) -> bool {
             true
         },
         _ => false,
-    }
-}
-
-/// Peels all casts and return the inner most (non-cast) expression.
-///
-/// i.e.
-///
-/// ```
-/// some_expr as *mut i8 as *mut i16 as *mut i32 as *mut i64
-/// ```
-///
-/// Will return expression for `some_expr`.
-fn peel_casts<'a, 'tcx>(maybe_cast_expr: &'a Expr<'tcx>) -> &'a Expr<'tcx> {
-    if let ExprKind::Cast(expr, _) = maybe_cast_expr.kind {
-        peel_casts(expr)
-    } else {
-        maybe_cast_expr
     }
 }
 
