@@ -1,0 +1,40 @@
+error: allocating memory without verifying the size
+  --> $DIR/fallible_memory_allocation.rs:38:13
+   |
+LL |     let p = my_malloc(size); // lint
+   |             ^^^^^^^^^^^^^^^
+   |
+note: unverified size used here
+  --> $DIR/fallible_memory_allocation.rs:38:23
+   |
+LL |     let p = my_malloc(size); // lint
+   |                       ^^^^
+   = note: `-D clippy::fallible-memory-allocation` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::fallible_memory_allocation)]`
+
+error: allocating memory without checking if the result pointer is null
+  --> $DIR/fallible_memory_allocation.rs:38:13
+   |
+LL |     let p = my_malloc(size); // lint
+   |             ^^^^^^^^^^^^^^^
+
+error: allocating memory without checking if the result pointer is null
+  --> $DIR/fallible_memory_allocation.rs:72:13
+   |
+LL |     let p = alloc_mem(size); // lint
+   |             ^^^^^^^^^^^^^^^
+
+error: allocating memory without verifying the size
+  --> $DIR/fallible_memory_allocation.rs:80:28
+   |
+LL |     let arr: HashSet<u8> = HashSet::with_capacity(size); // lint
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: unverified size used here
+  --> $DIR/fallible_memory_allocation.rs:80:51
+   |
+LL |     let arr: HashSet<u8> = HashSet::with_capacity(size); // lint
+   |                                                   ^^^^
+
+error: aborting due to 4 previous errors
+

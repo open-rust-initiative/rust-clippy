@@ -146,6 +146,8 @@ mod from_raw_with_void_ptr;
 mod from_str_radix_10;
 mod functions;
 mod future_not_send;
+mod guidelines;
+mod guidelines_early;
 mod if_let_mutex;
 mod if_not_else;
 mod if_then_some_else_none;
@@ -1119,6 +1121,27 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
             msrv(),
         ))
     });
+    let mem_unsafe_fns = conf.mem_unsafe_functions.clone();
+    let input_fns = conf.input_functions.clone();
+    let lib_loading_fns = conf.lib_loading_functions.clone();
+    let allow_io_blocking_ops = conf.allow_io_blocking_ops;
+    let size_checking_fn_keywords = conf.size_checking_function_keywords.clone();
+    let mem_alloc_fns = conf.mem_alloc_functions.clone();
+    let non_reentrant_fns = conf.non_reentrant_functions.clone();
+    let mem_free_fns = conf.mem_free_functions.clone();
+    store.register_late_pass(move |_| {
+        Box::new(guidelines::LintGroup::new(
+            mem_unsafe_fns.clone(),
+            input_fns.clone(),
+            lib_loading_fns.clone(),
+            allow_io_blocking_ops,
+            size_checking_fn_keywords.clone(),
+            mem_alloc_fns.clone(),
+            non_reentrant_fns.clone(),
+            mem_free_fns.clone(),
+        ))
+    });
+    store.register_early_pass(|| Box::new(guidelines_early::LintGroup));
     // add lints here, do not remove this comment, it's used in `new_lint`
 }
 

@@ -5,6 +5,7 @@ error: error reading Clippy's configuration file: unknown field `foobar`, expect
            accept-comment-above-statement
            allow-dbg-in-tests
            allow-expect-in-tests
+           allow-io-blocking-ops
            allow-mixed-uninlined-format-args
            allow-one-hash-in-raw-strings
            allow-print-in-tests
@@ -36,7 +37,9 @@ error: error reading Clippy's configuration file: unknown field `foobar`, expect
            excessive-nesting-threshold
            future-size-threshold
            ignore-interior-mutability
+           input-functions
            large-error-threshold
+           lib-loading-functions
            literal-representation-threshold
            matches-for-let-else
            max-fn-params-bools
@@ -44,13 +47,18 @@ error: error reading Clippy's configuration file: unknown field `foobar`, expect
            max-struct-bools
            max-suggested-slice-pattern-length
            max-trait-bounds
+           mem-alloc-functions
+           mem-free-functions
+           mem-unsafe-functions
            min-ident-chars-threshold
            missing-docs-in-crate-items
            msrv
+           non-reentrant-functions
            pass-by-value-size-limit
            semicolon-inside-block-ignore-singleline
            semicolon-outside-block-ignore-multiline
            single-char-binding-names-threshold
+           size-checking-function-keywords
            stack-size-threshold
            standard-macro-braces
            suppress-restriction-lint-in-const
@@ -78,6 +86,7 @@ error: error reading Clippy's configuration file: unknown field `barfoo`, expect
            accept-comment-above-statement
            allow-dbg-in-tests
            allow-expect-in-tests
+           allow-io-blocking-ops
            allow-mixed-uninlined-format-args
            allow-one-hash-in-raw-strings
            allow-print-in-tests
@@ -109,7 +118,9 @@ error: error reading Clippy's configuration file: unknown field `barfoo`, expect
            excessive-nesting-threshold
            future-size-threshold
            ignore-interior-mutability
+           input-functions
            large-error-threshold
+           lib-loading-functions
            literal-representation-threshold
            matches-for-let-else
            max-fn-params-bools
@@ -117,13 +128,18 @@ error: error reading Clippy's configuration file: unknown field `barfoo`, expect
            max-struct-bools
            max-suggested-slice-pattern-length
            max-trait-bounds
+           mem-alloc-functions
+           mem-free-functions
+           mem-unsafe-functions
            min-ident-chars-threshold
            missing-docs-in-crate-items
            msrv
+           non-reentrant-functions
            pass-by-value-size-limit
            semicolon-inside-block-ignore-singleline
            semicolon-outside-block-ignore-multiline
            single-char-binding-names-threshold
+           size-checking-function-keywords
            stack-size-threshold
            standard-macro-braces
            suppress-restriction-lint-in-const

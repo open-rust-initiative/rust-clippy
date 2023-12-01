@@ -1,0 +1,88 @@
+error: loading dynamic library from untrusted source
+  --> $DIR/untrusted_lib_loading.rs:35:18
+   |
+LL |         let _a = Library::new(name_a); // lint
+   |                  ^^^^^^^^^^^^^^^^^^^^
+   |
+note: untrusted IO function called here
+  --> $DIR/untrusted_lib_loading.rs:31:18
+   |
+LL |     let name_a = untrusted_io();
+   |                  ^^^^^^^^^^^^^^
+   = note: `-D clippy::untrusted-lib-loading` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::untrusted_lib_loading)]`
+
+error: loading dynamic library from untrusted source
+  --> $DIR/untrusted_lib_loading.rs:36:18
+   |
+LL |         let _b = libloading::Library::new(name_b); // lint
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: untrusted IO function called here
+  --> $DIR/untrusted_lib_loading.rs:32:19
+   |
+LL |     let name_b = &untrusted_io();
+   |                   ^^^^^^^^^^^^^^
+
+error: loading dynamic library from untrusted source
+  --> $DIR/untrusted_lib_loading.rs:45:18
+   |
+LL |         let _a = dlopen(name_a, 1); // lint
+   |                  ^^^^^^^^^^^^^^^^^
+   |
+note: untrusted IO function called here
+  --> $DIR/untrusted_lib_loading.rs:41:18
+   |
+LL |     let name_a = untrusted_io().as_ptr() as *const c_char;
+   |                  ^^^^^^^^^^^^^^
+
+error: loading dynamic library from untrusted source
+  --> $DIR/untrusted_lib_loading.rs:46:18
+   |
+LL |         let _b = dlopen(name_b.as_ptr() as *const c_char, 1); // lint
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: untrusted IO function called here
+  --> $DIR/untrusted_lib_loading.rs:42:18
+   |
+LL |     let name_b = untrusted_io();
+   |                  ^^^^^^^^^^^^^^
+
+error: loading dynamic library from untrusted source
+  --> $DIR/untrusted_lib_loading.rs:55:14
+   |
+LL |     let _a = load_dylib(&name_a); // lint
+   |              ^^^^^^^^^^^^^^^^^^^
+   |
+note: untrusted IO function called here
+  --> $DIR/untrusted_lib_loading.rs:53:18
+   |
+LL |     let name_a = std::fs::read_to_string("foo").unwrap();
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: loading dynamic library from untrusted source
+  --> $DIR/untrusted_lib_loading.rs:56:14
+   |
+LL |     let _b = load(&name_a); // lint
+   |              ^^^^^^^^^^^^^
+   |
+note: untrusted IO function called here
+  --> $DIR/untrusted_lib_loading.rs:53:18
+   |
+LL |     let name_a = std::fs::read_to_string("foo").unwrap();
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: loading dynamic library from untrusted source
+  --> $DIR/untrusted_lib_loading.rs:57:14
+   |
+LL |     let _c = lib_loader::load(&name_a); // lint
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: untrusted IO function called here
+  --> $DIR/untrusted_lib_loading.rs:53:18
+   |
+LL |     let name_a = std::fs::read_to_string("foo").unwrap();
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 7 previous errors
+

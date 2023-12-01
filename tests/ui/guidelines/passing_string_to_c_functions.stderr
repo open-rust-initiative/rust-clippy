@@ -1,0 +1,28 @@
+error: passing native strings to external functions
+  --> $DIR/passing_string_to_c_functions.rs:23:9
+   |
+LL |         greet(name.as_ptr() as *const _); // lint
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `CString` or `CStr` instead
+  --> $DIR/passing_string_to_c_functions.rs:23:15
+   |
+LL |         greet(name.as_ptr() as *const _); // lint
+   |               ^^^^
+   = note: `-D clippy::passing-string-to-c-functions` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::passing_string_to_c_functions)]`
+
+error: passing native strings to external functions
+  --> $DIR/passing_string_to_c_functions.rs:26:9
+   |
+LL |         strlen(name.as_ptr() as *const _); // lint
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `CString` or `CStr` instead
+  --> $DIR/passing_string_to_c_functions.rs:26:16
+   |
+LL |         strlen(name.as_ptr() as *const _); // lint
+   |                ^^^^
+
+error: aborting due to 2 previous errors
+

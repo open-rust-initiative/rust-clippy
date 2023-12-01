@@ -1,0 +1,124 @@
+error: dereferencing null pointer
+  --> $DIR/null_ptr_dereference.rs:21:5
+   |
+LL |     let a: *mut Pointer = null_mut();
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: first dereference occurred here
+  --> $DIR/null_ptr_dereference.rs:23:22
+   |
+LL |         do_something((*a).inner);
+   |                      ^^^^
+   = note: `-D clippy::null-ptr-dereference` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::null_ptr_dereference)]`
+
+error: dereferencing null pointer
+  --> $DIR/null_ptr_dereference.rs:29:5
+   |
+LL |     a = null_mut();
+   |     ^^^^^^^^^^^^^^
+   |
+note: first dereference occurred here
+  --> $DIR/null_ptr_dereference.rs:31:22
+   |
+LL |         do_something((*a).inner);
+   |                      ^^^^
+
+error: dereferencing null pointer
+  --> $DIR/null_ptr_dereference.rs:35:5
+   |
+LL |     b = 0 as *mut Pointer;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+   |
+note: first dereference occurred here
+  --> $DIR/null_ptr_dereference.rs:37:22
+   |
+LL |         do_something((*b).inner);
+   |                      ^^^^
+
+error: dereferencing null pointer
+  --> $DIR/null_ptr_dereference.rs:41:5
+   |
+LL |     reassign_later = null();
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: first dereference occurred here
+  --> $DIR/null_ptr_dereference.rs:42:22
+   |
+LL |     let _ = unsafe { (*reassign_later).inner };
+   |                      ^^^^^^^^^^^^^^^^^
+
+error: dereferencing null pointer
+  --> $DIR/null_ptr_dereference.rs:43:5
+   |
+LL |     reassign_later = 0 as *const _;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: first dereference occurred here
+  --> $DIR/null_ptr_dereference.rs:44:17
+   |
+LL |     unsafe { if (*reassign_later).inner > 0 {} }
+   |                 ^^^^^^^^^^^^^^^^^
+
+error: dereferencing null pointer
+  --> $DIR/null_ptr_dereference.rs:48:5
+   |
+LL |     let a: *mut Pointer = 0 as *mut _;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: first dereference occurred here
+  --> $DIR/null_ptr_dereference.rs:50:24
+   |
+LL |         println!("{}", (*a).inner);
+   |                        ^^^^
+
+error: dereferencing null pointer
+  --> $DIR/null_ptr_dereference.rs:53:5
+   |
+LL |     let foo_ptr: *mut Pointer = std::ptr::null_mut();
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: first dereference occurred here
+  --> $DIR/null_ptr_dereference.rs:55:26
+   |
+LL |         println!("{:?}", (*foo_ptr).inner);
+   |                          ^^^^^^^^^^
+
+error: dereferencing null pointer
+  --> $DIR/null_ptr_dereference.rs:61:5
+   |
+LL |     still_null = 0 as *mut i8;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: first dereference occurred here
+  --> $DIR/null_ptr_dereference.rs:62:13
+   |
+LL |     let _ = *still_null;
+   |             ^^^^^^^^^^^
+
+error: dereferencing null pointer
+  --> $DIR/null_ptr_dereference.rs:65:5
+   |
+LL |     as_train = 0 as *mut i32 as *mut u16 as *mut i8;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: first dereference occurred here
+  --> $DIR/null_ptr_dereference.rs:66:13
+   |
+LL |     let _ = *as_train;
+   |             ^^^^^^^^^
+
+error: dereferencing null pointer
+  --> $DIR/null_ptr_dereference.rs:110:5
+   |
+LL |     let null_o: *const i8 = null();
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: first dereference occurred here
+  --> $DIR/null_ptr_dereference.rs:113:22
+   |
+LL |         do_something(*null_o);
+   |                      ^^^^^^^
+
+error: aborting due to 10 previous errors
+
