@@ -10,6 +10,7 @@ note: second free occurred here
 LL |     free(ptr); // lint
    |     ^^^^^^^^^
    = note: `-D clippy::ptr-double-free` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::ptr_double_free)]`
 
 error: pointer was freed multiple times
   --> $DIR/ptr_double_free.rs:32:5

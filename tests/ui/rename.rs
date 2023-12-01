@@ -51,6 +51,7 @@
 #![allow(undropped_manually_drops)]
 #![allow(unknown_lints)]
 #![allow(unused_labels)]
+#![allow(clippy::infinite_loop)]
 #![warn(clippy::almost_complete_letter_range)]
 #![warn(clippy::blacklisted_name)]
 #![warn(clippy::block_in_if_condition_expr)]
@@ -107,5 +108,6 @@
 #![warn(clippy::undropped_manually_drops)]
 #![warn(clippy::unknown_clippy_lints)]
 #![warn(clippy::unused_label)]
+#![warn(clippy::loop_without_break_or_return)]
 
 fn main() {}

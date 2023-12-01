@@ -5066,6 +5066,7 @@ Released 2018-09-13
 [`linkedlist`]: https://rust-lang.github.io/rust-clippy/master/index.html#linkedlist
 [`little_endian_bytes`]: https://rust-lang.github.io/rust-clippy/master/index.html#little_endian_bytes
 [`logic_bug`]: https://rust-lang.github.io/rust-clippy/master/index.html#logic_bug
+[`loop_without_break_or_return`]: https://rust-lang.github.io/rust-clippy/master/index.html#loop_without_break_or_return
 [`lossy_float_literal`]: https://rust-lang.github.io/rust-clippy/master/index.html#lossy_float_literal
 [`macro_use_imports`]: https://rust-lang.github.io/rust-clippy/master/index.html#macro_use_imports
 [`main_recursion`]: https://rust-lang.github.io/rust-clippy/master/index.html#main_recursion
@@ -5130,8 +5131,8 @@ Released 2018-09-13
 [`mem_replace_option_with_none`]: https://rust-lang.github.io/rust-clippy/master/index.html#mem_replace_option_with_none
 [`mem_replace_with_default`]: https://rust-lang.github.io/rust-clippy/master/index.html#mem_replace_with_default
 [`mem_replace_with_uninit`]: https://rust-lang.github.io/rust-clippy/master/index.html#mem_replace_with_uninit
-[`min_ident_chars`]: https://rust-lang.github.io/rust-clippy/master/index.html#min_ident_chars
 [`mem_unsafe_functions`]: https://rust-lang.github.io/rust-clippy/master/index.html#mem_unsafe_functions
+[`min_ident_chars`]: https://rust-lang.github.io/rust-clippy/master/index.html#min_ident_chars
 [`min_max`]: https://rust-lang.github.io/rust-clippy/master/index.html#min_max
 [`misaligned_transmute`]: https://rust-lang.github.io/rust-clippy/master/index.html#misaligned_transmute
 [`mismatched_target_os`]: https://rust-lang.github.io/rust-clippy/master/index.html#mismatched_target_os

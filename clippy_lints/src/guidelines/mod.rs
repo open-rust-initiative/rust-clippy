@@ -11,8 +11,8 @@ use clippy_utils::diagnostics::span_lint_and_help;
 use clippy_utils::{def_path_def_ids, fn_def_id};
 use rustc_data_structures::fx::FxHashSet;
 use rustc_hir as hir;
-use rustc_hir::def_id::DefIdSet;
-use rustc_hir::hir_id::{HirId, HirIdSet};
+use rustc_hir::def_id::{DefIdSet, LocalDefId};
+use rustc_hir::hir_id::HirIdSet;
 use rustc_hir::intravisit;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{declare_tool_lint, impl_lint_pass};
@@ -28,13 +28,14 @@ declare_clippy_lint! {
     /// which could potentially introduce vulnerablities such as buffer overflow to the software.
     ///
     /// ### Example
-    /// ```rust
+    /// ```rust,ignore
     /// extern "C" {
     ///     fn memcpy(dest: *mut c_void, src: *const c_void, n: size_t) -> *mut c_void;
     /// }
     /// let ptr = unsafe { memcpy(dest, src, size); }
     /// // Or use via libc
     /// let ptr = unsafe { libc::memcpy(dest, src, size); }
+    /// ```
     #[clippy::version = "1.70.0"]
     pub MEM_UNSAFE_FUNCTIONS,
     nursery,
@@ -114,7 +115,7 @@ declare_clippy_lint! {
     /// }
     /// ```
     /// Use instead:
-    /// ```rust
+    /// ```rust,ignore
     /// use std::time::Duration;
     /// pub async fn foo() {
     ///     tokio::time::sleep(Duration::from_secs(5));
@@ -137,7 +138,7 @@ declare_clippy_lint! {
     /// Possible FP when the user uses proc-macro to generate a function with unsafe block in it.
     ///
     /// ### Example
-    /// ```rust
+    /// ```rust,ignore
     /// #[proc_macro]
     /// pub fn rprintf(input: TokenStream) -> TokenStream {
     ///     let expr = parse_macro_input!(input as syn::Expr);
@@ -152,7 +153,7 @@ declare_clippy_lint! {
     /// rprintf!();
     /// ```
     /// Use instead:
-    /// ```rust
+    /// ```rust,ignore
     /// #[proc_macro]
     /// pub fn rprintf(input: TokenStream) -> TokenStream {
     ///     let expr = parse_macro_input!(input as syn::Expr);
@@ -177,7 +178,7 @@ declare_clippy_lint! {
     /// ### Why is this bad?
     ///
     /// ### Example
-    /// ```rust
+    /// ```rust,ignore
     /// struct Foo3 {
     ///     a: libc::c_char,
     ///     b: libc::c_int,
@@ -186,7 +187,7 @@ declare_clippy_lint! {
     /// extern "C" fn c_abi_fn4(arg_one: u32, arg_two: *const Foo3) {}
     /// ```
     /// Use instead:
-    /// ```rust
+    /// ```rust,ignore
     /// #[repr(C)]
     /// struct Foo3 {
     ///     a: libc::c_char,
@@ -209,11 +210,11 @@ declare_clippy_lint! {
     /// This makes code safer, especially in the context of concurrency.
     ///
     /// ### Example
-    /// ```rust
+    /// ```rust,ignore
     /// let _tm = libc::localtime(&0i64 as *const libc::time_t);
     /// ```
     /// Use instead:
-    /// ```rust
+    /// ```rust,ignore
     /// let res = libc::malloc(std::mem::size_of::<libc::tm>());
     ///
     /// libc::locatime_r(&0i64 as *const libc::time_t, res);
@@ -240,15 +241,15 @@ declare_clippy_lint! {
     /// would be assumed non-null even though it wasn't.
     ///
     /// ### Example
-    /// ```rust
-    /// let a: *const i8 = std::ptr::null();
+    /// ```rust,ignore
+    /// let a: *mut i8 = std::ptr::null_mut();
     /// let _ = unsafe { *a };
     /// ```
     ///
     /// Use instead:
-    /// ```rust
-    /// let a: *const i8 = std::ptr::null();
-    /// *a = &10_i8;
+    /// ```rust,ignore
+    /// let a: *mut i8 = std::ptr::null_mut();
+    /// unsafe { *a = 10_i8; }
     /// let _ = unsafe { *a };
     /// ```
     #[clippy::version = "1.68.0"]
@@ -266,7 +267,7 @@ declare_clippy_lint! {
     /// it leads program crash or give access to attackers.
     ///
     /// ### Example
-    /// ```rust
+    /// ```rust,ignore
     /// let ptr: *const u8 = std::ptr::null();
     /// unsafe {
     ///     free(ptr);
@@ -274,7 +275,7 @@ declare_clippy_lint! {
     /// }
     /// ```
     /// Use instead:
-    /// ```rust
+    /// ```rust,ignore
     /// let mut ptr: *const u8 = std::ptr::null();
     /// unsafe {
     ///     free(ptr);
@@ -301,7 +302,7 @@ declare_clippy_lint! {
     /// the pointer is a undefined behavior.
     ///
     /// ### Example
-    /// ```rust
+    /// ```rust,ignore
     /// unsafe {
     ///     free(ptr);
     ///     let val = *ptr;
@@ -418,7 +419,7 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
         _decl: &'tcx hir::FnDecl<'_>,
         body: &'tcx hir::Body<'_>,
         span: Span,
-        _def_id: HirId,
+        _def_id: LocalDefId,
     ) {
         if !matches!(kind, intravisit::FnKind::Closure) {
             blocking_op_in_async::check_fn(cx, kind, body, span, &self.blocking_fns.ids);
@@ -531,7 +532,7 @@ fn add_extern_fn_ids(items: &[hir::ForeignItemRef], fns: &mut FnPathsAndIds) {
 ///
 /// i.e.
 ///
-/// ```
+/// ```ignore
 /// some_expr as *mut i8 as *mut i16 as *mut i32 as *mut i64
 /// ```
 ///

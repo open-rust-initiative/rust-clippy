@@ -10,6 +10,7 @@ note: asyncness was determined here
 LL | pub async fn async_std_read() {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: `-D clippy::blocking-op-in-async` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::blocking_op_in_async)]`
 
 error: this call might blocks the thread in async context
   --> $DIR/blocking_op_in_async.rs:17:5

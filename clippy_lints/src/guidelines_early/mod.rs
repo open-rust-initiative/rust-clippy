@@ -44,13 +44,13 @@ declare_clippy_lint! {
     /// using infinite loops could be as intended.
     ///
     /// ### Example
-    /// ```rust
+    /// ```rust,ignore
     /// loop {
     ///     println!("so something");
     /// }
     /// ```
     /// Use instead:
-    /// ```rust
+    /// ```rust,ignore
     /// loop {
     ///     println!("do something");
     ///     if flag {

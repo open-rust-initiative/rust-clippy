@@ -1121,7 +1121,6 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
             msrv(),
         ))
     });
-    store.register_late_pass(|_| Box::new(extern_without_repr::ExternWithoutRepr));
     let mem_unsafe_fns = conf.mem_unsafe_functions.clone();
     let input_fns = conf.input_functions.clone();
     let lib_loading_fns = conf.lib_loading_functions.clone();

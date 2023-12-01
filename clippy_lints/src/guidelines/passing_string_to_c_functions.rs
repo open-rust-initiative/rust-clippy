@@ -17,8 +17,14 @@ pub(super) fn check_expr<'tcx>(
     if cx.tcx.is_foreign_item(fn_did) {
         for param in params {
             let str_or_string: Option<&Expr<'_>> = for_each_expr(param, |e| {
-                let ExprKind::Path(QPath::Resolved(None, Path { res: Res::Local(..), .. })) = e.kind else {
-                    return ControlFlow::Continue(())
+                let ExprKind::Path(QPath::Resolved(
+                    None,
+                    Path {
+                        res: Res::Local(..), ..
+                    },
+                )) = e.kind
+                else {
+                    return ControlFlow::Continue(());
                 };
                 let ty = cx.typeck_results().node_type(e.hir_id);
                 match ty.kind() {

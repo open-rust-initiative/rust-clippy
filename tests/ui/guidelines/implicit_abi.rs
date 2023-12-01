@@ -1,4 +1,3 @@
-// run-rustfix
 #![allow(unused)]
 #![warn(clippy::implicit_abi)]
 

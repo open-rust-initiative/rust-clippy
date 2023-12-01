@@ -15,10 +15,7 @@ use rustc_span::Span;
 
 use if_chain::if_chain;
 
-use super::peel_casts;
-use super::DANGLING_PTR_DEREFERENCE;
-use super::NULL_PTR_DEREFERENCE;
-use super::PTR_DOUBLE_FREE;
+use super::{peel_casts, DANGLING_PTR_DEREFERENCE, NULL_PTR_DEREFERENCE, PTR_DOUBLE_FREE};
 
 macro_rules! span_ptr_lint {
     ($cx:expr, $lint:ident, $span:expr, $note_span:expr) => {{
@@ -69,7 +66,9 @@ pub(super) fn check_call(cx: &LateContext<'_>, call_expr: &Expr<'_>, free_fns: &
     if !is_lint_allowed(cx, DANGLING_PTR_DEREFERENCE, call_expr.hir_id)
         || !is_lint_allowed(cx, PTR_DOUBLE_FREE, call_expr.hir_id)
     {
-        let Some(mut ptr_validator) = PtrValidator::from_call(cx, call_expr, free_fns) else { return };
+        let Some(mut ptr_validator) = PtrValidator::from_call(cx, call_expr, free_fns) else {
+            return;
+        };
 
         ptr_validator.visit(cx);
 
@@ -228,7 +227,7 @@ impl<'a, 'tcx> PtrValidator<'a, 'tcx> {
 /// 3. Constant that can be resolved as null pointer.
 fn expr_is_creating_null_ptr(cx: &LateContext<'_>, expr: &Expr<'_>) -> bool {
     match expr.kind {
-        ExprKind::Path(_) if matches!(constant(cx, cx.typeck_results(), expr), Some((Constant::RawPtr(0), _))) => true,
+        ExprKind::Path(_) if matches!(constant(cx, cx.typeck_results(), expr), Some(Constant::RawPtr(0))) => true,
         ExprKind::Cast(inner_expr, cast_ty)
             if is_integer_literal(peel_casts(inner_expr), 0) && matches!(cast_ty.kind, TyKind::Ptr(_)) =>
         {

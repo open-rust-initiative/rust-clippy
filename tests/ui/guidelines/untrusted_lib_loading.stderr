@@ -10,6 +10,7 @@ note: untrusted IO function called here
 LL |     f.read_to_string(&mut name_a).unwrap();
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: `-D clippy::untrusted-lib-loading` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::untrusted_lib_loading)]`
 
 error: loading dynamic library from untrusted source
   --> $DIR/untrusted_lib_loading.rs:28:18

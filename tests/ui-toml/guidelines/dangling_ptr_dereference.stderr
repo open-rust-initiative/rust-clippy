@@ -10,6 +10,7 @@ note: the pointer was freed here
 LL |         my_free(ptr);
    |         ^^^^^^^^^^^^
    = note: `-D clippy::dangling-ptr-dereference` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::dangling_ptr_dereference)]`
 
 error: dereferencing a raw pointer that was already freed
   --> $DIR/dangling_ptr_dereference.rs:14:26

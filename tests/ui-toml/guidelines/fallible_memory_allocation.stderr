@@ -10,6 +10,7 @@ note: unverified size used here
 LL |     let p = my_malloc(size); // lint
    |                       ^^^^
    = note: `-D clippy::fallible-memory-allocation` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::fallible_memory_allocation)]`
 
 error: allocating memory without checking if the result pointer is null
   --> $DIR/fallible_memory_allocation.rs:38:13
