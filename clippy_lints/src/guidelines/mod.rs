@@ -11,8 +11,8 @@ use clippy_utils::diagnostics::span_lint_and_help;
 use clippy_utils::{def_path_def_ids, fn_def_id};
 use rustc_data_structures::fx::FxHashSet;
 use rustc_hir as hir;
-use rustc_hir::def_id::DefIdSet;
-use rustc_hir::hir_id::{HirId, HirIdSet};
+use rustc_hir::def_id::{DefIdSet, LocalDefId};
+use rustc_hir::hir_id::HirIdSet;
 use rustc_hir::intravisit;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{declare_tool_lint, impl_lint_pass};
@@ -418,7 +418,7 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
         _decl: &'tcx hir::FnDecl<'_>,
         body: &'tcx hir::Body<'_>,
         span: Span,
-        _def_id: HirId,
+        _def_id: LocalDefId,
     ) {
         if !matches!(kind, intravisit::FnKind::Closure) {
             blocking_op_in_async::check_fn(cx, kind, body, span, &self.blocking_fns.ids);

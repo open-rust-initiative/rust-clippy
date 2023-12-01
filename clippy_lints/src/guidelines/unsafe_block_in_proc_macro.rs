@@ -5,7 +5,8 @@ use rustc_data_structures::fx::FxHashSet;
 use rustc_hir::{Expr, Item, ItemKind, OwnerNode};
 use rustc_lint::LateContext;
 use rustc_span::hygiene::{ExpnKind, MacroKind};
-use rustc_span::{sym, symbol::Ident, Span};
+use rustc_span::symbol::Ident;
+use rustc_span::{sym, Span};
 
 // FIXME: Currently, this lint does not have a working ui test,
 // because it needs to be tested with `#[proc_macro]` attribute,

@@ -10,6 +10,7 @@ note: type declared here
 LL | struct ReprSimd {
    | ^^^^^^^^^^^^^^^
    = note: `-D clippy::extern-without-repr` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::extern_without_repr)]`
 
 error: should use `#[repr(..)]` to specifing data layout when type is used in FFI
   --> $DIR/extern_without_repr.rs:63:45

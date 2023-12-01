@@ -3,8 +3,7 @@ use clippy_utils::diagnostics::{span_lint, span_lint_and_note};
 use clippy_utils::source::snippet_opt;
 use rustc_hir::def::Res;
 use rustc_hir::def_id::DefId;
-use rustc_hir::intravisit::Visitor;
-use rustc_hir::intravisit::{walk_expr, walk_stmt};
+use rustc_hir::intravisit::{walk_expr, walk_stmt, Visitor};
 use rustc_hir::{Expr, ExprKind, HirId, Local, Node, Path, PathSegment, QPath, Stmt, StmtKind};
 use rustc_lint::LateContext;
 use rustc_span::symbol::Ident;
@@ -84,7 +83,14 @@ pub(super) fn check_expr<'tcx>(
     let mut ptr_status = PtrStatus::Unverified;
     let mut maybe_size_param: Option<&Expr<'_>> = None;
 
-    if !cx.tcx.fn_sig(func_did).skip_binder().output().is_unsafe_ptr() {
+    if !cx
+        .tcx
+        .fn_sig(func_did)
+        .skip_binder()
+        .output()
+        .skip_binder()
+        .is_unsafe_ptr()
+    {
         ptr_status = PtrStatus::NotPtr;
     }
 

@@ -9,8 +9,7 @@ use rustc_lint::LateContext;
 use rustc_span::symbol::sym;
 use rustc_span::Span;
 
-use super::peel_casts;
-use super::RETURN_STACK_ADDRESS;
+use super::{peel_casts, RETURN_STACK_ADDRESS};
 
 pub(super) fn check<'tcx>(cx: &LateContext<'tcx>, block: &'tcx Block<'tcx>, visited_blocks: &mut HirIdSet) {
     if visited_blocks.contains(&block.hir_id) {
@@ -39,10 +38,8 @@ pub(super) fn check<'tcx>(cx: &LateContext<'tcx>, block: &'tcx Block<'tcx>, visi
                     emit_lint(cx, ret.span, decl_span);
                 }
             },
-            // FIXME: The [`sym::as_mut_ptr`] wasn't available in this toolchain yet,
-            // change the str comparison to `callee.ident.name == sym::as_mut_ptr` later.
             ExprKind::MethodCall(methond_name, caller, ..)
-                if methond_name.ident.name == sym::as_ptr || methond_name.ident.as_str() == "as_mut_ptr" =>
+                if methond_name.ident.name == sym::as_ptr || methond_name.ident.name == sym::as_mut_ptr =>
             {
                 let maybe_path = peel_method_calls(caller);
                 if let Some(decl_span) = get_simple_local_ty_span(cx, maybe_path, &collector.local) {

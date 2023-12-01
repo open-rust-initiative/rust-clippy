@@ -1,14 +1,12 @@
 #![feature(c_size_t)]
 #![warn(clippy::mem_unsafe_functions)]
 
-use core::ffi::c_size_t as size_t;
-use core::ffi::{c_char, c_int, c_size_t, c_void};
+use core::ffi::{c_char, c_int, c_size_t as size_t, c_size_t, c_void};
 use std::ptr::{null, null_mut};
 
 // mock libc crate
 mod libc {
-    pub use core::ffi::c_size_t as size_t;
-    pub use core::ffi::{c_char, c_int, c_void};
+    pub use core::ffi::{c_char, c_int, c_size_t as size_t, c_void};
     extern "C" {
         pub fn strcpy(dst: *mut c_char, src: *const c_char) -> *mut c_char;
         pub fn strncpy(dst: *mut c_char, src: *const c_char, n: size_t) -> *mut c_char;

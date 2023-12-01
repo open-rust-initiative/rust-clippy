@@ -21,7 +21,7 @@ pub(super) fn check_item<'tcx>(cx: &LateContext<'tcx>, item: &'tcx Item<'tcx>) {
             abi: Abi::C { .. },
             items,
         } => {
-            for f_item in items.iter() {
+            for f_item in *items {
                 if let Some(Node::ForeignItem(f)) = cx.tcx.hir().find(f_item.id.hir_id()) {
                     if let ForeignItemKind::Fn(decl, ..) = f.kind {
                         lint_for_tys(cx, decl.inputs);

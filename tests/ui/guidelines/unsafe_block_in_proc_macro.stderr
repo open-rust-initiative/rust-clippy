@@ -11,6 +11,7 @@ LL | |     })
    = help: consider removing unsafe block from the above `quote!` call,
            and add unsafe block when calling the macro instead: `unsafe { unsafe_print_foo!{...} }`
    = note: `-D clippy::unsafe-block-in-proc-macro` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::unsafe_block_in_proc_macro)]`
 
 error: function-like procedural macro `unsafe_print_bar_unformatted` could masking unsafe operations
   --> $DIR/unsafe_block_in_proc_macro.rs:27:5

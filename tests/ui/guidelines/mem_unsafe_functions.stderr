@@ -6,6 +6,7 @@ LL |     let _ = memcpy(dst, src, n);
    |
    = help: consider using its safe version
    = note: `-D clippy::mem-unsafe-functions` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::mem_unsafe_functions)]`
 
 error: use of potentially dangerous memory manipulation function
   --> $DIR/mem_unsafe_functions.rs:36:13

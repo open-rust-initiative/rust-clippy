@@ -186,9 +186,7 @@ fn match_pat() {
     } // don't lint
 
     loop {
-        let Ok(val) = result.map(|v| 10) else {
-            break
-        }; // don't lint
+        let Ok(val) = result.map(|v| 10) else { break }; // don't lint
     }
 }
 

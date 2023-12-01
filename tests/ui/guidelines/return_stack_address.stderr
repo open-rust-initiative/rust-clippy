@@ -10,6 +10,7 @@ note: local variable declared/assigned here
 LL |         let val: i32 = 100;
    |         ^^^^^^^^^^^^^^^^^^^
    = note: `-D clippy::return-stack-address` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::return_stack_address)]`
 
 error: returning a pointer to stack address
   --> $DIR/return_stack_address.rs:43:9

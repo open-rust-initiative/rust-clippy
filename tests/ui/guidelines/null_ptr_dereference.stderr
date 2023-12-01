@@ -10,6 +10,7 @@ note: first dereference occurred here
 LL |         do_something((*a).inner);
    |                      ^^^^
    = note: `-D clippy::null-ptr-dereference` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::null_ptr_dereference)]`
 
 error: dereferencing null pointer
   --> $DIR/null_ptr_dereference.rs:29:5

@@ -6,6 +6,7 @@ LL |         let _ = libc::strtok(null_mut(), null()); // lint
    |
    = help: consider using its reentrant counterpart
    = note: `-D clippy::non-reentrant-functions` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::non_reentrant_functions)]`
 
 error: use of non-reentrant function
   --> $DIR/non_reentrant_functions.rs:33:9
