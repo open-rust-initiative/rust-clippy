@@ -1,0 +1,88 @@
+error: converting to char with out-of-range integer
+  --> $DIR/invalid_char_range.rs:14:13
+   |
+LL |     let _ = char::from_u32(0xD800);
+   |             ^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: this number should be within the range of [0, 0xD7FF] or [0xE000, 0x10FFFF]
+  --> $DIR/invalid_char_range.rs:14:28
+   |
+LL |     let _ = char::from_u32(0xD800);
+   |                            ^^^^^^
+   = note: `-D clippy::invalid-char-range` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::invalid_char_range)]`
+
+error: converting to char with out-of-range integer
+  --> $DIR/invalid_char_range.rs:17:22
+   |
+LL |     let _ = unsafe { char::from_u32_unchecked(0xD800) };
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: this number should be within the range of [0, 0xD7FF] or [0xE000, 0x10FFFF]
+  --> $DIR/invalid_char_range.rs:17:47
+   |
+LL |     let _ = unsafe { char::from_u32_unchecked(0xD800) };
+   |                                               ^^^^^^
+
+error: converting to char with out-of-range integer
+  --> $DIR/invalid_char_range.rs:19:13
+   |
+LL |     let _ = char::from_u32(INVALID_BETWEEN);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: this number should be within the range of [0, 0xD7FF] or [0xE000, 0x10FFFF]
+  --> $DIR/invalid_char_range.rs:19:28
+   |
+LL |     let _ = char::from_u32(INVALID_BETWEEN);
+   |                            ^^^^^^^^^^^^^^^
+
+error: converting to char with out-of-range integer
+  --> $DIR/invalid_char_range.rs:21:13
+   |
+LL |     let _ = char::from_u32(INVALID_BETWEEN + 1);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: this number should be within the range of [0, 0xD7FF] or [0xE000, 0x10FFFF]
+  --> $DIR/invalid_char_range.rs:21:28
+   |
+LL |     let _ = char::from_u32(INVALID_BETWEEN + 1);
+   |                            ^^^^^^^^^^^^^^^^^^^
+
+error: converting to char with out-of-range integer
+  --> $DIR/invalid_char_range.rs:23:22
+   |
+LL |     let _ = unsafe { char::from_u32_unchecked(INVALID_BETWEEN + 1) };
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: this number should be within the range of [0, 0xD7FF] or [0xE000, 0x10FFFF]
+  --> $DIR/invalid_char_range.rs:23:47
+   |
+LL |     let _ = unsafe { char::from_u32_unchecked(INVALID_BETWEEN + 1) };
+   |                                               ^^^^^^^^^^^^^^^^^^^
+
+error: converting to char with out-of-range integer
+  --> $DIR/invalid_char_range.rs:25:13
+   |
+LL |     let _ = char::from_u32(INVALID_LARGE_SIGNED as u32);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: this number should be within the range of [0, 0xD7FF] or [0xE000, 0x10FFFF]
+  --> $DIR/invalid_char_range.rs:25:28
+   |
+LL |     let _ = char::from_u32(INVALID_LARGE_SIGNED as u32);
+   |                            ^^^^^^^^^^^^^^^^^^^^
+
+error: converting to char with out-of-range integer
+  --> $DIR/invalid_char_range.rs:27:13
+   |
+LL |     let _ = char::from_u32(INVALID_LARGE_SIGNED as usize as u32);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: this number should be within the range of [0, 0xD7FF] or [0xE000, 0x10FFFF]
+  --> $DIR/invalid_char_range.rs:27:28
+   |
+LL |     let _ = char::from_u32(INVALID_LARGE_SIGNED as usize as u32);
+   |                            ^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 7 previous errors
+

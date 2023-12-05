@@ -1,6 +1,7 @@
 mod blocking_op_in_async;
 mod extern_without_repr;
 mod fallible_memory_allocation;
+mod invalid_char_range;
 mod passing_string_to_c_functions;
 mod ptr;
 mod return_stack_address;
@@ -334,6 +335,25 @@ declare_clippy_lint! {
     "returning pointer that points to stack address"
 }
 
+// Experimental lint, may be removed in the future
+declare_clippy_lint! {
+    /// ### What it does
+    /// Checks for converting to `char`` from a out-of-range unsigned int.
+    ///
+    /// ### Why is this bad?
+    /// Conversion from an unsigned integer to a char can only be valid in a
+    /// certain range. User should be warned on any out-of-range convertion attempts.
+    ///
+    /// ### Example
+    /// ```rust
+    /// let x = char::from_u32(0xDE01);
+    /// ```
+    #[clippy::version = "1.74.0"]
+    pub INVALID_CHAR_RANGE,
+    nursery,
+    "converting to char from a out-of-range unsigned int"
+}
+
 /// Helper struct with user configured path-like functions, such as `std::fs::read`,
 /// and a set for `def_id`s which should be filled during checks.
 ///
@@ -409,6 +429,7 @@ impl_lint_pass!(LintGroup => [
     PTR_DOUBLE_FREE,
     DANGLING_PTR_DEREFERENCE,
     RETURN_STACK_ADDRESS,
+    INVALID_CHAR_RANGE,
 ]);
 
 impl<'tcx> LateLintPass<'tcx> for LintGroup {
@@ -453,31 +474,22 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
         if let hir::ExprKind::Call(_func, params) = &expr.kind {
             if let Some(fn_did) = fn_def_id(cx, expr) {
                 if self.non_reentrant_fns.ids.contains(&fn_did) {
-                    span_lint_and_help(
-                        cx,
-                        NON_REENTRANT_FUNCTIONS,
-                        expr.span,
-                        "use of non-reentrant function",
-                        None,
-                        "consider using its reentrant counterpart",
-                    );
-                } else if self.mem_uns_fns.ids.contains(&fn_did) {
-                    span_lint_and_help(
-                        cx,
-                        MEM_UNSAFE_FUNCTIONS,
-                        expr.span,
-                        "use of potentially dangerous memory manipulation function",
-                        None,
-                        "consider using its safe version",
-                    );
-                } else if self.lib_loading_fns.ids.contains(&fn_did) {
+                    lint_non_reentrant_fns(cx, expr);
+                }
+                if self.mem_uns_fns.ids.contains(&fn_did) {
+                    lint_mem_unsafe_fns(cx, expr);
+                }
+                if self.lib_loading_fns.ids.contains(&fn_did) {
                     untrusted_lib_loading::check_expr(cx, expr, params, &self.io_fns.ids);
-                } else if self.mem_alloc_fns.ids.contains(&fn_did) {
+                }
+                if self.mem_alloc_fns.ids.contains(&fn_did) {
                     fallible_memory_allocation::check_expr(cx, expr, params, fn_did, &self.alloc_size_check_fns);
-                } else if self.mem_free_fns.ids.contains(&fn_did) {
+                }
+                if self.mem_free_fns.ids.contains(&fn_did) {
                     ptr::check_call(cx, expr, &self.mem_free_fns.ids);
                 }
                 passing_string_to_c_functions::check_expr(cx, expr, fn_did, params);
+                invalid_char_range::check_call(cx, expr, params, fn_did);
             }
         } else {
             blocking_op_in_async::check_expr(cx, expr, &self.blocking_fns.ids);
@@ -543,4 +555,26 @@ pub fn peel_casts<'a, 'tcx>(maybe_cast_expr: &'a hir::Expr<'tcx>) -> &'a hir::Ex
     } else {
         maybe_cast_expr
     }
+}
+
+// These lint logics are simple enough that don't need their own file.
+fn lint_non_reentrant_fns(cx: &LateContext<'_>, expr: &hir::Expr<'_>) {
+    span_lint_and_help(
+        cx,
+        NON_REENTRANT_FUNCTIONS,
+        expr.span,
+        "use of non-reentrant function",
+        None,
+        "consider using its reentrant counterpart",
+    );
+}
+fn lint_mem_unsafe_fns(cx: &LateContext<'_>, expr: &hir::Expr<'_>) {
+    span_lint_and_help(
+        cx,
+        MEM_UNSAFE_FUNCTIONS,
+        expr.span,
+        "use of potentially dangerous memory manipulation function",
+        None,
+        "consider using its safe version",
+    );
 }

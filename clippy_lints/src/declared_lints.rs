@@ -206,6 +206,7 @@ pub(crate) static LINTS: &[&crate::LintInfo] = &[
     crate::guidelines::DANGLING_PTR_DEREFERENCE_INFO,
     crate::guidelines::EXTERN_WITHOUT_REPR_INFO,
     crate::guidelines::FALLIBLE_MEMORY_ALLOCATION_INFO,
+    crate::guidelines::INVALID_CHAR_RANGE_INFO,
     crate::guidelines::MEM_UNSAFE_FUNCTIONS_INFO,
     crate::guidelines::NON_REENTRANT_FUNCTIONS_INFO,
     crate::guidelines::NULL_PTR_DEREFERENCE_INFO,
