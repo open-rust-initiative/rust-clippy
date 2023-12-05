@@ -34,7 +34,7 @@ fn exit_on_bad_size(s: usize) {
 
 unsafe fn foo1() {
     let size = get_untrusted_size();
-    let p = malloc(size); // don't lint, not configured
+    let p = malloc(size); // lint
     let p = my_malloc(size); // lint
 }
 
@@ -74,7 +74,7 @@ unsafe fn null_ptr_checker() {
 
 fn safe() {
     let size = get_untrusted_size();
-    let arr: Vec<u8> = Vec::with_capacity(size); // don't lint, not configured
+    let arr: Vec<u8> = Vec::with_capacity(size); // lint
 
     let size = get_untrusted_size();
     let arr: HashSet<u8> = HashSet::with_capacity(size); // lint
