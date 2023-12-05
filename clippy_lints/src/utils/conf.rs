@@ -780,6 +780,16 @@ pub fn read(sess: &Session, path: &Path) -> TryConf {
         Ok(mut conf) => {
             extend_vec_if_indicator_present(&mut conf.conf.doc_valid_idents, DEFAULT_DOC_VALID_IDENTS);
             extend_vec_if_indicator_present(&mut conf.conf.disallowed_names, DEFAULT_DISALLOWED_NAMES);
+            extend_vec_if_indicator_present(&mut conf.conf.mem_unsafe_functions, DEFAULT_MEM_UNSAFE_FUNCTIONS);
+            extend_vec_if_indicator_present(&mut conf.conf.non_reentrant_functions, DEFAULT_NON_REENTRANT_FNS);
+            extend_vec_if_indicator_present(
+                &mut conf.conf.size_checking_function_keywords,
+                DEFAULT_SIZE_CHECK_FN_KEYWORDS,
+            );
+            extend_vec_if_indicator_present(&mut conf.conf.mem_alloc_functions, DEFAULT_MEM_ALLOC_FNS);
+            extend_vec_if_indicator_present(&mut conf.conf.mem_free_functions, DEFAULT_MEM_FREE_FNS);
+            extend_vec_if_indicator_present(&mut conf.conf.input_functions, DEFAULT_INPUT_FUNCTIONS);
+            extend_vec_if_indicator_present(&mut conf.conf.lib_loading_functions, DEFAULT_LIB_LOADING_FNS);
             // TODO: THIS SHOULD BE TESTED, this comment will be gone soon
             if conf.conf.allowed_idents_below_min_chars.contains(&"..".to_owned()) {
                 conf.conf

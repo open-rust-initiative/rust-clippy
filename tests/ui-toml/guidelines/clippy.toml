@@ -28,6 +28,7 @@ input-functions = [
 
 # fallible_memory_allocation
 mem-alloc-functions = [
+    "..",
     "std::collections::HashSet::with_capacity",
     "alloc_mem",
     "my_malloc",
