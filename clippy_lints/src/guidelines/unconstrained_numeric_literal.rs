@@ -45,7 +45,7 @@ pub(super) fn check_local<'tcx>(cx: &LateContext<'tcx>, local: &'tcx Local<'tcx>
                     );
                     diag.span_note(
                         MultiSpan::from_spans(visitor.unconstrained_lit_spans),
-                        "unconstrained numeric literals happened here",
+                        "unconstrained numeric literals defined here",
                     );
                 }
             );

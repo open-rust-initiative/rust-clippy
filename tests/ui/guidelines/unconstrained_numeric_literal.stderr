@@ -4,7 +4,7 @@ error: type of this numeric variable is unconstrained
 LL |         let x = 22;
    |             ^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:12:17
    |
 LL |         let x = 22;
@@ -22,7 +22,7 @@ error: type of this numeric variable is unconstrained
 LL |         let x = 22.0;
    |             ^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:15:17
    |
 LL |         let x = 22.0;
@@ -38,7 +38,7 @@ error: type of this numeric variable is unconstrained
 LL |         let x = [1, 2, 3];
    |             ^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:17:18
    |
 LL |         let x = [1, 2, 3];
@@ -54,7 +54,7 @@ error: type of this numeric variable is unconstrained
 LL |         let x = if true { (1, 2) } else { (3, 4) };
    |             ^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:19:28
    |
 LL |         let x = if true { (1, 2) } else { (3, 4) };
@@ -70,7 +70,7 @@ error: type of this numeric variable is unconstrained
 LL |         let x = if true { (1.0, 2, 3.0) } else { (3.0, 4, 5.0) };
    |             ^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:21:28
    |
 LL |         let x = if true { (1.0, 2, 3.0) } else { (3.0, 4, 5.0) };
@@ -86,7 +86,7 @@ error: type of this numeric variable is unconstrained
 LL |         let x = match 1 {
    |             ^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:23:23
    |
 LL |         let x = match 1 {
@@ -107,7 +107,7 @@ error: type of this numeric variable is unconstrained
 LL |         let x: _ = 1;
    |             ^^^^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:29:20
    |
 LL |         let x: _ = 1;
@@ -123,7 +123,7 @@ error: type of this numeric variable is unconstrained
 LL |         let x = {
    |             ^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:46:13
    |
 LL |             1
@@ -139,7 +139,7 @@ error: type of this numeric variable is unconstrained
 LL |             let y = 1;
    |                 ^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:44:21
    |
 LL |             let y = 1;
@@ -155,7 +155,7 @@ error: type of this numeric variable is unconstrained
 LL |             let y = 1;
    |                 ^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:50:21
    |
 LL |             let y = 1;
@@ -171,7 +171,7 @@ error: type of this numeric variable is unconstrained
 LL |             let y = 1;
    |                 ^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:56:21
    |
 LL |             let y = 1;
@@ -187,7 +187,7 @@ error: type of this numeric variable is unconstrained
 LL |         inline!(let x = 22;);
    |                     ^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:68:25
    |
 LL |         inline!(let x = 22;);
@@ -204,7 +204,7 @@ error: type of this numeric variable is unconstrained
 LL |     let x = vec![1, 2, 3];
    |         ^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:84:18
    |
 LL |     let x = vec![1, 2, 3];
@@ -220,7 +220,7 @@ error: type of this numeric variable is unconstrained
 LL |     let x = vec![1.0];
    |         ^
    |
-note: unconstrained numeric literals happened here
+note: unconstrained numeric literals defined here
   --> $DIR/unconstrained_numeric_literal.rs:86:18
    |
 LL |     let x = vec![1.0];
