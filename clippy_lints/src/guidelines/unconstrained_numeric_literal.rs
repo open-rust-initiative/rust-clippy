@@ -13,10 +13,9 @@ use super::UNCONSTRAINED_NUMERIC_LITERAL;
 pub(super) fn check_local<'tcx>(cx: &LateContext<'tcx>, local: &'tcx Local<'tcx>) {
     if !is_lint_allowed(cx, UNCONSTRAINED_NUMERIC_LITERAL, local.hir_id)
         && let Some(init) = local.init
-        && !in_external_macro(cx.sess(), init.span)
         && local_has_implicit_ty(local)
     {
-        let mut visitor = LitVisitor::new();
+        let mut visitor = LitVisitor::new(cx);
         visitor.visit_expr(init);
 
         // The type could be wildcard (`_`), therefore we need to include its span for suggestion.
@@ -62,33 +61,28 @@ fn local_has_implicit_ty(local: &Local<'_>) -> bool {
     }
 }
 
-struct LitVisitor {
+struct LitVisitor<'hir, 'tcx> {
+    cx: &'hir LateContext<'tcx>,
     unconstrained_lit_spans: Vec<Span>,
 }
 
-impl LitVisitor {
-    fn new() -> Self {
+impl<'hir, 'tcx> LitVisitor<'hir, 'tcx> {
+    fn new(cx: &'hir LateContext<'tcx>) -> Self {
         Self {
+            cx,
             unconstrained_lit_spans: vec![],
         }
     }
 }
 
-impl<'hir> Visitor<'hir> for LitVisitor {
+impl<'hir, 'tcx> Visitor<'hir> for LitVisitor<'hir, 'tcx> {
     fn visit_expr(&mut self, ex: &'hir Expr<'hir>) {
-        match &ex.kind {
-            // These are fine, because the numerics in them are always inferred.
-            ExprKind::Call(..) | ExprKind::MethodCall(..) => (),
-            ExprKind::Lit(lit) => {
-                if lit.node.is_numeric() && lit.node.is_unsuffixed() {
-                    self.unconstrained_lit_spans.push(lit.span);
-                }
-            },
-            ExprKind::Closure(_) => {
-                println!("span of closure: {:?}", ex.span);
-                walk_expr(self, ex);
-            },
-            _ => walk_expr(self, ex),
+        if let ExprKind::Lit(lit) = ex.kind {
+            if lit.node.is_numeric() && lit.node.is_unsuffixed() && !in_external_macro(self.cx.sess(), lit.span) {
+                self.unconstrained_lit_spans.push(lit.span);
+            }
+        } else {
+            walk_expr(self, ex);
         }
     }
 

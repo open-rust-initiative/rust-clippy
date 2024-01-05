@@ -198,5 +198,37 @@ help: either add suffix to above numeric literal(s) or label the type explicitly
 LL |         inline!(let x: i32 = 22;);
    |                     ~~~~~~
 
-error: aborting due to 12 previous errors
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:84:9
+   |
+LL |     let x = vec![1, 2, 3];
+   |         ^
+   |
+note: unconstrained numeric literals happened here
+  --> $DIR/unconstrained_numeric_literal.rs:84:18
+   |
+LL |     let x = vec![1, 2, 3];
+   |                  ^  ^  ^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |     let x: std::vec::Vec<i32> = vec![1, 2, 3];
+   |         ~~~~~~~~~~~~~~~~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:86:9
+   |
+LL |     let x = vec![1.0];
+   |         ^
+   |
+note: unconstrained numeric literals happened here
+  --> $DIR/unconstrained_numeric_literal.rs:86:18
+   |
+LL |     let x = vec![1.0];
+   |                  ^^^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |     let x: std::vec::Vec<f64> = vec![1.0];
+   |         ~~~~~~~~~~~~~~~~~~~~~
+
+error: aborting due to 14 previous errors
 

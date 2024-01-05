@@ -79,4 +79,17 @@ fn check_expect_suppression() {
     let x = 21;
 }
 
+#[allow(clippy::useless_vec)]
+fn check_vac_macro() {
+    let x = vec![1, 2, 3];
+    //~^ ERROR: type of this numeric variable is unconstrained
+    let x = vec![1.0];
+    //~^ ERROR: type of this numeric variable is unconstrained
+
+    let y = vec![1_i32, 2_i32];
+    let y = vec![0_u8, 1_u8];
+    let y = vec![2.0_f64, 3.0_f64];
+    let y: Vec<i32> = vec![1, 2];
+}
+
 fn main() {}
