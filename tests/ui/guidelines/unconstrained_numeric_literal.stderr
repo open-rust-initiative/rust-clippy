@@ -1,0 +1,234 @@
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:12:13
+   |
+LL |         let x = 22;
+   |             ^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:12:17
+   |
+LL |         let x = 22;
+   |                 ^^
+   = note: `-D clippy::unconstrained-numeric-literal` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::unconstrained_numeric_literal)]`
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |         let x: i32 = 22;
+   |             ~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:15:13
+   |
+LL |         let x = 22.0;
+   |             ^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:15:17
+   |
+LL |         let x = 22.0;
+   |                 ^^^^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |         let x: f64 = 22.0;
+   |             ~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:17:13
+   |
+LL |         let x = [1, 2, 3];
+   |             ^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:17:18
+   |
+LL |         let x = [1, 2, 3];
+   |                  ^  ^  ^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |         let x: [i32; 3] = [1, 2, 3];
+   |             ~~~~~~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:19:13
+   |
+LL |         let x = if true { (1, 2) } else { (3, 4) };
+   |             ^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:19:28
+   |
+LL |         let x = if true { (1, 2) } else { (3, 4) };
+   |                            ^  ^            ^  ^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |         let x: (i32, i32) = if true { (1, 2) } else { (3, 4) };
+   |             ~~~~~~~~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:21:13
+   |
+LL |         let x = if true { (1.0, 2, 3.0) } else { (3.0, 4, 5.0) };
+   |             ^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:21:28
+   |
+LL |         let x = if true { (1.0, 2, 3.0) } else { (3.0, 4, 5.0) };
+   |                            ^^^  ^  ^^^            ^^^  ^  ^^^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |         let x: (f64, i32, f64) = if true { (1.0, 2, 3.0) } else { (3.0, 4, 5.0) };
+   |             ~~~~~~~~~~~~~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:23:13
+   |
+LL |         let x = match 1 {
+   |             ^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:23:23
+   |
+LL |         let x = match 1 {
+   |                       ^
+LL |
+LL |             1 => 1,
+   |             ^    ^
+LL |             _ => 2,
+   |                  ^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |         let x: i32 = match 1 {
+   |             ~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:29:13
+   |
+LL |         let x: _ = 1;
+   |             ^^^^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:29:20
+   |
+LL |         let x: _ = 1;
+   |                    ^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |         let x: i32 = 1;
+   |             ~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:42:13
+   |
+LL |         let x = {
+   |             ^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:46:13
+   |
+LL |             1
+   |             ^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |         let x: i32 = {
+   |             ~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:44:17
+   |
+LL |             let y = 1;
+   |                 ^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:44:21
+   |
+LL |             let y = 1;
+   |                     ^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |             let y: i32 = 1;
+   |                 ~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:50:17
+   |
+LL |             let y = 1;
+   |                 ^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:50:21
+   |
+LL |             let y = 1;
+   |                     ^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |             let y: i32 = 1;
+   |                 ~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:56:17
+   |
+LL |             let y = 1;
+   |                 ^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:56:21
+   |
+LL |             let y = 1;
+   |                     ^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |             let y: i32 = 1;
+   |                 ~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:68:21
+   |
+LL |         inline!(let x = 22;);
+   |                     ^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:68:25
+   |
+LL |         inline!(let x = 22;);
+   |                         ^^
+   = note: this error originates in the macro `__inline_mac_fn_internal` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |         inline!(let x: i32 = 22;);
+   |                     ~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:84:9
+   |
+LL |     let x = vec![1, 2, 3];
+   |         ^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:84:18
+   |
+LL |     let x = vec![1, 2, 3];
+   |                  ^  ^  ^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |     let x: std::vec::Vec<i32> = vec![1, 2, 3];
+   |         ~~~~~~~~~~~~~~~~~~~~~
+
+error: type of this numeric variable is unconstrained
+  --> $DIR/unconstrained_numeric_literal.rs:86:9
+   |
+LL |     let x = vec![1.0];
+   |         ^
+   |
+note: unconstrained numeric literals defined here
+  --> $DIR/unconstrained_numeric_literal.rs:86:18
+   |
+LL |     let x = vec![1.0];
+   |                  ^^^
+help: either add suffix to above numeric literal(s) or label the type explicitly
+   |
+LL |     let x: std::vec::Vec<f64> = vec![1.0];
+   |         ~~~~~~~~~~~~~~~~~~~~~
+
+error: aborting due to 14 previous errors
+

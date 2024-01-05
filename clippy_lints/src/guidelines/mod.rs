@@ -5,6 +5,7 @@ mod invalid_char_range;
 mod passing_string_to_c_functions;
 mod ptr;
 mod return_stack_address;
+mod unconstrained_numeric_literal;
 mod unsafe_block_in_proc_macro;
 mod untrusted_lib_loading;
 
@@ -354,6 +355,34 @@ declare_clippy_lint! {
     "converting to char from a out-of-range unsigned int"
 }
 
+declare_clippy_lint! {
+    /// ### What it does
+    /// Checks for usage of unconstrained numeric literals in variable initialization.
+    ///
+    /// This lint is differ from `default_numeric_fallback` in the following perspectives:
+    /// 1. It only checks numeric literals in a local binding.
+    /// 2. It lints all kinds of numeric literals rather than `i32` and `f64`.
+    ///
+    /// ### Why is this bad?
+    /// Initializing a numeric type without labeling its type could cause default numeric fallback.
+    ///
+    /// ### Example
+    /// ```rust
+    /// let i = 10;
+    /// let f = 1.23;
+    /// ```
+    ///
+    /// Use instead:
+    /// ```rust
+    /// let i = 10i32;
+    /// let f = 1.23f64;
+    /// ```
+    #[clippy::version = "1.74.0"]
+    pub UNCONSTRAINED_NUMERIC_LITERAL,
+    nursery,
+    "usage of unconstrained numeric literals in variable initialization"
+}
+
 /// Helper struct with user configured path-like functions, such as `std::fs::read`,
 /// and a set for `def_id`s which should be filled during checks.
 ///
@@ -430,6 +459,7 @@ impl_lint_pass!(LintGroup => [
     DANGLING_PTR_DEREFERENCE,
     RETURN_STACK_ADDRESS,
     INVALID_CHAR_RANGE,
+    UNCONSTRAINED_NUMERIC_LITERAL,
 ]);
 
 impl<'tcx> LateLintPass<'tcx> for LintGroup {
@@ -500,6 +530,7 @@ impl<'tcx> LateLintPass<'tcx> for LintGroup {
 
     fn check_local(&mut self, cx: &LateContext<'tcx>, local: &'tcx hir::Local<'tcx>) {
         ptr::check_local(cx, local);
+        unconstrained_numeric_literal::check_local(cx, local);
     }
 
     fn check_block(&mut self, cx: &LateContext<'tcx>, block: &'tcx hir::Block<'tcx>) {
