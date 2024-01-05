@@ -46,16 +46,24 @@ declare_clippy_lint! {
 
 declare_clippy_lint! {
     /// ### What it does
+    /// Checks for dynamic library loading from untrusted sources,
+    /// such as the data read from some IO functions.
+    ///
+    /// Loader functions and IO functions are configurable.
     ///
     /// ### Why is this bad?
+    /// Loading dynamic libs from untrusted sources could make the software more vulnerable,
+    /// as the attackers might be able to modify the source to load any plugins they desire,
+    /// causing arbitrary code execution.
     ///
     /// ### Example
-    /// ```rust
-    /// // example code where clippy issues a warning
-    /// ```
-    /// Use instead:
-    /// ```rust
-    /// // example code which does not raise clippy warning
+    /// ```rust,ignore
+    /// let mut buf = String::new();
+    /// f.read_to_string(&mut buf).unwrap();
+    ///
+    /// unsafe {
+    ///     let _a = libloading::Library::new(&buf);
+    /// }
     /// ```
     #[clippy::version = "1.70.0"]
     pub UNTRUSTED_LIB_LOADING,
@@ -65,16 +73,28 @@ declare_clippy_lint! {
 
 declare_clippy_lint! {
     /// ### What it does
+    /// Detects when passing Rust native strings (`&str` and `String`) to FFI functions.
     ///
     /// ### Why is this bad?
+    /// String might be represented differently between Rust and other languages (espacially C).
+    /// For example, in Rust, string pointers are wide pointers, which includes start pointer and the length.
+    /// Whereas in C, string pointers are narrow pointers, which does not have length info, instead it enforces
+    /// every C strings must end with `\0`. Thus, passing a Rust string's pointer to exteral C functions
+    /// might not guarenteed to work.
     ///
     /// ### Example
-    /// ```rust
-    /// // example code where clippy issues a warning
+    /// ```rust,ignore
+    /// let s: String = String::from("hello world");
+    /// unsafe {
+    ///     some_extern_fn(s.as_ptr() as *const _);
+    /// }
     /// ```
-    /// Use instead:
-    /// ```rust
-    /// // example code which does not raise clippy warning
+    /// Use `CString` or `CStr` instead:
+    /// ```rust,ignore
+    /// let s: CString = CString::new("hello world")?;
+    /// unsafe {
+    ///     some_extern_fn(s.as_ptr());
+    /// }
     /// ```
     #[clippy::version = "1.70.0"]
     pub PASSING_STRING_TO_C_FUNCTIONS,
@@ -84,16 +104,29 @@ declare_clippy_lint! {
 
 declare_clippy_lint! {
     /// ### What it does
+    /// Checks for manually memory allocation without validating its input and output.
     ///
     /// ### Why is this bad?
+    /// Such allocation might fail, causing unexpected software behavior.
+    ///
+    /// When using external C api such as `malloc`, a failed allocation call returns null pointer.
+    /// Which might leads to null pointer dereferencing error if the pointer location was later accessed.
     ///
     /// ### Example
-    /// ```rust
-    /// // example code where clippy issues a warning
+    /// ```rust,ignore
+    /// unsafe fn alloc_mem(size: usize) {
+    ///     let p = malloc(size);
+    ///     // deref `p` somewhere
+    /// }
     /// ```
     /// Use instead:
-    /// ```rust
-    /// // example code which does not raise clippy warning
+    /// ```rust,ignore
+    /// unsafe fn alloc_mem(size: usize) {
+    ///     assert!(size <= MAX_ALLOWED_SIZE);
+    ///     let p = malloc(size);
+    ///     assert!(!p.is_null())
+    ///     // deref `p` somewhere
+    /// }
     /// ```
     #[clippy::version = "1.70.0"]
     pub FALLIBLE_MEMORY_ALLOCATION,
